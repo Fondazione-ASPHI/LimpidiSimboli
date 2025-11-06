@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
@@ -3445,6 +3445,7 @@ function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
       targetTile.dataset.index = '0';
       
       // SALVA LA SCELTA IN customImages per usarla nei prossimi usi della stessa parola
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
       if (!customImages[targetWord]) {
         customImages[targetWord] = [];
       } else if (!Array.isArray(customImages[targetWord])) {
@@ -3458,10 +3459,38 @@ function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
         console.log(`[showSymbolGallery] Saved symbol ${JSON.stringify(symbolId)} for word "${targetWord}"`);
       }
       
-      // Aggiorna l'immagine
+      // Aggiorna l'immagine IMMEDIATAMENTE
       const tileImg = targetTile.querySelector('img');
       if (tileImg) {
-        setImageForTile(targetTile, tileImg);
+        // Crea un'immagine se non esiste
+        if (!tileImg) {
+          const newImg = document.createElement('img');
+          newImg.loading = 'lazy';
+          newImg.decoding = 'async';
+          newImg.crossOrigin = 'anonymous';
+          const wordLabel = targetTile.querySelector('.word');
+          if (wordLabel) {
+            targetTile.insertBefore(newImg, wordLabel);
+          } else {
+            targetTile.insertBefore(newImg, targetTile.firstChild);
+          }
+          setImageForTile(targetTile, newImg);
+        } else {
+          setImageForTile(targetTile, tileImg);
+        }
+      } else {
+        // Se non c'è un'immagine, creala
+        const newImg = document.createElement('img');
+        newImg.loading = 'lazy';
+        newImg.decoding = 'async';
+        newImg.crossOrigin = 'anonymous';
+        const wordLabel = targetTile.querySelector('.word');
+        if (wordLabel) {
+          targetTile.insertBefore(newImg, wordLabel);
+        } else {
+          targetTile.insertBefore(newImg, targetTile.firstChild);
+        }
+        setImageForTile(targetTile, newImg);
       }
       
       // Rimuovi eventuale messaggio "nessun pittogramma trovato"
