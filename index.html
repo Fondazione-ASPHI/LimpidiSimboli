@@ -282,8 +282,33 @@
   <div id="result" class="result" aria-describedby="live"></div>
 
   <div class="footer">
-    Pittogrammi ARASAAC – <em>Gobierno de Aragón</em>. Autore: Sergio Palao. Licenza <a href="https://beta.arasaac.org/terms-of-use" target="_blank" rel="noreferrer noopener">CC BY-NC-SA</a>.
-    Documentazione API: <a href="https://arasaac.org/developers/api" target="_blank" rel="noreferrer noopener">Developers</a>.
+    <div style="margin-bottom: 16px;">
+      Pittogrammi ARASAAC – <em>Gobierno de Aragón</em>. Autore: Sergio Palao. Licenza <a href="https://beta.arasaac.org/terms-of-use" target="_blank" rel="noreferrer noopener">CC BY-NC-SA</a>.
+      Documentazione API: <a href="https://arasaac.org/developers/api" target="_blank" rel="noreferrer noopener">Developers</a>.
+    </div>
+    <div style="border-top: 1px solid #e5e7eb; padding-top: 16px; max-width: 900px; margin: 0 auto; text-align: left; line-height: 1.6;">
+      <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 8px 0; color: var(--text);">🔒 Informativa Privacy</h3>
+      <p style="margin: 0 0 12px 0;">
+        <strong>Fondazione ASPHI Onlus</strong>, che ospita questa applicazione, <strong>non riceve né memorizza alcun dato dell'utente</strong>. 
+        Tutti i dati rimangono nel tuo browser (localStorage) e vengono inviati direttamente solo ai servizi esterni che configuri quando effettui richieste:
+      </p>
+      <ul style="margin: 0 0 12px 20px; padding: 0;">
+        <li><strong>OpenAI (GPT-4)</strong> – per l'analisi grammaticale del testo e la generazione di sinonimi</li>
+        <li><strong>DALL-E 3</strong> – per la generazione di immagini simboliche personalizzate</li>
+        <li><strong>ARASAAC API</strong> – per il recupero dei pittogrammi CAA (pubblico, nessuna autenticazione richiesta)</li>
+        <li><strong>OpenSymbols</strong> – per simboli aggiuntivi (TAWASOL, Bliss, ecc.)</li>
+        <li><strong>Google Custom Search</strong> – per la ricerca di immagini sul web (opzionale)</li>
+        <li><strong>LibreTranslate</strong> – per la traduzione automatica ITA↔ENG (servizio pubblico)</li>
+      </ul>
+      <p style="margin: 0 0 8px 0;">
+        La sintesi vocale viene elaborata localmente nel tuo browser tramite <strong>Web Speech API</strong> (nessun dato viene inviato a server esterni).
+      </p>
+      <p style="margin: 0; font-size: 0.9rem; color: var(--muted);">
+        Per informazioni su come i servizi esterni gestiscono i tuoi dati, consulta le rispettive informative sulla privacy: 
+        <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI</a> · 
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google</a>
+      </p>
+    </div>
   </div>
 
   <script>
