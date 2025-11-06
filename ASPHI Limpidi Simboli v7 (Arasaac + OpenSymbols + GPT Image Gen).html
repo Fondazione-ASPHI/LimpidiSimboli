@@ -1,0 +1,4584 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Limpidi Simboli – Fondazione ASPHI Onlus </title>
+  <style>
+    :root {
+      --bg: #f7f7f9;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #6b7280;
+      --brand: #2a9df4;
+      --brand-600: #1e7ec8;
+      --danger: #b91c1c;
+      --ring: rgba(42, 157, 244, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    h1 { text-align: center; margin: 0 0 8px; font-weight: 800; }
+    .sub { text-align: center; margin-bottom: 16px; color: var(--muted); }
+    .toolbar { display: grid; grid-template-columns: 1fr auto; gap: 10px; max-width: 1400px; margin: 0 auto 12px; }
+    .controls { display: grid; grid-template-columns: 6fr repeat(3, max-content); gap: 8px; align-items: center; background: var(--card); border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+    .controls input[type="text"] { width: 100%; padding: 12px 12px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 10px; }
+    .controls input[type="text"]:focus { outline: 2px solid var(--ring); border-color: var(--brand); }
+    .controls select, .controls label { font-size: .95rem; color: #111827; }
+    .controls select, .controls input[type="checkbox"] { margin-left: 6px; }
+    .button { appearance: none; border: 0; background: var(--brand); color: #fff; padding: 12px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    .button:hover { background: var(--brand-600); }
+    .ghost { background: transparent; color: var(--brand); border: 1px solid var(--brand); }
+    .result { display: flex; flex-wrap: wrap; gap: 14px; max-width: 1100px; margin: 0 auto; }
+    .tile { background: var(--card); border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.06); min-height: 184px; display: flex; flex-direction: column; gap: 8px; position: relative; min-width: 140px; flex: 0 0 auto; }
+    .tile img { max-width: 100%; max-height: 130px; object-fit: contain; display: block; margin: 0 auto; }
+    .word { font-weight: 700; font-size: 1.3rem; white-space: nowrap; padding: 0 4px; }
+    .miss { color: var(--danger); font-size: .85rem; }
+    /* Evidenziazione per i pronomi inseriti automaticamente (subject pronoun) */
+    .tile.inserted { border: 2px solid var(--danger); }
+    .tile.inserted .word { color: var(--danger); }
+    /* Contenitore per uno o più badge (tempo, genere, numero). */
+    .badges {
+  position: static;          /* <— niente overlay */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end; /* li allinea a destra */
+  margin-top: 4px;
+}
+
+.badges .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffffee;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 2px 6px;
+}
+    .badges .badge img {
+      max-height: 20px;
+      max-width: 20px;
+    }
+    .status { max-width: 1100px; margin: 10px auto 18px; color: var(--muted); }
+    .footer { max-width: 1100px; margin: 28px auto 0; color: var(--muted); font-size: .9rem; text-align: center; }
+    .footer a { color: var(--brand); }
+    /* Aggiungi stile per pulsante di caricamento simbolo personalizzato */
+    .add-symbol-btn {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #ffffffcc;
+      border: 1px solid #e5e7eb;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 20px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .add-symbol-btn:hover {
+      background: #f3f4f6;
+    }
+    /* Bottone GPT: sempre in fondo con altezza minima */
+    .gpt-symbol-btn {
+      background: #ffffffcc;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: auto; /* spinge in fondo */
+      min-height: 28px;
+      align-self: stretch;
+    }
+    .gpt-symbol-btn:hover {
+      background: #f3f4f6;
+    }
+    /* Bottone ABC: in alto a destra */
+    .abc-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ffffffcc;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .abc-btn:hover {
+      background: #f3f4f6;
+    }
+    /* Stile per simboli selezionati */
+    .tile.selected {
+      border: 3px solid var(--brand);
+      background: #e0f2fe;
+      box-shadow: 0 4px 12px rgba(42, 157, 244, 0.3);
+    }
+    .tile.selected .word {
+      color: var(--brand);
+    }
+    /* Bottone per unire simboli */
+    .merge-btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+    }
+    .merge-btn:hover {
+      background: #059669;
+    }
+    .merge-btn.visible {
+      display: inline-block;
+    }
+  </style>
+  <style>
+    #live.error {
+      color: #b30000 !important;
+      font-weight: bold;
+      background: #fff0f0;
+      padding: 0.3em 0.7em;
+      border-radius: 6px;
+      font-size: 1.3em;
+      min-height: 2.2em;
+      transition: background 0.2s;
+    }
+    
+    /* Responsive styles for settings modal */
+    @media (max-width: 768px) {
+      #settingsModal > div {
+        padding: 16px !important;
+        width: 95% !important;
+        max-height: 95vh !important;
+      }
+      #settingsModal h2 {
+        font-size: 1.2rem !important;
+      }
+      #settingsModal input,
+      #settingsModal select,
+      #settingsModal button {
+        padding: 10px !important;
+        font-size: 0.95rem !important;
+      }
+      #customSymbolsList {
+        max-height: 200px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #settingsModal > div {
+        padding: 12px !important;
+      }
+      #settingsModal h2 {
+        font-size: 1.1rem !important;
+        margin-bottom: 16px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Limpidi Simboli - ASPHI Onlus</h1>
+  <p class="sub">Inserisci una frase in italiano. L’app cerca un pittogramma ARASAAC per ogni parola significativa.</p>
+
+  <div class="toolbar" role="search">
+    <div style="display: flex; flex-direction: row; gap: 24px; align-items: flex-start; margin-bottom: 8px;">
+      <div style="flex: 1; display: flex; flex-direction: column;">
+        <textarea id="textInput" rows="3" style="width: 100%; min-height: 3.5em; font-size: 1.25rem; padding: 14px; border: 1.5px solid #bfc4cc; border-radius: 12px; resize: vertical; box-sizing: border-box;" placeholder="Inserisci qui la frase..." aria-label="Inserisci frase"></textarea>
+        <div style="margin-top: 8px; display: flex; gap: 8px; align-items: center;">
+          <select id="lang" aria-label="Lingua per la ricerca ARASAAC">
+            <option value="it" selected>Italiano (it)</option>
+            <option value="es">Español (es)</option>
+            <option value="en">English (en)</option>
+          </select>
+          <label title="Se attivo, ignora articoli, preposizioni e congiunzioni comuni;"><input id="skipStop" type="checkbox" checked /> Ignora parole funzionali</label>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end; justify-content: flex-end; min-width: 120px;">
+        <button id="translateButton" class="button" aria-label="Esegui traduzione" style="margin-bottom: 4px;">🔄 Traduci</button>
+        <button id="clearButton" class="button ghost" aria-label="Pulisci risultati" style="margin-bottom: 4px;">🗑️ Pulisci</button>
+        <button id="speakButton" class="button ghost" aria-label="Ascolta con sintesi vocale">🔊 Ascolta</button>
+        <button id="mergeButton" class="merge-btn" aria-label="Unisci simboli selezionati">🔗 Unisci</button>
+        <button id="settingsButton" class="button ghost" aria-label="Impostazioni API" style="margin-top: 4px;">⚙️ Settings</button>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
+      <button id="selectLocalFolderButton" class="button ghost" aria-label="Seleziona cartella con immagini personali">📁 Seleziona Cartella Immagini</button>
+      <span id="localFolderStatus" style="color: #64748b; font-size: 0.9rem;"></span>
+    </div>
+  </div>
+  
+  <!-- Settings Modal -->
+  <div id="settingsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+    <div style="background: white; padding: 24px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
+      <h2 style="margin: 0 0 24px 0; font-size: 1.5rem; color: #1e293b;">⚙️ Impostazioni</h2>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Chiave API OpenAI (GPT)</label>
+        <input id="apiKeyInput" type="password" placeholder="sk-..." style="width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 10px; box-sizing: border-box;" aria-label="Inserisci chiave API GPT" />
+        <button id="saveApiKeyButton" class="button ghost" aria-label="Salva chiave API" style="margin-top: 8px; width: 100%;">Salva Chiave API</button>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Token OpenSymbols</label>
+        <input id="openSymbolsTokenInput" type="password" placeholder="token::..." style="width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 10px; box-sizing: border-box;" aria-label="Inserisci token OpenSymbols" />
+        <button id="saveOpenSymbolsTokenButton" class="button ghost" aria-label="Salva token OpenSymbols" style="margin-top: 8px; width: 100%;">Salva Token</button>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Google Custom Search (100 ricerche/giorno gratis)</label>
+        <input id="googleApiKeyInput" type="password" placeholder="API Key..." style="width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 10px; box-sizing: border-box; margin-bottom: 8px;" aria-label="Inserisci API Key Google" />
+        <input id="googleCxInput" type="text" placeholder="Search Engine ID (cx)..." style="width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 10px; box-sizing: border-box;" aria-label="Inserisci Search Engine ID" />
+        <button id="saveGoogleCredsButton" class="button ghost" aria-label="Salva credenziali Google" style="margin-top: 8px; width: 100%;">Salva Credenziali</button>
+        <small style="display: block; margin-top: 4px; color: #64748b; font-size: 0.85rem;">
+          Crea credenziali su: <a href="https://developers.google.com/custom-search/v1/overview" target="_blank" style="color: #2a9df4;">Google Custom Search</a>
+        </small>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Voce Sintesi Vocale</label>
+        <select id="voiceSelect" style="width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 10px; box-sizing: border-box;" aria-label="Seleziona voce">
+          <option value="">Voce automatica (IT)</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input id="showGrammarBadges" type="checkbox" style="width: 20px; height: 20px; cursor: pointer;" checked />
+          <span style="font-weight: 600; color: #475569;">Mostra badge grammaticali (tempo, genere, numero)</span>
+        </label>
+      </div>
+      
+      <div style="margin-bottom: 20px; border-top: 2px solid #e5e7eb; padding-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <label style="font-weight: 600; color: #475569; font-size: 1.1rem;">Simboli Personalizzati</label>
+          <button id="refreshCustomSymbolsButton" class="button ghost" style="padding: 6px 12px; font-size: 0.9rem;">🔄 Aggiorna</button>
+        </div>
+        <div id="customSymbolsList" style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; background: #f9fafb;">
+          <p style="color: #64748b; text-align: center; margin: 0;">Caricamento...</p>
+        </div>
+        <div style="margin-top: 12px; display: flex; gap: 8px;">
+          <button id="clearAllCustomSymbolsButton" class="button ghost" style="flex: 1; font-size: 0.9rem; background: #fee; color: #c00;">🗑️ Cancella Tutto</button>
+          <button id="exportCustomSymbolsButton" class="button ghost" style="flex: 1; font-size: 0.9rem;">💾 Esporta</button>
+        </div>
+      </div>
+      
+      <button id="closeSettingsButton" class="button" aria-label="Chiudi impostazioni" style="width: 100%; margin-top: 16px;">Chiudi</button>
+    </div>
+  </div>
+
+  <div id="live" class="status" aria-live="polite"></div>
+  <div id="result" class="result" aria-describedby="live"></div>
+
+  <div class="footer">
+    Pittogrammi ARASAAC – <em>Gobierno de Aragón</em>. Autore: Sergio Palao. Licenza <a href="https://beta.arasaac.org/terms-of-use" target="_blank" rel="noreferrer noopener">CC BY-NC-SA</a>.
+    Documentazione API: <a href="https://arasaac.org/developers/api" target="_blank" rel="noreferrer noopener">Developers</a>.
+  </div>
+
+  <script>
+  // --- TOKEN OPENSYMBOLS: dichiarazione e caricamento anticipato ---
+  const OPENSYMBOLS_TOKEN = '';
+  let openSymbolsToken = '';
+  (function loadOpenSymbolsToken(){
+    try {
+      const storedToken = localStorage.getItem('openSymbolsToken');
+      if (storedToken && storedToken.trim()) {
+        openSymbolsToken = storedToken.trim();
+      } else if (OPENSYMBOLS_TOKEN && OPENSYMBOLS_TOKEN.trim()) {
+        openSymbolsToken = OPENSYMBOLS_TOKEN.trim();
+      }
+    } catch (e) {
+      if (OPENSYMBOLS_TOKEN && OPENSYMBOLS_TOKEN.trim()) openSymbolsToken = OPENSYMBOLS_TOKEN.trim();
+    }
+    if (window.els && els.openSymbolsTokenInput) {
+      els.openSymbolsTokenInput.value = openSymbolsToken;
+    }
+  })();
+
+  // Funzione per pulire cache vecchie (mantiene solo ultimi 100 elementi per tipo)
+  function cleanCache() {
+    try {
+      const keys = Object.keys(localStorage);
+      const cacheTypes = {
+        translation: keys.filter(k => k.startsWith('translation_')),
+        synonyms_en: keys.filter(k => k.startsWith('synonyms_en_')),
+        synonyms_it: keys.filter(k => k.startsWith('synonyms_it_'))
+      };
+      
+      Object.entries(cacheTypes).forEach(([type, typeKeys]) => {
+        if (typeKeys.length > 100) {
+          // Rimuovi i più vecchi (primi nella lista)
+          const toRemove = typeKeys.slice(0, typeKeys.length - 100);
+          toRemove.forEach(k => localStorage.removeItem(k));
+          console.log(`[Cache] Cleaned ${toRemove.length} old ${type} entries`);
+        }
+      });
+    } catch (e) {
+      console.warn('[Cache] Error cleaning cache:', e);
+    }
+  }
+  
+  // Pulisci cache all'avvio
+  cleanCache();
+
+  // Funzione helper per salvare customSymbolImages con gestione quota intelligente
+  function saveCustomImages(customImages, currentWord = null) {
+    try {
+      const jsonStr = JSON.stringify(customImages);
+      const sizeKB = (jsonStr.length / 1024).toFixed(2);
+      console.log('[Save] customSymbolImages size:', sizeKB, 'KB');
+      
+      localStorage.setItem('customSymbolImages', jsonStr);
+      return { success: true };
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        console.warn('[Save] QuotaExceededError - localStorage is full, trying to free space...');
+        
+        // Calcola statistiche
+        const totalWords = Object.keys(customImages).length;
+        const totalImages = Object.values(customImages).reduce((sum, arr) => {
+          return sum + (Array.isArray(arr) ? arr.length : 1);
+        }, 0);
+        
+        // Strategia 1: Pulisci prima altre cache (translation, synonyms, personalSymbols duplicato) per fare spazio
+        const keysToRemove = [];
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('translation_') || key.startsWith('synonyms_') || key === 'personalSymbols') {
+            keysToRemove.push(key);
+          }
+        });
+        
+        if (keysToRemove.length > 0) {
+          keysToRemove.forEach(k => localStorage.removeItem(k));
+          console.log(`[Save] Cleared ${keysToRemove.length} cache entries to free space`);
+          
+          // Riprova a salvare
+          try {
+            localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+            return {
+              success: true,
+              freedSpace: true,
+              message: `Liberati ${keysToRemove.length} elementi di cache per fare spazio.`
+            };
+          } catch (retryError) {
+            console.warn('[Save] Still not enough space after clearing cache');
+          }
+        }
+        
+        // Strategia 2: rimuovi immagini di ALTRE parole (non quella corrente) per fare spazio
+        if (currentWord && totalWords > 1) {
+          // Trova le parole con più immagini (esclusa quella corrente)
+          const wordsWithImages = Object.entries(customImages)
+            .filter(([word]) => word !== currentWord)
+            .map(([word, imgs]) => ({
+              word,
+              count: Array.isArray(imgs) ? imgs.length : 1
+            }))
+            .sort((a, b) => b.count - a.count); // Ordina per numero decrescente
+          
+          if (wordsWithImages.length > 0) {
+            // Rimuovi la parola con più immagini
+            const wordToRemove = wordsWithImages[0].word;
+            const removedCount = Array.isArray(customImages[wordToRemove]) 
+              ? customImages[wordToRemove].length 
+              : 1;
+            delete customImages[wordToRemove];
+            
+            console.log(`[Save] Removed ${removedCount} image(s) from "${wordToRemove}" to free space`);
+            
+            // Riprova a salvare
+            try {
+              localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+              return {
+                success: true,
+                freedSpace: true,
+                message: `Memoria piena! Rimosse ${removedCount} immagini dalla parola "${wordToRemove}" per fare spazio alla nuova immagine.`
+              };
+            } catch (retryError) {
+              console.error('[Save] Still not enough space after cleanup');
+            }
+          }
+        }
+        
+        // Se arriviamo qui, non è stato possibile liberare spazio
+        return {
+          success: false,
+          error: 'quota',
+          message: `Memoria piena! Hai ${totalImages} immagini per ${totalWords} parole.\n\nUsa il bottone "� Seleziona Cartella Immagini" per salvare le immagini su disco invece che in memoria.`
+        };
+      }
+      return {
+        success: false,
+        error: 'unknown',
+        message: 'Errore nel salvare l\'immagine: ' + e.message
+      };
+    }
+  }
+
+  // Funzione per tradurre una parola ITA->ENG usando l'API di LibreTranslate (con cache)
+  async function translateItToEn(text) {
+    // Controlla cache
+    const cacheKey = 'translation_it_en_' + text.toLowerCase();
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      console.log('[Translation] Using cached translation for "' + text + '":', cached);
+      return cached;
+    }
+    
+    try {
+      // Usa proxy CORS per LibreTranslate
+      const res = await fetch('https://corsproxy.io/?https://libretranslate.de/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: text, source: 'it', target: 'en', format: 'text' })
+      });
+      const data = await res.json();
+      const translation = data.translatedText || text;
+      // Salva in cache
+      localStorage.setItem(cacheKey, translation);
+      console.log('[Translation] Translated "' + text + '" to "' + translation + '" (cached)');
+      return translation;
+    } catch (e) {
+      console.warn('[Translation] Error:', e);
+      return text;
+    }
+  }
+
+  // Funzione per ottenere sinonimi in inglese usando GPT (con cache)
+  async function getEnglishSynonyms(word) {
+    // Controlla cache
+    const cacheKey = 'synonyms_en_' + word.toLowerCase();
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      console.log('[Synonyms EN] Using cached synonyms for "' + word + '":', parsed);
+      return parsed;
+    }
+    
+    if (!openaiApiKey) {
+      console.warn('[Synonyms] No API key, returning only original word');
+      return [word];
+    }
+    try {
+      const prompt = `List 5 common synonyms for the English word "${word}". Reply ONLY with comma-separated words, no explanations. Example format: "woman, lady, female, girl, gal"`;
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${openaiApiKey}` },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 50
+        })
+      });
+      if (!res.ok) {
+        console.warn('[Synonyms] GPT request failed:', res.status);
+        return [word];
+      }
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content?.trim() || '';
+      const synonyms = text.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const result = [word.toLowerCase(), ...synonyms];
+      console.log('[Synonyms] GPT returned for "' + word + '":', result);
+      // Salva in cache
+      localStorage.setItem(cacheKey, JSON.stringify(result));
+      return result;
+    } catch (e) {
+      console.error('[Synonyms] Error:', e);
+      return [word];
+    }
+  }
+
+  // Funzione per ottenere sinonimi in italiano usando GPT (con cache)
+  async function getItalianSynonyms(word) {
+    // Controlla cache
+    const cacheKey = 'synonyms_it_' + word.toLowerCase();
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      console.log('[Synonyms IT] Using cached synonyms for "' + word + '":', parsed);
+      return parsed;
+    }
+    
+    if (!openaiApiKey) {
+      console.warn('[Synonyms IT] No API key, returning only original word');
+      return [word];
+    }
+    try {
+      const prompt = `Elenca 5 sinonimi comuni per la parola italiana "${word}". Rispondi SOLO con parole separate da virgole, senza spiegazioni. Esempio: "donna, signora, femmina, ragazza"`;
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${openaiApiKey}` },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 50
+        })
+      });
+      if (!res.ok) {
+        console.warn('[Synonyms IT] GPT request failed:', res.status);
+        return [word];
+      }
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content?.trim() || '';
+      const synonyms = text.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const result = [word.toLowerCase(), ...synonyms];
+      console.log('[Synonyms IT] GPT returned for "' + word + '":', result);
+      // Salva in cache
+      localStorage.setItem(cacheKey, JSON.stringify(result));
+      return result;
+    } catch (e) {
+      console.error('[Synonyms IT] Error:', e);
+      return [word];
+    }
+  }
+
+  // Funzione per cercare simboli in OpenSymbols (ritorna array di oggetti {url, label})
+  async function searchOpenSymbols(term, preTranslatedTerm = null) {
+    const startTime = performance.now();
+    
+    // Ricerca in inglese per massima copertura
+    let engTerm = preTranslatedTerm; // Usa traduzione pre-calcolata se disponibile
+    if (!engTerm) {
+      if (!/^[a-zA-Z0-9 ]+$/.test(term)) {
+        engTerm = await translateItToEn(term);
+        console.log('[OpenSymbols] Traduzione ITA->ENG:', term, '->', engTerm);
+        if (!engTerm || engTerm.toLowerCase() === term.toLowerCase()) {
+          setStatus(`Attenzione: la traduzione ITA→ENG per "${term}" non è riuscita o non è cambiata.`, true);
+        }
+      } else {
+        engTerm = term;
+      }
+    } else {
+      console.log('[OpenSymbols] Using pre-translated term:', engTerm);
+    }
+    
+    console.log('[OpenSymbols] Searching for term:', engTerm);
+    // Usa proxy CORS per test: corsproxy.io
+    // const apiUrl = `https://www.opensymbols.org/api/v1/symbols/search?q=${encodeURIComponent(engTerm)}&limit=5`;
+    // const url = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+    // Versione aggiornata: usa /api/v2/symbols e access_token se presente
+    let apiUrl = `https://www.opensymbols.org/api/v2/symbols?q=${encodeURIComponent(engTerm)}`;
+    if (typeof openSymbolsToken !== 'undefined' && openSymbolsToken) {
+      apiUrl += `&access_token=${openSymbolsToken}`;
+    }
+    const url = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
+    try {
+      const headers = {};
+      if (typeof openSymbolsToken !== 'undefined' && openSymbolsToken) {
+        headers['Authorization'] = `Bearer ${openSymbolsToken}`;
+      }
+      console.log('[OpenSymbols] URL richiesta:', url);
+      const res = await fetch(url, { headers });
+      console.log('[OpenSymbols] HTTP status:', res.status);
+      let rawText = '';
+      try {
+        rawText = await res.clone().text();
+        console.log('[OpenSymbols] Risposta grezza:', rawText);
+      } catch (e) {
+        console.warn('[OpenSymbols] Impossibile leggere la risposta grezza:', e);
+      }
+      if (res.status === 401 || res.status === 403) {
+        setStatus('Token OpenSymbols mancante o non valido. Controlla e salva il token in alto.', true);
+        return [];
+      }
+      if (!res.ok) {
+        setStatus('Errore di rete o autenticazione OpenSymbols. Controlla la connessione o il token.', true);
+        return [];
+      }
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        setStatus('Risposta non valida da OpenSymbols.', true);
+        return [];
+      }
+      console.log('[searchOpenSymbols] Parsed JSON data:', data);
+      // La risposta API v2 restituisce direttamente un array di simboli, non un oggetto con data.symbols
+      const symbols = Array.isArray(data) ? data : (Array.isArray(data.symbols) ? data.symbols : []);
+      console.log('[searchOpenSymbols] Total symbols from API:', symbols.length);
+      if (!symbols || symbols.length === 0) {
+        setStatus('Nessun simbolo trovato su OpenSymbols per "' + engTerm + '".', true);
+        window.lastOpenSymbolsResult = [];
+        return [];
+      }
+      // Filtra ARASAAC per evitare duplicati con la ricerca principale ARASAAC
+      const notArasaac = symbols.filter(s => s.repo_key && s.repo_key.toLowerCase() !== 'arasaac');
+      console.log('[searchOpenSymbols] After filtering ARASAAC:', notArasaac.length);
+      // Ottieni sinonimi in inglese usando GPT per filtrare meglio i risultati
+      const synonyms = await getEnglishSynonyms(engTerm);
+      console.log('[searchOpenSymbols] Using synonyms:', synonyms);
+      // Filtra falsi positivi: tieni solo simboli dove il termine cercato o un sinonimo appare nel nome
+      const relevant = notArasaac.filter(s => {
+        const name = (s.name || '').toLowerCase();
+        // Accetta se il nome contiene il termine cercato o uno dei suoi sinonimi
+        return synonyms.some(syn => name.includes(syn));
+      });
+      console.log('[searchOpenSymbols] After relevance filtering:', relevant.length);
+      console.log('[searchOpenSymbols] Relevant symbols:', relevant.map(s => ({ name: s.name, repo: s.repo_key, relevance: s.relevance })));
+      
+      // Rimuovi duplicati basati su image_url (stesso simbolo con ID diversi)
+      const uniqueMap = new Map();
+      relevant.forEach(s => {
+        const key = s.image_url || s.symbol_key || s.id;
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, s);
+        }
+      });
+      const uniqueSymbols = Array.from(uniqueMap.values());
+      console.log('[searchOpenSymbols] After removing duplicates:', uniqueSymbols.length);
+      
+      if (uniqueSymbols.length === 0) {
+        setStatus('OpenSymbols ha trovato solo simboli ARASAAC (già inclusi nella ricerca principale).', false);
+        window.lastOpenSymbolsResult = [];
+        return [];
+      }
+      setStatus('Trovati simboli OpenSymbols (TAWASOL, Bliss, ecc.): ' + uniqueSymbols.length, false);
+      // Aggiorna sempre la variabile globale con i risultati filtrati e deduplicati
+      window.lastOpenSymbolsResult = uniqueSymbols.map(s => ({ url: s.svg, label: s.label || engTerm, repo: s.repo_key || '', image_url: s.image_url, name: s.name }));
+      
+      const searchTime = performance.now() - startTime;
+      console.log('[searchOpenSymbols] Search complete in', searchTime.toFixed(0), 'ms - Returning:', window.lastOpenSymbolsResult.length, 'symbols');
+      
+      // NON chiamare showOpenSymbolsSection qui - i simboli verranno integrati nel tile principale
+      return window.lastOpenSymbolsResult;
+    } catch (e) {
+      const searchTime = performance.now() - startTime;
+      console.error('[OpenSymbols] Errore fetch after', searchTime.toFixed(0), 'ms:', e);
+      setStatus('Errore di rete o autenticazione OpenSymbols. Controlla la connessione o il token.', true);
+      return [];
+    }
+  }
+
+    // Mappa: keyword (lowercase) -> Set di ID pittogrammi
+const keywordIndex = new Map();
+let keywordIndexReady = false;
+
+// Insieme di tutte le parole/locuzioni registrate in ARASAAC per l’italiano.
+// Ci serve per verificare se una locuzione è valida prima di interrogarne l’API.
+const keywordEntries = new Set();
+
+async function loadKeywordIndexIT(signal) {
+  try {
+    const r = await fetch('https://api.arasaac.org/api/keywords/it', signal ? { signal } : {});
+    if (!r.ok) throw new Error('keywords fetch failed');
+    const data = await r.json();
+    /*
+      L’API /keywords/it può restituire due formati:
+      - { words: [...] } con l’elenco di tutte le parole e locuzioni usate su ARASAAC
+      - [ { keyword: string, pictograms: [...] }, ... ] con l’associazione parola → id pittogrammi
+      Popoliamo sia keywordIndex (se disponibile) sia keywordEntries (sempre).
+    */
+    if (Array.isArray(data)) {
+      // Formato associativo
+      for (const row of data) {
+        const k = (row?.keyword || row?.name || '').toLowerCase().trim();
+        if (!k) continue;
+        keywordEntries.add(k);
+        const ids = new Set();
+        const pics = Array.isArray(row?.pictograms) ? row.pictograms : Array.isArray(row) ? row : [];
+        for (const p of pics) {
+          const id = (p && (p._id ?? p.id)) ?? null;
+          if (id != null) ids.add(id);
+        }
+        if (ids.size) keywordIndex.set(k, ids);
+      }
+      keywordIndexReady = true;
+    } else if (data && Array.isArray(data.words)) {
+      // Solo elenco di parole/locuzioni
+      for (const w of data.words) {
+        const k = (typeof w === 'string' ? w : (w?.keyword || '')).toLowerCase().trim();
+        if (k) keywordEntries.add(k);
+      }
+      // In questo caso non riempiamo keywordIndex, ma impostiamo la flag ready
+      keywordIndexReady = true;
+    } else {
+      // Formato sconosciuto: imposta ready = false
+      keywordIndexReady = false;
+    }
+  } catch (e) {
+    console.warn('Impossibile caricare le keywords ARASAAC:', e);
+    keywordIndexReady = false;
+  }
+}
+
+function getKeywordCandidatesIT(term) {
+  const w = (term || '').toLowerCase().trim();
+  const out = new Set();
+
+  // 1) match esatto
+  if (keywordIndex.has(w)) for (const id of keywordIndex.get(w)) out.add(id);
+
+  // 2) singolarizzazione semplice (ore->ora; libri->libro; case->casa)
+  const singulars = depluralizeItalian(w); // usa la funzione che ti ho dato in precedenza
+  for (const s of singulars) {
+    if (keywordIndex.has(s)) for (const id of keywordIndex.get(s)) out.add(id);
+  }
+
+  // 3) startsWith (evita rumori: imponi lunghezza minima)
+  if (w.length >= 3) {
+    for (const [k, ids] of keywordIndex.entries()) {
+      if (k.startsWith(w)) ids.forEach(id => out.add(id));
+    }
+  }
+
+  // 4) match interno su parole separate: se w è contenuto come parola
+  // indipendente all’interno di una locuzione (k contiene spazi). In questo modo
+  // evitiamo corrispondenze spurie come "tante" → "disinfettante".
+  if (w.length >= 4) {
+    for (const [k, ids] of keywordIndex.entries()) {
+      // consideriamo solo locuzioni composte (due o più parole)
+      if (k.includes(' ')) {
+        const words = k.split(/\s+/);
+        if (words.includes(w)) ids.forEach(id => out.add(id));
+      }
+    }
+  }
+
+  return [...out];
+}
+
+// Funzione per ottenere possibili singolari di un sostantivo italiano.
+// Questa implementazione semplificata prova a derivare forme al singolare
+// rimuovendo la desinenza plurale comune e sostituendola con la vocale
+// appropriata. Se la parola termina con "i" o "e", prova le varianti
+// in "o" e "a"; inoltre include sempre la parola originale.
+function depluralizeItalian(word) {
+  const w = (word || '').toLowerCase().trim();
+  const results = new Set();
+  if (!w) return [];
+  // Aggiungi sempre la forma originale
+  results.add(w);
+  // Gestisce plurali che terminano in 'i' (es. "libri" -> "libro", "libra")
+  if (w.endsWith('i') && w.length > 1) {
+    const root = w.slice(0, -1);
+    results.add(root + 'o');
+    results.add(root + 'a');
+  }
+  // Gestisce plurali che terminano in 'e' (es. "case" -> "casa" o "caso")
+  if (w.endsWith('e') && w.length > 1) {
+    const root = w.slice(0, -1);
+    results.add(root + 'a');
+    results.add(root + 'o');
+  }
+  return [...results];
+}
+
+    function qs(id){ return document.getElementById(id); }
+    const els = {
+  openSymbolsTokenInput: qs('openSymbolsTokenInput'),
+  saveOpenSymbolsToken: qs('saveOpenSymbolsTokenButton'),
+  googleApiKeyInput: qs('googleApiKeyInput'),
+  googleCxInput: qs('googleCxInput'),
+  saveGoogleCreds: qs('saveGoogleCredsButton'),
+  selectLocalFolder: qs('selectLocalFolderButton'),
+  localFolderStatus: qs('localFolderStatus'),
+  settingsButton: qs('settingsButton'),
+  settingsModal: qs('settingsModal'),
+  closeSettingsButton: qs('closeSettingsButton'),
+  customSymbolsList: qs('customSymbolsList'),
+  refreshCustomSymbolsButton: qs('refreshCustomSymbolsButton'),
+  clearAllCustomSymbolsButton: qs('clearAllCustomSymbolsButton'),
+  exportCustomSymbolsButton: qs('exportCustomSymbolsButton'),
+  input: qs('textInput'),
+      lang: qs('lang'),
+      skipStop: qs('skipStop'),
+      btn: qs('translateButton'),
+      clear: qs('clearButton'),
+      speak: qs('speakButton'),
+      voiceSelect: qs('voiceSelect'),
+      showGrammarBadges: qs('showGrammarBadges'),
+      res: qs('result'),
+      live: qs('live'),
+      apiInput: qs('apiKeyInput'),
+      saveApiKey: qs('saveApiKeyButton'),
+    };
+    function setStatus(msg){ els.live.textContent = msg; }
+    // Definizione della chiave API predefinita e della variabile utilizzata dall'app.
+    // Queste variabili devono essere definite prima di essere utilizzate in loadApiKey(),
+    // altrimenti si verificherà un ReferenceError a causa della temporal dead zone di "let"/"const".
+    const OPENAI_API_KEY = '';
+  // (dichiarazione OPENSYMBOLS_TOKEN e openSymbolsToken già in testa)
+    let openaiApiKey = '';
+    
+    // Google Custom Search credentials
+    let googleApiKey = '';
+    let googleCx = '';
+    
+    // Gestione cartella immagini locali (variabili globali)
+    let localImageFolderHandle = null;
+    let localImageFiles = {}; // Cache: { "parola": [FileHandle1, FileHandle2, ...] }
+    let localFileHandleMap = new Map(); // Mappa: id_univoco -> FileHandle (per evitare serializzazione JSON)
+
+    // Funzione helper per verificare se la cartella locale è selezionata
+    function checkLocalFolderSelected(actionName = 'questa azione') {
+      if (!localImageFolderHandle) {
+        const message = `⚠️ Cartella immagini non selezionata!\n\nPer ${actionName}, devi prima:\n\n1. Cliccare su "📁 Seleziona Cartella Immagini"\n2. Scegliere una cartella dove salvare le immagini\n\nVuoi selezionare la cartella ora?`;
+        
+        if (confirm(message)) {
+          // Trigger il click sul bottone di selezione cartella
+          const selectBtn = document.getElementById('selectLocalFolderButton');
+          if (selectBtn) {
+            selectBtn.click();
+          }
+        }
+        return false;
+      }
+      return true;
+    }
+
+    // (le dichiarazioni per OPENAI_API_KEY e openaiApiKey sono definite più sopra)
+
+    // Carica la chiave API salvata all'avvio. Se presente nel localStorage viene usata,
+    // altrimenti viene utilizzato il valore costante OPENAI_API_KEY. Inoltre aggiorna
+    // l'input per la chiave API affinché mostri il valore attuale (tipicamente nascosto
+    // perché di tipo "password").
+    (function loadApiKey(){
+    (function loadOpenSymbolsToken(){
+      try {
+        const storedToken = localStorage.getItem('openSymbolsToken');
+        if (storedToken && storedToken.trim()) {
+          openSymbolsToken = storedToken.trim();
+        } else if (OPENSYMBOLS_TOKEN && OPENSYMBOLS_TOKEN.trim()) {
+          openSymbolsToken = OPENSYMBOLS_TOKEN.trim();
+        }
+      } catch (e) {
+        if (OPENSYMBOLS_TOKEN && OPENSYMBOLS_TOKEN.trim()) openSymbolsToken = OPENSYMBOLS_TOKEN.trim();
+      }
+      if (els.openSymbolsTokenInput) {
+        els.openSymbolsTokenInput.value = openSymbolsToken;
+      }
+    })();
+      try {
+        const storedKey = localStorage.getItem('openaiApiKey');
+        if (storedKey && storedKey.trim()) {
+          openaiApiKey = storedKey.trim();
+        } else if (OPENAI_API_KEY && OPENAI_API_KEY.trim()) {
+          openaiApiKey = OPENAI_API_KEY.trim();
+        }
+      } catch (e) {
+        if (OPENAI_API_KEY && OPENAI_API_KEY.trim()) openaiApiKey = OPENAI_API_KEY.trim();
+      }
+      if (els.apiInput) {
+        els.apiInput.value = openaiApiKey;
+      }
+    })();
+
+    // Salva la chiave API quando l'utente preme il pulsante "Salva API". Aggiorna
+    // la variabile globale e persiste il valore nel localStorage.
+    if (els.saveApiKey && els.apiInput) {
+    if (els.saveOpenSymbolsToken && els.openSymbolsTokenInput) {
+      els.saveOpenSymbolsToken.addEventListener('click', () => {
+        const token = (els.openSymbolsTokenInput.value || '').trim();
+        openSymbolsToken = token;
+        try {
+          if (token) {
+            localStorage.setItem('openSymbolsToken', token);
+          } else {
+            localStorage.removeItem('openSymbolsToken');
+          }
+        } catch (e) {
+          console.warn('Impossibile salvare il token OpenSymbols nel localStorage', e);
+        }
+        setStatus('Token OpenSymbols salvato.');
+      });
+    }
+    
+    // Gestione modal Settings
+    if (els.settingsButton && els.settingsModal && els.closeSettingsButton) {
+      els.settingsButton.addEventListener('click', () => {
+        els.settingsModal.style.display = 'flex';
+      });
+      
+      els.closeSettingsButton.addEventListener('click', () => {
+        els.settingsModal.style.display = 'none';
+      });
+      
+      // Chiudi cliccando fuori dal modal
+      els.settingsModal.addEventListener('click', (e) => {
+        if (e.target === els.settingsModal) {
+          els.settingsModal.style.display = 'none';
+        }
+      });
+    }
+    
+    // Carica handle salvato se esiste (File System Access API supporta la persistenza)
+    (async function loadSavedFolderHandle() {
+      try {
+        const savedHandleName = localStorage.getItem('localImageFolderName');
+        if (savedHandleName) {
+          els.localFolderStatus.textContent = `📁 ${savedHandleName} (premi il bottone per riconnettere)`;
+        }
+      } catch (e) {
+        console.warn('[Local Folder] Could not load saved handle:', e);
+      }
+    })();
+    
+    if (els.selectLocalFolder) {
+      els.selectLocalFolder.addEventListener('click', async () => {
+        try {
+          // Verifica supporto File System Access API
+          if (!window.showDirectoryPicker) {
+            alert('Il tuo browser non supporta la selezione di cartelle.\n\nUsa Chrome, Edge o un browser moderno.');
+            return;
+          }
+          
+          // Chiedi all'utente di selezionare una cartella
+          const dirHandle = await window.showDirectoryPicker({
+            mode: 'read',
+            startIn: 'pictures'
+          });
+          
+          localImageFolderHandle = dirHandle;
+          
+          // Scansiona tutti i file nella cartella
+          console.log('[Local Folder] Scanning folder:', dirHandle.name);
+          localImageFiles = {}; // Struttura: { "parola": [FileHandle1, FileHandle2, ...] }
+          let totalFiles = 0;
+          const fileList = []; // Array temporaneo per analisi
+          
+          for await (const entry of dirHandle.values()) {
+            if (entry.kind === 'file') {
+              // Verifica che sia un'immagine
+              const file = await entry.getFile();
+              if (file.type.startsWith('image/')) {
+                fileList.push({ handle: entry, name: entry.name });
+                totalFiles++;
+              }
+            }
+          }
+          
+          // Ora analizza i nomi dei file per estrarre le parole chiave
+          // Ogni file può essere associato a TUTTE le parole che contiene nel nome
+          for (const fileInfo of fileList) {
+            // Rimuovi l'estensione e converti in lowercase
+            const fileNameNoExt = fileInfo.name.replace(/\.[^/.]+$/, '').toLowerCase();
+            
+            // Dividi il nome in parole (separatori: spazio, underscore, trattino)
+            const words = fileNameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
+            
+            // Ogni parola diventa una chiave nel dizionario
+            for (const word of words) {
+              if (!localImageFiles[word]) {
+                localImageFiles[word] = [];
+              }
+              // Aggiungi il file a questa parola (evita duplicati)
+              if (!localImageFiles[word].some(h => h.name === fileInfo.handle.name)) {
+                localImageFiles[word].push(fileInfo.handle);
+              }
+            }
+          }
+          
+          // Salva il nome della cartella
+          localStorage.setItem('localImageFolderName', dirHandle.name);
+          
+          const uniqueWords = Object.keys(localImageFiles).length;
+          els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
+          
+          console.log('[Local Folder] Loaded files for', uniqueWords, 'words:', localImageFiles);
+          setStatus(`Cartella "${dirHandle.name}" connessa: ${totalFiles} immagini per ${uniqueWords} parole.`);
+          
+        } catch (e) {
+          if (e.name === 'AbortError') {
+            console.log('[Local Folder] User cancelled folder selection');
+          } else {
+            console.error('[Local Folder] Error:', e);
+            alert('Errore nella selezione della cartella: ' + e.message);
+          }
+        }
+      });
+    }
+    
+      els.saveApiKey.addEventListener('click', () => {
+        const key = (els.apiInput.value || '').trim();
+        openaiApiKey = key;
+        try {
+          if (key) {
+            localStorage.setItem('openaiApiKey', key);
+          } else {
+            localStorage.removeItem('openaiApiKey');
+          }
+        } catch (e) {
+          console.warn('Impossibile salvare la chiave API nel localStorage', e);
+        }
+        setStatus('Chiave API salvata.');
+      });
+      
+      // Gestione credenziali Google Custom Search
+      els.saveGoogleCreds.addEventListener('click', () => {
+        const apiKey = (els.googleApiKeyInput.value || '').trim();
+        const cx = (els.googleCxInput.value || '').trim();
+        googleApiKey = apiKey;
+        googleCx = cx;
+        try {
+          if (apiKey) localStorage.setItem('googleApiKey', apiKey);
+          else localStorage.removeItem('googleApiKey');
+          if (cx) localStorage.setItem('googleCx', cx);
+          else localStorage.removeItem('googleCx');
+        } catch (e) {
+          console.warn('Impossibile salvare le credenziali Google nel localStorage', e);
+        }
+        setStatus('Credenziali Google salvate. Limite: 100 ricerche/giorno.');
+      });
+      
+      // Carica credenziali Google all'avvio
+      try {
+        const storedApiKey = localStorage.getItem('googleApiKey');
+        const storedCx = localStorage.getItem('googleCx');
+        if (storedApiKey) {
+          googleApiKey = storedApiKey;
+          els.googleApiKeyInput.value = storedApiKey;
+        }
+        if (storedCx) {
+          googleCx = storedCx;
+          els.googleCxInput.value = storedCx;
+        }
+      } catch (e) {
+        console.warn('Impossibile caricare le credenziali Google dal localStorage', e);
+      }
+    }
+    
+    // ========== GESTIONE PANNELLO SIMBOLI PERSONALIZZATI ==========
+    
+    // Funzione per visualizzare la lista dei simboli personalizzati
+    async function loadCustomSymbolsList() {
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      const container = els.customSymbolsList;
+      
+      // Verifica se la cartella locale è stata selezionata
+      const hasFolderAccess = localImageFolderHandle !== null;
+      
+      // Conta totale simboli
+      const words = Object.keys(customImages);
+      let totalSymbols = 0;
+      words.forEach(word => {
+        if (Array.isArray(customImages[word])) {
+          totalSymbols += customImages[word].length;
+        } else {
+          totalSymbols += 1;
+        }
+      });
+      
+      if (words.length === 0) {
+        container.innerHTML = '<p style="color: #64748b; text-align: center; margin: 0;">Nessun simbolo personalizzato salvato.</p>';
+        return;
+      }
+      
+      let headerHTML = `<p style="color: #64748b; font-size: 0.9rem; margin: 0 0 12px 0;"><strong>${words.length}</strong> parole con <strong>${totalSymbols}</strong> simboli personalizzati</p>`;
+      
+      // Avviso se cartella non connessa
+      if (!hasFolderAccess) {
+        headerHTML += `<div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 10px; margin-bottom: 12px; font-size: 0.9rem; color: #856404;">
+          ⚠️ <strong>Cartella immagini non connessa.</strong><br>
+          Clicca su "📁 Seleziona Cartella Immagini" per visualizzare i simboli salvati localmente.
+        </div>`;
+      }
+      
+      container.innerHTML = headerHTML;
+      
+      // Ordina alfabeticamente
+      words.sort();
+      
+      for (const word of words) {
+        let symbols = customImages[word];
+        if (!Array.isArray(symbols)) {
+          symbols = [symbols];
+        }
+        
+        const wordItem = document.createElement('div');
+        wordItem.style.cssText = 'margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;';
+        
+        const wordHeader = document.createElement('div');
+        wordHeader.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;';
+        
+        const wordTitle = document.createElement('div');
+        wordTitle.style.cssText = 'font-weight: 600; color: #1e293b; font-size: 1.05rem;';
+        wordTitle.textContent = word;
+        
+        const deleteWordBtn = document.createElement('button');
+        deleteWordBtn.textContent = '🗑️ Cancella tutti';
+        deleteWordBtn.className = 'button ghost';
+        deleteWordBtn.style.cssText = 'padding: 4px 10px; font-size: 0.85rem; background: #fee; color: #c00;';
+        deleteWordBtn.onclick = () => deleteAllSymbolsForWord(word);
+        
+        wordHeader.appendChild(wordTitle);
+        wordHeader.appendChild(deleteWordBtn);
+        wordItem.appendChild(wordHeader);
+        
+        // Mostra ogni simbolo
+        const symbolsGrid = document.createElement('div');
+        symbolsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;';
+        
+        for (let i = 0; i < symbols.length; i++) {
+          const symbolId = symbols[i];
+          const symbolCard = document.createElement('div');
+          symbolCard.style.cssText = 'position: relative; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px; background: #f9fafb; text-align: center; min-height: 80px;';
+          
+          // Anteprima immagine
+          const img = document.createElement('img');
+          img.style.cssText = 'width: 100%; height: 60px; object-fit: contain; display: block; margin-bottom: 4px;';
+          
+          // Carica l'immagine
+          (async () => {
+            try {
+              if (typeof symbolId === 'string' && symbolId.startsWith('local-file::')) {
+                // File locale
+                const fileHandle = localFileHandleMap.get(symbolId);
+                if (fileHandle) {
+                  try {
+                    const file = await fileHandle.getFile();
+                    const reader = new FileReader();
+                    reader.onload = (e) => { img.src = e.target.result; };
+                    reader.onerror = () => {
+                      img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+                    };
+                    reader.readAsDataURL(file);
+                  } catch (err) {
+                    console.error('[Custom Symbols] Error loading file:', err);
+                    img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+                    img.title = err.message;
+                  }
+                } else {
+                  img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">Non trovato</text></svg>';
+                  img.title = 'File non trovato - riconnetti la cartella';
+                }
+              } else if (typeof symbolId === 'string' && symbolId.startsWith('data:')) {
+                img.src = symbolId;
+              } else if (typeof symbolId === 'object' && symbolId.type === 'local-file') {
+                // Formato oggetto (dovrebbe essere convertito in stringa)
+                const fileHandle = localFileHandleMap.get(symbolId.id);
+                if (fileHandle) {
+                  try {
+                    const file = await fileHandle.getFile();
+                    const reader = new FileReader();
+                    reader.onload = (e) => { img.src = e.target.result; };
+                    reader.readAsDataURL(file);
+                  } catch (err) {
+                    img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+                  }
+                } else {
+                  img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">Non trovato</text></svg>';
+                }
+              } else {
+                img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">?</text></svg>';
+              }
+            } catch (err) {
+              console.error('[Custom Symbols] Error:', err);
+              img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+            }
+          })();
+          
+          symbolCard.appendChild(img);
+          
+          // Bottone cancella singolo simbolo
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = '×';
+          deleteBtn.style.cssText = 'position: absolute; top: 2px; right: 2px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1;';
+          deleteBtn.onclick = () => deleteSingleSymbol(word, i);
+          
+          symbolCard.appendChild(deleteBtn);
+          symbolsGrid.appendChild(symbolCard);
+        }
+        
+        wordItem.appendChild(symbolsGrid);
+        container.appendChild(wordItem);
+      }
+    }
+    
+    // Cancella tutti i simboli per una parola
+    function deleteAllSymbolsForWord(word) {
+      if (!confirm(`Vuoi cancellare tutti i simboli personalizzati per "${word}"?`)) return;
+      
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      delete customImages[word];
+      localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+      
+      loadCustomSymbolsList();
+      setStatus(`✅ Simboli per "${word}" cancellati`);
+    }
+    
+    // Cancella un singolo simbolo
+    function deleteSingleSymbol(word, index) {
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      if (!customImages[word]) return;
+      
+      let symbols = customImages[word];
+      if (!Array.isArray(symbols)) {
+        symbols = [symbols];
+      }
+      
+      symbols.splice(index, 1);
+      
+      if (symbols.length === 0) {
+        delete customImages[word];
+      } else {
+        customImages[word] = symbols;
+      }
+      
+      localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+      loadCustomSymbolsList();
+      setStatus(`✅ Simbolo cancellato`);
+    }
+    
+    // Cancella tutto
+    els.clearAllCustomSymbolsButton.addEventListener('click', () => {
+      if (!confirm('⚠️ ATTENZIONE!\n\nQuesta operazione cancellerà TUTTI i simboli personalizzati salvati.\n\nSei sicuro?')) return;
+      
+      localStorage.removeItem('customSymbolImages');
+      loadCustomSymbolsList();
+      setStatus('✅ Tutti i simboli personalizzati sono stati cancellati');
+    });
+    
+    // Esporta come JSON
+    els.exportCustomSymbolsButton.addEventListener('click', () => {
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      const dataStr = JSON.stringify(customImages, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `simboli-personalizzati-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      
+      URL.revokeObjectURL(url);
+      setStatus('✅ Esportazione completata');
+    });
+    
+    // Aggiorna lista
+    els.refreshCustomSymbolsButton.addEventListener('click', () => {
+      loadCustomSymbolsList();
+      setStatus('🔄 Lista aggiornata');
+    });
+    
+    // Carica la lista quando si apre il settings
+    els.settingsButton.addEventListener('click', () => {
+      loadCustomSymbolsList();
+    });
+    
+    // ========== FINE GESTIONE PANNELLO SIMBOLI PERSONALIZZATI ==========
+    
+    // Funzione per salvare un'immagine (blob o dataURL) nella cartella locale
+    async function saveImageToLocalFolder(imageData, word) {
+      if (!localImageFolderHandle) {
+        throw new Error('Nessuna cartella locale selezionata. Clicca "📁 Seleziona Cartella Immagini" prima.');
+      }
+      
+      // Verifica permessi di scrittura
+      const permission = await localImageFolderHandle.requestPermission({ mode: 'readwrite' });
+      if (permission !== 'granted') {
+        throw new Error('Permesso di scrittura negato per la cartella selezionata.');
+      }
+      
+      // Converti dataURL in Blob se necessario, e comprimi se è un File
+      let blob;
+      if (imageData instanceof File) {
+        // È un file caricato dall'utente - comprimi prima di salvare
+        const compressed = await compressImage(imageData, 800, 800, 0.8);
+        // compressImage restituisce un dataURL, convertiamolo in blob
+        const response = await fetch(compressed);
+        blob = await response.blob();
+      } else if (typeof imageData === 'string' && imageData.startsWith('data:')) {
+        // Converti dataURL a Blob
+        const response = await fetch(imageData);
+        blob = await response.blob();
+      } else if (imageData instanceof Blob) {
+        blob = imageData;
+      } else {
+        throw new Error('Formato immagine non supportato');
+      }
+      
+      // Determina l'estensione dal tipo MIME
+      const mimeType = blob.type;
+      let extension = 'png';
+      if (mimeType.includes('jpeg') || mimeType.includes('jpg')) {
+        extension = 'jpg';
+      } else if (mimeType.includes('png')) {
+        extension = 'png';
+      } else if (mimeType.includes('webp')) {
+        extension = 'webp';
+      }
+      
+      // Genera nome file univoco: parola_ai_timestamp.ext
+      const timestamp = Date.now();
+      const fileName = `${word}_ai_${timestamp}.${extension}`;
+      
+      console.log('[Local Folder] Saving image:', fileName, 'Size:', blob.size, 'bytes');
+      
+      // Crea il file nella cartella
+      const fileHandle = await localImageFolderHandle.getFileHandle(fileName, { create: true });
+      
+      // Scrivi i dati
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      
+      console.log('[Local Folder] Image saved successfully:', fileName);
+      
+      // Aggiorna la cache localImageFiles
+      const wordKey = word.toLowerCase();
+      if (!localImageFiles[wordKey]) {
+        localImageFiles[wordKey] = [];
+      }
+      localImageFiles[wordKey].push(fileHandle);
+      
+      // Aggiorna lo stato
+      const totalFiles = Object.values(localImageFiles).reduce((sum, arr) => sum + arr.length, 0);
+      const uniqueWords = Object.keys(localImageFiles).length;
+      els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
+      
+      return fileHandle;
+    }
+
+    els.btn.addEventListener('click', () => translate().catch(console.error));
+    els.clear.addEventListener('click', () => { els.res.innerHTML=''; setStatus('Pulito.'); els.input.focus(); });
+    els.speak.addEventListener('click', () => speakText().catch(console.error));
+    els.input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); translate(); }});
+
+    const API_ROOT = 'https://api.arasaac.org/api/pictograms';
+    const STATIC_ROOT = 'https://static.arasaac.org/pictograms';
+
+// Parole funzionali da ignorare quando skipStop è attivo. Oltre agli articoli,
+// preposizioni e congiunzioni, includiamo le forme coniugate del verbo avere
+// (ho, hai, ha, abbiamo, avete, hanno) in modo da trattarle come ausiliari e
+// impedirne l'uso per determinare locuzioni. Senza questa estensione, locuzioni
+// come "ho visto un" vengono erroneamente rilevate perché l'API restituisce
+// pittogrammi di orologi digitali per quell'espressione.  Aggiungendo queste
+// forme a STOP_IT le consideriamo parole funzionali, migliorando il
+// riconoscimento di frasi come "ho visto un bel film".
+const STOP_IT = new Set([
+  'il','lo','la','i','gli','le','un','uno','una','del','della','dei','degli','delle','di','a','da','in','con','su','per','tra','fra','al','allo','alla','ai','agli','alle','dal','dallo','dalla','dai','dagli','dalle','nel','nello','nella','nei','negli','nelle','col','coi','sul','sullo','sulla','sui','sugli','sulle','e','ed','o','oppure','ma','anche','che','se','come','più','meno','non','mi','ti','si','ci','vi','gli','ne','dei',
+  // Forme del verbo avere
+  'ho','hai','ha','abbiamo','avete','hanno'
+]);
+
+// Mappa delle forme irregolari del presente all'infinito. Serve sia per
+// generare varianti (vedi generateItalianVariants) sia per indirizzare la
+// ricerca verso il lemma corretto (es. "ho" → "avere"). Questa mappa è
+// consultata durante la traduzione per correggere il termine di ricerca.
+const IRREGULAR_PRESENT_LEMMA_MAP = {
+  'ho': 'avere',
+  'hai': 'avere',
+  'ha': 'avere',
+  'abbiamo': 'avere',
+  'avete': 'avere',
+  'hanno': 'avere',
+  'sono': 'essere',
+  'sei': 'essere',
+  'è': 'essere',
+  'siamo': 'essere',
+  'siete': 'essere'
+};
+
+    // Insiemi di pronomi e marcatori di genere per evitare di applicare il tempo verbale o di
+    // essere scartati come parole funzionali quando la frase viene analizzata da GPT.
+    // Questi insiemi sono usati soltanto quando analyzeSentence restituisce dei gruppi di token.
+    const PRONOUNS = {
+      it: new Set([
+        'io','tu','lui','lei','noi','voi','loro',
+        'me','te','mi','ti','si','ci','vi','ne','gli','le','li','la','lo'
+      ]),
+      es: new Set([
+        'yo','tú','él','ella','nosotros','nosotras','vosotros','vosotras','ellos','ellas',
+        'me','te','se','nos','os','lo','la','los','las','le','les'
+      ]),
+      en: new Set([
+        'i','you','he','she','it','we','they','me','him','her','us','them','my','your','his','hers','our','their'
+      ])
+    };
+
+    // Mappatura dei pronomi a un termine di ricerca più adatto per ottenere il pittogramma
+    // Alcuni pronomi oggetto non hanno un pittogramma specifico su ARASAAC, quindi
+    // utilizziamo un sinonimo (es. "te" -> "tu") per recuperare l'immagine corretta.
+    const PRONOUN_SEARCH_MAP = {
+      it: {
+        me: 'io',
+        mi: 'io',
+        te: 'tu',
+        ti: 'tu',
+        ci: 'noi',
+        vi: 'voi',
+        lui: 'lui',
+        lei: 'lei',
+        lo: 'lui',
+        la: 'lei',
+        li: 'loro',
+        le: 'loro',
+        loro: 'loro',
+        noi: 'noi',
+        voi: 'voi',
+        tu: 'tu',
+        io: 'io'
+      },
+      es: {},
+      en: {}
+    };
+    const GENDER_MARKERS = {
+      it: new Set(['femmina','femminile','maschio','maschile']),
+      es: new Set(['femenino','femenina','masculino','masculina']),
+      en: new Set(['female','male','feminine','masculine'])
+    };
+    // Mappatura dei pronomi oggetto clitici in italiano ai pronomi completi con indicazione di genere e numero.
+    // Serve per trasformare pronomi come "li" (maschile plurale) nel lemma "loro" con badge appropriati.
+    const OBJECT_PRONOUN_MAP = {
+      lo: { base: 'lui', gender: 'maschile', number: 'singolare' },
+      la: { base: 'lei', gender: 'femminile', number: 'singolare' },
+      li: { base: 'loro', gender: 'maschile', number: 'plurale' },
+      le: { base: 'loro', gender: 'femminile', number: 'plurale' },
+    };
+
+    // Insiemi per il numero grammaticale. Se un token appartiene a questo insieme,
+    // verrà interpretato come marcatore di singolare o plurale e mostrato come badge.
+    const NUMBER_MARKERS = {
+      it: new Set(['singolare','plurale']),
+      es: new Set(['singular','plural']),
+      en: new Set(['singular','plural'])
+    };
+
+    // (dichiarazioni duplicate per OPENAI_API_KEY e openaiApiKey rimosse)
+
+    let aborter = null;
+    const cache = new Map();
+
+    // Cache di dettaglio: id -> { keywordsLower: [...] }
+const pictoDetailCache = new Map();
+
+async function fetchPictoDetail(lang, id, signal) {
+  const key = `${lang}|${id}`;
+  if (pictoDetailCache.has(key)) return pictoDetailCache.get(key);
+
+  try {
+    const url = `${API_ROOT}/${lang}/${id}`;
+    const r = await fetch(url, signal ? { signal } : {});
+    if (!r.ok) throw new Error('detail fetch failed');
+    const data = await r.json();
+
+    const kw = Array.isArray(data.keywords) ? data.keywords : [];
+    const keywordsLower = kw
+      .map(k => (typeof k === 'string' ? k : (k?.keyword || '')))
+      .filter(Boolean)
+      .map(s => s.toLowerCase());
+
+    const detail = { keywordsLower };
+    pictoDetailCache.set(key, detail);
+    return detail;
+  } catch {
+    const fallback = { keywordsLower: [] };
+    pictoDetailCache.set(key, fallback);
+    return fallback;
+  }
+}
+
+function scoreWithKeywords(detail, term, lang) {
+  const kws = detail.keywordsLower || [];
+  const t = term.toLowerCase();
+  let s = 0;
+
+  if (kws.includes(t)) s += 100;
+  if (kws.some(k => k.startsWith(t))) s += 20;
+  if (kws.some(k => k.includes(t))) s += 5;
+
+  if (lang === 'it' && t === 'ora') {
+    if (kws.includes('orologio')) s += 40;
+    if (kws.includes('tempo')) s += 30;
+  }
+  return s;
+}
+
+
+    // Libreria personale di simboli caricati dall'utente.
+    // È memorizzata nel localStorage sotto la chiave 'personalSymbols'.
+    const personalLibrary = (() => {
+      try {
+        const stored = localStorage.getItem('personalSymbols');
+        return stored ? JSON.parse(stored) : {};
+      } catch (e) {
+        return {};
+      }
+    })();
+    function savePersonalLibrary() {
+      try {
+        localStorage.setItem('personalSymbols', JSON.stringify(personalLibrary));
+      } catch (e) {
+        console.error('Impossibile salvare la libreria personale', e);
+      }
+    }
+    function addPersonalSymbol(word, dataUrl) {
+      const key = word.toLowerCase();
+      personalLibrary[key] = personalLibrary[key] || [];
+      personalLibrary[key].push(dataUrl);
+      savePersonalLibrary();
+    }
+    
+    // Funzione per comprimere un'immagine a una dimensione massima (per risparmiare spazio in localStorage)
+    function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            // Calcola nuove dimensioni mantenendo aspect ratio
+            if (width > height) {
+              if (width > maxWidth) {
+                height = Math.round(height * (maxWidth / width));
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width = Math.round(width * (maxHeight / height));
+                height = maxHeight;
+              }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Converti a JPEG per miglior compressione (a meno che non sia PNG con trasparenza)
+            const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+            const dataUrl = canvas.toDataURL(mimeType, quality);
+            
+            const originalSize = (e.target.result.length / 1024).toFixed(2);
+            const compressedSize = (dataUrl.length / 1024).toFixed(2);
+            console.log(`[Compress] ${originalSize} KB -> ${compressedSize} KB (${((compressedSize / originalSize) * 100).toFixed(1)}%)`);
+            
+            resolve(dataUrl);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    // Creiamo un input file nascosto per consentire all'utente di caricare immagini personalizzate.
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+
+    function sanitizeWord(w){ 
+      // Prima gestisci gli articoli con apostrofo (l', un', dell', ecc.)
+      // Pattern: rimuove articoli comuni seguiti da apostrofo
+      let cleaned = w.replace(/^(l|un|dell|all|nell|sull|dall|c|d|n|s|t|v|m|qu)['']/i, '');
+      
+      // Poi rimuovi la punteggiatura rimanente
+      cleaned = cleaned.toLowerCase().replace(/[.,;:!?"'()\[\]{}<>]/g,'').trim();
+      
+      return cleaned;
+    }
+    function tokenize(text){ return text.replace(/\u00A0/g,' ').split(/\s+/).map(t=>t.replace(/[’']/g,"'") ) .filter(Boolean); }
+
+    async function queryFirstId(lang, term, signal){
+      const key = `${lang}|${term}`;
+      if(cache.has(key)) return cache.get(key);
+      async function hit(url){
+        const r = await fetch(url, signal?{signal}:{})
+        if(!r.ok) return null;
+        const data = await r.json();
+        if(Array.isArray(data) && data.length){ return data[0]?._id ?? null; }
+        return null;
+      }
+      let id = await hit(`${API_ROOT}/${lang}/search/${encodeURIComponent(term)}`);
+      if(!id) id = await hit(`${API_ROOT}/${lang}/bestsearch/${encodeURIComponent(term)}`);
+      if(!id){
+        const variants = generateItalianVariants(term);
+        for(const v of variants){
+          id = await hit(`${API_ROOT}/${lang}/search/${encodeURIComponent(v)}`);
+          if(!id) id = await hit(`${API_ROOT}/${lang}/bestsearch/${encodeURIComponent(v)}`);
+          if(id) break;
+        }
+      }
+      cache.set(key, id||null);
+      return id||null;
+    }
+
+    function generateItalianVariants(term){
+      const out = new Set();
+      const add = v => { if(v && v.length>1) out.add(v); };
+      add(term);
+
+      // Utilizziamo la variabile "lower" per lavorare con la versione
+      // minuscola del termine. Deve essere definita una volta all’inizio
+      // della funzione, in modo da poterla riutilizzare nelle regole
+      // successive (ad esempio per le varianti di genere e per il trattare
+      // "stato").
+      const lower = term.toLowerCase();
+
+      // Gestione di verbi irregolari al presente. Alcune forme non sono
+      // riconoscibili con le euristiche di coniugazione regolare; per esempio,
+      // "ho", "hai", "ha", "abbiamo", "avete", "hanno" sono tutte coniugazioni
+      // del verbo "avere", mentre "sono", "sei", "è", "siamo", "siete", "sono"
+      // appartengono al verbo "essere". Aggiungiamo direttamente l'infinito
+      // corretto come variante, così la ricerca potrà trovare un pittogramma più
+      // appropriato per il verbo ausiliare anziché un pittogramma legato a
+      // locuzioni casuali.
+      const irregularPresentMap = {
+        'ho': 'avere',
+        'hai': 'avere',
+        'ha': 'avere',
+        'abbiamo': 'avere',
+        'avete': 'avere',
+        'hanno': 'avere',
+        'sono': 'essere',
+        'sei': 'essere',
+        'è': 'essere',
+        'siamo': 'essere',
+        'siete': 'essere'
+      };
+      const irregularInf = irregularPresentMap[term.toLowerCase()];
+      if (irregularInf) add(irregularInf);
+      // Gestione di verbi irregolari al futuro che potrebbero essere interpretati come sostantivi
+      // Aggiunge l'infinito corretto quando il termine è una forma irregolare al futuro.
+      const irregularFutureMap = {
+        'fare': ['farò','farai','farà','faremo','farete','faranno'],
+        'essere': ['sarò','sarai','sarà','saremo','sarete','saranno'],
+        'avere': ['avrò','avrai','avrà','avremo','avrete','avranno'],
+        'andare': ['andrò','andrai','andrà','andremo','andrete','andranno'],
+        'potere': ['potrò','potrai','potrà','potremo','potrete','potranno'],
+        'volere': ['vorrò','vorrai','vorrà','vorremo','vorrete','vorranno'],
+        'dovere': ['dovrò','dovrai','dovrà','dovremo','dovrete','dovranno'],
+        'bere': ['berrò','berrai','berrà','berremo','berrete','berranno'],
+        'venire': ['verrò','verrai','verrà','verremo','verrete','verranno'],
+        'tenere': ['terrò','terrai','terrà','terremo','terrete','terranno'],
+        'porre': ['porrò','porrai','porrà','porremo','porrete','porranno'],
+        'trarre': ['trarrò','trarrai','trarrà','trarremo','trarrete','trarranno'],
+      };
+      for (const [inf, forms] of Object.entries(irregularFutureMap)) {
+        if (forms.includes(term)) {
+          add(inf);
+          break;
+        }
+      }
+      const clitics = '(la|lo|li|le|mi|ti|si|ci|vi|ne|gli|le)';
+      const infEnd = '(are|ere|ire)';
+      if(new RegExp(`${infEnd}si$`).test(term)) add(term.replace(/si$/,''));
+      if(new RegExp(`${infEnd}${clitics}$`).test(term)) add(term.replace(new RegExp(`${clitics}$`),''));
+      const part = /(at|it|ut)[oaie]$/;
+      if(part.test(term)){
+        const stem = term.replace(/(at|it|ut)[oaie]$/,'');
+        ['are','ere','ire'].forEach(inf=>add(stem+inf));
+      }
+      if(/ando$/.test(term)) add(term.replace(/ando$/,'are'));
+      if(/endo$/.test(term)) { add(term.replace(/endo$/,'ere')); add(term.replace(/endo$/,'ire')); }
+      const presentSets = [
+        { ends:['o','i','a','iamo','ate','ano'], infs:['are'] },
+        { ends:['o','i','e','iamo','ete','ono'], infs:['ere'] },
+        { ends:['o','i','e','iamo','ite','ono'], infs:['ire'] },
+      ];
+      for(const set of presentSets){ for(const suf of set.ends){ if(term.endsWith(suf) && term.length> (suf.length+1)){ const root=term.slice(0,-suf.length); set.infs.forEach(inf=>add(root+inf)); }}}
+      [['isco','ire'],['isci','ire'],['isce','ire'],['iscono','ire']].forEach(([suf,inf])=>{ if(term.endsWith(suf)) add(term.slice(0,-suf.length)+inf); });
+      const imp = [['avo','are'],['avi','are'],['ava','are'],['avamo','are'],['avate','are'],['avano','are'],['evo','ere'],['evi','ere'],['eva','ere'],['evamo','ere'],['evate','ere'],['evano','ere'],['ivo','ire'],['ivi','ire'],['iva','ire'],['ivamo','ire'],['ivate','ire'],['ivano','ire']];
+      for(const [suf,inf] of imp){ if(term.endsWith(suf) && term.length>(suf.length+1)) add(term.slice(0,-suf.length)+inf); }
+      const futEnd = ['ò','ai','à','emo','ete','anno'];
+      for (const fe of futEnd) {
+        // Gestione dei futuri per i verbi in -are/-ere. Se termina in "er" + desinenza,
+        // estrai la radice "b" e genera varianti intelligenti: b+are, b+ere, b+iare.
+        if (term.endsWith('er' + fe)) {
+          const b = term.slice(0, -(2 + fe.length));
+          // Variante regolare: -are e -ere
+          add(b + 'are');
+          add(b + 'ere');
+          // Se il futuro deriva da verbi in -ciare/-giare, la radice perde la "i"
+          // (es. mangiare → mangerò). In tal caso riaggiungiamo la "i" per l'infinito.
+          if (/g$/.test(b) || /c$/.test(b)) {
+            add(b + 'iare');
+          }
+          // Se il futuro deriva da verbi in -care/-gare (es. giocare → giocherò),
+          // la radice mantiene la "h". Rimuoviamo la "h" per tornare alla radice originale.
+          if (/ch$/.test(b) || /gh$/.test(b)) {
+            const root = b.slice(0, -1); // togli l'h
+            add(root + 'are');
+          }
+        }
+        // Gestione dei futuri per i verbi in -ire
+        if (term.endsWith('ir' + fe)) {
+          const b = term.slice(0, -(2 + fe.length));
+          add(b + 'ire');
+        }
+      }
+      const remoto = [['ai','are'],['asti','are'],['ò','are'],['ammo','are'],['aste','are'],['arono','are'],['ei','ere'],['esti','ere'],['é','ere'],['emmo','ere'],['este','ere'],['erono','ere'],['etti','ere'],['ette','ere'],['ettero','ere'],['ii','ire'],['isti','ire'],['ì','ire'],['immo','ire'],['iste','ire'],['irono','ire']];
+      for(const [suf,inf] of remoto){ if(term.endsWith(suf) && term.length>(suf.length+1)) add(term.slice(0,-suf.length)+inf); }
+      if(/mente$/.test(term) && term.length>6){ add(term.replace(/mente$/,'o')); add(term.replace(/mente$/,'a')); }
+
+      // Varianti di genere per aggettivi: se termina con "a" (forma femminile
+      // singolare), prova a sostituirla con "o" (maschile). Ad esempio:
+      // "prossima" → "prossimo". Questo aiuta a trovare un pittogramma
+      // anche quando esiste solo la forma maschile nella banca dati.
+      if (/a$/.test(lower)) {
+        const masculine = lower.slice(0, -1) + 'o';
+        add(masculine);
+      }
+
+      // Trattamento speciale del participio "stato" (anche declinato al femminile e plurale).
+      // Se la parola è "stato", "stata", "stati" o "state", aggiungi gli infiniti "stare"
+      // ed "essere". Questo aiuta a riconoscere "sono stato" come passato di "stare" e non
+      // come sostantivo "stato" (unità geografica).
+      if (['stato','stata','stati','state'].includes(lower)) {
+        add('stare');
+        add('essere');
+      }
+      return [...out];
+    }
+
+    // Generazione di varianti per il verbo/spelling spagnolo.
+    // Utilizza euristiche semplici per derivare l'infinito da forme flesse.
+    function generateSpanishVariants(term) {
+      const out = new Set();
+      const add = v => { if (v && v.length > 1) out.add(v); };
+      add(term);
+      const w = term.toLowerCase();
+      // Rimozione di pronomi clitici alla fine (me, te, se, nos, os, lo, la, los, las, le, les)
+      ['me','te','se','nos','os','lo','la','los','las','le','les'].forEach(pro => {
+        if (w.endsWith(pro) && w.length > pro.length + 1) {
+          add(w.slice(0, -pro.length));
+        }
+      });
+      // Participi passati (-ado, -ada, -ados, -adas, -ido, -ida, -idos, -idas)
+      ['ado','ada','ados','adas','ido','ida','idos','idas'].forEach(suf => {
+        if (w.endsWith(suf) && w.length > suf.length + 1) {
+          const root = w.slice(0, -suf.length);
+          ['ar','er','ir'].forEach(inf => add(root + inf));
+        }
+      });
+      // Gerundi (-ando, -iendo, -yendo)
+      if (w.endsWith('ando') && w.length > 4) {
+        const root = w.slice(0, -4);
+        add(root + 'ar');
+      }
+      if (w.endsWith('iendo') && w.length > 5) {
+        const root = w.slice(0, -5);
+        ['er','ir'].forEach(inf => add(root + inf));
+      }
+      if (w.endsWith('yendo') && w.length > 5) {
+        const root = w.slice(0, -5);
+        ['er','ir'].forEach(inf => add(root + inf));
+      }
+      // Presente indicativo
+      const pres = [
+        { ends: ['o','as','a','amos','áis','an'], infs: ['ar'] },
+        { ends: ['o','es','e','emos','éis','en'], infs: ['er','ir'] },
+        { ends: ['o','es','e','imos','ís','en'], infs: ['ir'] },
+      ];
+      pres.forEach(set => {
+        set.ends.forEach(suf => {
+          if (w.endsWith(suf) && w.length > suf.length + 1) {
+            const root = w.slice(0, -suf.length);
+            set.infs.forEach(inf => add(root + inf));
+          }
+        });
+      });
+      // Imperfecto (-aba, -abas, -ábamos, -abais, -aban, -ía, -ías, -íamos, -íais, -ían)
+      [
+        ['aba','ar'], ['abas','ar'], ['ábamos','ar'], ['abais','ar'], ['aban','ar'],
+        ['ía','er'], ['ías','er'], ['íamos','er'], ['íais','er'], ['ían','er'],
+        ['ía','ir'], ['ías','ir'], ['íamos','ir'], ['íais','ir'], ['ían','ir'],
+      ].forEach(([suf, inf]) => {
+        if (w.endsWith(suf) && w.length > suf.length + 1) {
+          const root = w.slice(0, -suf.length);
+          add(root + inf);
+        }
+      });
+      // Pretérito perfecto simple
+      [
+        ['é','ar'], ['aste','ar'], ['ó','ar'], ['amos','ar'], ['asteis','ar'], ['aron','ar'],
+        ['í','er'], ['iste','er'], ['ió','er'], ['imos','er'], ['isteis','er'], ['ieron','er'],
+        ['í','ir'], ['iste','ir'], ['ió','ir'], ['imos','ir'], ['isteis','ir'], ['ieron','ir'],
+      ].forEach(([suf, inf]) => {
+        if (w.endsWith(suf) && w.length > suf.length + 1) {
+          const root = w.slice(0, -suf.length);
+          add(root + inf);
+        }
+      });
+      // Futuro (-aré, -arás, -ará, -aremos, -aréis, -arán, -eré, -erás, ..., -irán)
+      [
+        ['aré','ar'], ['arás','ar'], ['ará','ar'], ['aremos','ar'], ['aréis','ar'], ['arán','ar'],
+        ['eré','er'], ['erás','er'], ['erá','er'], ['eremos','er'], ['eréis','er'], ['erán','er'],
+        ['iré','ir'], ['irás','ir'], ['irá','ir'], ['iremos','ir'], ['iréis','ir'], ['irán','ir'],
+      ].forEach(([suf, inf]) => {
+        if (w.endsWith(suf) && w.length > suf.length + 1) {
+          const root = w.slice(0, -suf.length);
+          add(root + inf);
+        }
+      });
+      // Avverbi in -mente: trasformali in forma maschile o femminile dell'aggettivo
+      if (w.endsWith('mente') && w.length > 6) {
+        const stem = w.slice(0, -5);
+        add(stem + 'o');
+        add(stem + 'a');
+      }
+      return [...out];
+    }
+
+    // Generazione di varianti per l'inglese, gestendo plurali, participi e comparativi.
+    function generateEnglishVariants(term) {
+      const out = new Set();
+      const add = v => { if (v && v.length > 1) out.add(v); };
+      const w = term.toLowerCase();
+      add(w);
+      // Plurali
+      if (w.endsWith('ies') && w.length > 3) add(w.slice(0, -3) + 'y');
+      if (w.endsWith('es') && w.length > 2) add(w.slice(0, -2));
+      if (w.endsWith('s') && w.length > 1) add(w.slice(0, -1));
+      // Participi passati
+      if (w.endsWith('ied') && w.length > 3) add(w.slice(0, -3) + 'y');
+      if (w.endsWith('ed') && w.length > 2) {
+        let root = w.slice(0, -2);
+        add(root);
+        if (root.length > 1 && root[root.length - 1] === root[root.length - 2]) add(root.slice(0, -1));
+      }
+      // Forme in -ing
+      if (w.endsWith('ing') && w.length > 3) {
+        let root = w.slice(0, -3);
+        add(root);
+        if (root.length > 1 && root[root.length - 1] === root[root.length - 2]) add(root.slice(0, -1));
+        if (root.endsWith('ie')) add(root.slice(0, -2) + 'y');
+      }
+      // Comparativi/superlativi
+      if (w.endsWith('er') && w.length > 2) {
+        let root = w.slice(0, -2);
+        add(root);
+        if (root.length > 1 && root[root.length - 1] === root[root.length - 2]) add(root.slice(0, -1));
+        if (root.endsWith('i')) add(root.slice(0, -1) + 'y');
+      }
+      if (w.endsWith('est') && w.length > 3) {
+        let root = w.slice(0, -3);
+        add(root);
+        if (root.length > 1 && root[root.length - 1] === root[root.length - 2]) add(root.slice(0, -1));
+        if (root.endsWith('i')) add(root.slice(0, -1) + 'y');
+      }
+      // Avverbi in -ly
+      if (w.endsWith('ly') && w.length > 2) add(w.slice(0, -2));
+      // Possessivi con apostrofo
+      if (w.endsWith("'s")) add(w.slice(0, -2));
+      return [...out];
+    }
+
+    // Funzione generica che restituisce le varianti in base alla lingua corrente
+    function generateVariants(term, lang) {
+      if (lang === 'it') return generateItalianVariants(term);
+      if (lang === 'es') return generateSpanishVariants(term);
+      if (lang === 'en') return generateEnglishVariants(term);
+      return [term];
+    }
+
+    // Effettua ricerche multiple sull'API ARASAAC per ottenere più ID per lo stesso termine.
+   async function searchForIds(lang, term, signal) {
+  const urls = [
+    `${API_ROOT}/${lang}/search/${encodeURIComponent(term)}`,
+    `${API_ROOT}/${lang}/bestsearch/${encodeURIComponent(term)}`
+  ];
+
+  const pool = new Set();
+  for (const url of urls) {
+    try {
+      const r = await fetch(url, signal ? { signal } : {});
+      if (!r.ok) continue;
+      const data = await r.json();
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          if (item && item._id) pool.add(item._id);
+          if (pool.size >= 25) break;
+        }
+      }
+    } catch {}
+    if (pool.size >= 25) break;
+  }
+  if (pool.size === 0) return [];
+
+  const candidates = await Promise.all(
+    [...pool].map(async (id) => {
+      const detail = await fetchPictoDetail(lang, id, signal);
+      const score = scoreWithKeywords(detail, term, lang);
+      return { id, score };
+    })
+  );
+  // Filtra i candidati con un punteggio significativo. Vogliamo evitare
+  // pittogrammi che corrispondono solo per sottostringa (score 5) e
+  // considerare solo corrispondenze esatte o iniziali (score >= 20).
+  const filtered = candidates.filter(c => c.score >= 20);
+  if (filtered.length === 0) return [];
+
+  return filtered
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+    .map(c => c.id);
+}
+
+
+    // Ottiene la lista di ID (e simboli personalizzati) per un termine.
+   async function queryIds(lang, term, signal) {
+  console.log('[queryIds] Called with term:', JSON.stringify(term));
+  // Pulisci il termine da punteggiatura e converti in lowercase
+  const t = sanitizeWord(term || '');
+  console.log('[queryIds] After sanitizeWord:', JSON.stringify(t));
+  if (!t) return { ids: [], openSymbols: [] }; // Se il termine è vuoto dopo la pulizia, restituisci vuoto
+  const startTime = performance.now();
+
+  // FASE 1: Ricerche parallele iniziali (italiano base + traduzione + sinonimi)
+  const [italianBaseIds, engTerm, italianSynonyms] = await Promise.all([
+    // Ricerca italiana base
+    (async () => {
+      let ids = [];
+      if (t.includes(' ')) {
+        if (lang === 'it' && keywordIndexReady && keywordIndex.has(t)) {
+          ids = Array.from(keywordIndex.get(t)).slice(0, 5);
+        } else {
+          ids = await searchForIds(lang, term, signal).catch(() => []);
+        }
+      } else if (lang === 'it' && keywordIndexReady) {
+        const fromIndex = getKeywordCandidatesIT(t);
+        if (fromIndex.length) {
+          ids = fromIndex.slice(0, 5);
+        }
+      }
+      if (!ids.length) {
+        ids = await searchForIds(lang, term, signal).catch(() => []);
+        if (!ids.length) {
+          const variants = generateVariants(term, lang);
+          for (const v of variants) {
+            if (v.toLowerCase() === t) continue;
+            ids = await searchForIds(lang, v, signal);
+            if (ids.length) break;
+          }
+        }
+      }
+      return ids;
+    })(),
+    // Traduzione in inglese
+    translateItToEn(term),
+    // Sinonimi italiani
+    getItalianSynonyms(term)
+  ]);
+
+  console.log('[queryIds] Phase 1 complete - Italian base:', italianBaseIds.length, 'English term:', engTerm, 'Italian synonyms:', italianSynonyms);
+
+  // FASE 2: Ricerche parallele con sinonimi (italiano + inglese)
+  const arasaacIds = [...italianBaseIds];
+  const idsSet = new Set(arasaacIds); // Per deduplicazione veloce
+  
+  // Prepara tutte le ricerche da fare in parallelo
+  const searches = [];
+  
+  // Sinonimi italiani (escluso termine originale già cercato)
+  italianSynonyms.forEach(syn => {
+    if (syn !== t) {
+      searches.push({ lang: 'it', term: syn });
+    }
+  });
+  
+  // Sinonimi inglesi (se traduzione disponibile)
+  let englishSynonyms = [];
+  if (engTerm && engTerm.toLowerCase() !== term.toLowerCase()) {
+    englishSynonyms = await getEnglishSynonyms(engTerm);
+    englishSynonyms.forEach(syn => {
+      searches.push({ lang: 'en', term: syn });
+    });
+  }
+  
+  console.log('[queryIds] Phase 2 - Searching', searches.length, 'synonyms in parallel');
+  
+  // Esegui tutte le ricerche in parallelo (max 10 alla volta per evitare rate limit)
+  const batchSize = 10;
+  for (let i = 0; i < searches.length; i += batchSize) {
+    const batch = searches.slice(i, i + batchSize);
+    const results = await Promise.all(
+      batch.map(({ lang, term }) => searchForIds(lang, term, signal).catch(() => []))
+    );
+    
+    // Aggiungi ID non duplicati
+    results.forEach(ids => {
+      ids.forEach(id => {
+        if (!idsSet.has(id) && arasaacIds.length < 20) {
+          arasaacIds.push(id);
+          idsSet.add(id);
+        }
+      });
+    });
+  }
+
+  const arasaacTime = performance.now() - startTime;
+  console.log('[queryIds] ARASAAC search complete:', arasaacIds.length, 'IDs in', arasaacTime.toFixed(0), 'ms');
+
+  // FASE 3: OpenSymbols (usa la stessa traduzione già ottenuta)
+  console.log('[queryIds] Searching OpenSymbols with pre-translated term:', engTerm);
+  const openSymbols = await searchOpenSymbols(term, engTerm); // Passa traduzione esistente
+  
+  const totalTime = performance.now() - startTime;
+  console.log('[queryIds] Total search time:', totalTime.toFixed(0), 'ms - ARASAAC:', arasaacIds.length, 'OpenSymbols:', openSymbols.length);
+
+  return { arasaacIds, openSymbols };
+}
+
+    // Funzione per mostrare solo il testo grande (nasconde il simbolo)
+    function showTextOnly(tile, word) {
+      const img = tile.querySelector('img');
+      const wordLabel = tile.querySelector('.word');
+      
+      // Nascondi l'immagine se esiste
+      if (img) {
+        img.style.display = 'none';
+      }
+      
+      if (wordLabel) {
+        // Ingrandisci il testo
+        wordLabel.style.fontSize = '2.5rem';
+        wordLabel.style.fontWeight = 'bold';
+        wordLabel.style.margin = 'auto 0';
+        wordLabel.style.flexGrow = '1';
+        wordLabel.style.display = 'flex';
+        wordLabel.style.alignItems = 'center';
+        wordLabel.style.justifyContent = 'center';
+      }
+      
+      // Nascondi i badge se presenti
+      const badges = tile.querySelector('.badges');
+      if (badges) {
+        badges.style.display = 'none';
+      }
+      
+      // Marca il tile come "text-only" mode
+      tile.dataset.textOnlyMode = 'true';
+    }
+    
+    // Funzione per ripristinare la visualizzazione del simbolo
+    function showSymbolMode(tile, word) {
+      const img = tile.querySelector('img');
+      const wordLabel = tile.querySelector('.word');
+      
+      // Mostra l'immagine se esiste
+      if (img) {
+        img.style.display = '';
+      }
+      
+      if (wordLabel) {
+        // Ripristina lo stile normale del testo
+        wordLabel.style.fontSize = '';
+        wordLabel.style.fontWeight = '';
+        wordLabel.style.margin = '';
+        wordLabel.style.flexGrow = '';
+        wordLabel.style.display = '';
+        wordLabel.style.alignItems = '';
+        wordLabel.style.justifyContent = '';
+      }
+      
+      // Mostra i badge se presenti
+      const badges = tile.querySelector('.badges');
+      if (badges) {
+        badges.style.display = '';
+      }
+      
+      // Rimuovi il marker "text-only" mode
+      tile.dataset.textOnlyMode = 'false';
+    }
+
+    // Imposta l'immagine del tile in base all'indice corrente
+    async function setImageForTile(tile, img) {
+      const ids = JSON.parse(tile.dataset.ids || '[]');
+      const index = parseInt(tile.dataset.index || '0', 10);
+      const word = tile.dataset.word || '';
+      console.log('[setImageForTile] ids:', ids, 'index:', index, 'word:', word);
+      // Priorità: immagine personalizzata in cache
+      // NOTA: customImages rimosso per permettere ciclaggio - immagine custom è nel primo posto di ids
+      const id = ids[index];
+      console.log('[setImageForTile] current id:', id, 'typeof:', typeof id);
+      if (!id) return;
+      
+      // Caso: immagine dalla cartella locale
+      if (typeof id === 'object' && id.type === 'local-file' && id.id) {
+        console.log('[setImageForTile] Loading local file:', id.fileName);
+        try {
+          // Recupera il FileHandle dalla mappa globale
+          const fileHandle = localFileHandleMap.get(id.id);
+          if (!fileHandle) {
+            throw new Error('FileHandle non trovato nella mappa');
+          }
+          
+          const file = await fileHandle.getFile();
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          img.src = dataUrl;
+          img.alt = `Immagine locale: ${id.fileName}`;
+        } catch (err) {
+          console.error('[setImageForTile] Error loading local file:', err);
+          img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" text-anchor="middle" fill="red">Errore</text></svg>';
+          img.alt = 'Errore caricamento';
+        }
+        return;
+      }
+      
+      if (typeof id === 'string' && id.startsWith('data:')) {
+        img.src = id;
+        img.alt = `Simbolo personalizzato per “${word}”`;
+      } else if (typeof id === 'object' && id.image_url) {
+        // Caso: simbolo OpenSymbols (TAWASOL, Bliss, ecc.)
+        // Usa proxy CORS per evitare errori CORS quando il file è aperto localmente
+        const imageUrl = id.image_url.startsWith('http') 
+          ? `https://corsproxy.io/?${encodeURIComponent(id.image_url)}`
+          : id.image_url;
+        console.log('[setImageForTile] Setting OpenSymbols image via proxy:', imageUrl);
+        img.src = imageUrl;
+        img.alt = `${id.name || id.label || word} (${id.repo || id.repo_key || ''})`;
+      } else if (typeof id === 'object' && id.url) {
+        // Caso: simbolo OpenSymbols (fallback su url SVG)
+        const imageUrl = id.url.startsWith('http') 
+          ? `https://corsproxy.io/?${encodeURIComponent(id.url)}`
+          : id.url;
+        console.log('[setImageForTile] Setting OpenSymbols SVG via proxy:', imageUrl);
+        img.src = imageUrl;
+        img.alt = `${id.label || word}`;
+      } else {
+        img.src = `${STATIC_ROOT}/${id}/${id}_500.png`;
+        img.alt = `Pittogramma per “${word}”`;
+      }
+    }
+
+    // Mostra tutti i simboli OpenSymbols (TAWASOL, Bliss, ecc.) in una sezione dedicata
+    function showOpenSymbolsSection(symbols, word) {
+      if (!Array.isArray(symbols) || symbols.length === 0) return;
+      let section = document.getElementById('openSymbolsSection');
+      if (!section) {
+        section = document.createElement('div');
+        section.id = 'openSymbolsSection';
+        section.style.margin = '16px 0 0 0';
+        section.innerHTML = '<h3 style="font-size:1.1rem;margin-bottom:8px;">Simboli da OpenSymbols</h3>';
+        els.res.appendChild(section);
+      } else {
+        section.innerHTML = '<h3 style="font-size:1.1rem;margin-bottom:8px;">Simboli da OpenSymbols</h3>';
+      }
+      symbols.forEach(symbol => {
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'inline-block';
+        wrapper.style.margin = '0 8px 8px 0';
+        wrapper.style.textAlign = 'center';
+        const img = document.createElement('img');
+        img.src = symbol.image_url;
+        img.alt = symbol.name;
+        img.style.width = '80px';
+        img.style.height = '80px';
+        img.style.objectFit = 'contain';
+        img.style.background = '#fff';
+        img.style.border = '1.5px solid #d1d5db';
+        img.style.borderRadius = '10px';
+        img.style.display = 'block';
+        img.style.margin = '0 auto 4px auto';
+        // Badge fonte
+        const badge = document.createElement('span');
+        badge.textContent = symbol.repo_key || '';
+        badge.style.fontSize = '.8rem';
+        badge.style.background = '#e5e7eb';
+        badge.style.color = '#374151';
+        badge.style.padding = '1px 6px';
+        badge.style.borderRadius = '8px';
+        badge.style.display = 'inline-block';
+        badge.style.marginTop = '2px';
+        wrapper.appendChild(img);
+        wrapper.appendChild(badge);
+        section.appendChild(wrapper);
+      });
+    }
+
+    // Passa all'immagine successiva nella lista degli ID
+    function cycleTileImage(tile) {
+      const ids = JSON.parse(tile.dataset.ids || '[]');
+      if (!ids || ids.length <= 1) return;
+      let index = parseInt(tile.dataset.index || '0', 10);
+      index = (index + 1) % ids.length;
+      tile.dataset.index = index.toString();
+      const img = tile.querySelector('img');
+      if (img) setImageForTile(tile, img);
+    }
+
+    // Apre l'input file nascosto per permettere di caricare un simbolo personalizzato per la parola
+    function openFileChooserForWord(tile, word) {
+      // Controlla se la cartella è selezionata
+      if (!checkLocalFolderSelected('caricare immagini dal PC')) {
+        return;
+      }
+      
+      fileInput.onchange = async function() {
+        const file = fileInput.files && fileInput.files[0];
+        if (file) {
+          try {
+            // Salva l'immagine nella cartella locale (già compressa dalla funzione saveImageToLocalFolder)
+            const fileHandle = await saveImageToLocalFolder(file, word);
+            
+            console.log('[Upload] Saved custom image for:', word, 'File:', fileHandle.name);
+            
+            // Genera ID univoco e salva il FileHandle nella mappa
+            const uniqueId = `local-file::${fileHandle.name}`;
+            localFileHandleMap.set(uniqueId, fileHandle);
+            
+            // Aggiorna la lista di id del tile - inserisci all'inizio per priorità
+            const ids = JSON.parse(tile.dataset.ids || '[]');
+            const newLocalFile = { 
+              type: 'local-file', 
+              id: uniqueId,
+              fileName: fileHandle.name,
+              word: word 
+            };
+            
+            // Rimuovi eventuali duplicati (confronto per id)
+            const existingIndex = ids.findIndex(id => 
+              id && typeof id === 'object' && id.type === 'local-file' && id.id === uniqueId
+            );
+            if (existingIndex !== -1) {
+              ids.splice(existingIndex, 1);
+            }
+            
+            ids.unshift(newLocalFile); // Inserisci all'inizio
+            tile.dataset.ids = JSON.stringify(ids);
+            tile.dataset.index = '0'; // Mostra la prima (quella appena caricata)
+            
+            // Salva l'associazione parola → file in localStorage per riutilizzo futuro
+            const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+            if (!customImages[word]) {
+              customImages[word] = [];
+            }
+            // Assicurati che sia un array
+            if (!Array.isArray(customImages[word])) {
+              customImages[word] = [customImages[word]];
+            }
+            // Aggiungi solo se non già presente
+            if (!customImages[word].includes(uniqueId)) {
+              customImages[word].push(uniqueId);
+              localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+              console.log('[Upload] Saved association:', word, '→', uniqueId);
+            }
+            
+            // Aggiorna o crea l'immagine
+            let img = tile.querySelector('img');
+            if (!img) {
+              img = document.createElement('img');
+              img.loading = 'lazy';
+              img.decoding = 'async';
+            img.crossOrigin = 'anonymous';
+            tile.insertBefore(img, tile.firstChild);
+          }
+          setImageForTile(tile, img);
+          // Rimuovi eventuale messaggio "nessun pittogramma trovato"
+          const miss = tile.querySelector('.miss');
+          if (miss) miss.remove();
+          
+          } catch (error) {
+            console.error('[Upload] Failed to save:', error);
+            alert(error.message || 'Errore nel salvataggio dell\'immagine');
+          }
+        }
+        // resetta l'input per consentire selezioni successive
+        fileInput.value = '';
+      };
+      fileInput.click();
+    }
+
+    /**
+     * Analizza una frase usando l'API GPT di OpenAI per estrarre per ogni parola i lemmi che
+     * rappresentano il suo significato, includendo pronomi impliciti o clitici e indicazioni di genere.
+     * Restituisce un array di oggetti, uno per ogni parola, con i componenti semantici.
+     * Esempio: "Farò una grande festa" -> [
+     * { lemma: 'fare', pronome_soggetto: 'io', tempo: 'futuro' },
+     * { lemma: 'null' }, // per 'una'
+     * { lemma: 'grande', genere: 'femminile', numero: 'singolare' },
+     * { lemma: 'festa', genere: 'femminile', numero: 'singolare' }
+     * ]
+     * Se la chiave API non è impostata o la chiamata fallisce, restituisce null.
+     * @param {string} text La frase da analizzare
+     * @param {string} lang Codice ISO della lingua ('it','es','en')
+     */
+    async function analyzeSentence(text, lang) {
+      if (!openaiApiKey) return null;
+      // Per ora supportiamo solo l'analisi avanzata in italiano
+      if (lang !== 'it') return null;
+      try {
+        /*
+         Costruiamo un prompt dettagliato. Chiediamo di fornire, per ogni parola della frase,
+         i suoi componenti semantici in formato chiave:valore.
+         Chiediamo 'lemma:null' per le parole funzionali.
+         Aggiungiamo inoltre la richiesta di fornire dei sinonimi utili per trovare i pittogrammi.
+        */
+        const prompt =
+  'Per ciascuna parola della seguente frase italiana restituisci i suoi componenti semantici in formato `chiave:valore`, separati da `|`. ' +
+  'Le chiavi possibili sono: `lemma`, `pronome_soggetto`, `pronome_oggetto`, `genere`, `numero`, `tempo`, `sinonimi`. ' +
+  'OBBLIGATORIO: per ogni SOSTANTIVO e AGGETTIVO indica sempre `genere` (maschile/femminile o sconosciuto) e `numero` (singolare/plurale). ' +
+  'OBBLIGATORIO: se una parola è al plurale, restituisci sempre il lemma al singolare.'+
+  'OBBLIGATORIO: se una parola è un verbo, restituisci sempre al forma al infinito.'+
+  'Se non è determinabile dal contesto, stima in base alla morfologia; se resta ambiguo, usa `genere:sconosciuto` ma indica comunque `numero`. ' +
+  "Se la parola è un articolo, preposizione o congiunzione (parola funzionale), restituisci `lemma:null`. " +
+  "Esempio 1: 'bambina' -> `lemma:bambina|genere:femminile|numero:singolare` " +
+  "Esempio 2: 'felice' (riferito a singolare) -> `lemma:felice|genere:sconosciuto|numero:singolare` " +
+  "Esempio 3: 'belle' -> `lemma:bello|genere:femminile|numero:plurale` " +
+  "Esempio 4: 'Mangio' -> `lemma:mangiare|pronome_soggetto:io|numero:singolare` " +
+  'Inoltre, per ogni lemma non nullo, includi un campo `sinonimi` con uno o due sinonimi italiani separati da punto e virgola che possano aiutare a trovare un pittogramma appropriato. Usa `sinonimi:null` se non ci sono sinonimi adatti. ' +
+  'Scegli `pronome_soggetto` in base alla concordanza di numero e genere con eventuali aggettivi o sostantivi. Ad esempio, se la forma verbale "sono" è seguita da un aggettivo femminile plurale (come "curiose"), il pronome soggetto corretto è "loro" e non "io". ' +
+  'Rispondi con una riga (una sola riga) per ciascuna parola della frase, senza utilizzare virgole per separare le righe. Ogni riga deve contenere i campi di una sola parola. Usa il carattere di ritorno a capo (\n) per passare alla parola successiva.\n' +
+  'Frase: ' + text;
+
+
+        const body = {
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: 'Sei un assistente che restituisce componenti semantici per parole italiane in formato chiave:valore.' },
+            { role: 'user', content: prompt }
+          ],
+          max_tokens: 350,
+          temperature: 0.0
+        };
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openaiApiKey}`
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP error ' + res.status);
+        const data = await res.json();
+        const answer = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        if (!answer) return null;
+
+        // Esegui il parsing della risposta strutturata
+        // Risposta attesa: "lemma:mangiare|pronome_soggetto:io, lemma:null, ..."
+        const wordAnalyses = answer
+          .split(/\n+/) // ogni riga corrisponde a una parola
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const structuredGroups = wordAnalyses.map(analysisString => {
+          const parts = analysisString.split('|');
+          const analysis = {};
+          parts.forEach(part => {
+            const kv = part.split(':');
+            if (kv.length === 2) {
+              const key = kv[0].trim().toLowerCase().replace(/`/g, '');
+              const value = kv[1].trim().toLowerCase().replace(/`/g, '');
+              
+              // Gestisci sinonimi: una lista separata da punto e virgola
+              if (key === 'sinonimi') {
+                  if (value && value !== 'null') {
+                      analysis.sinonimi = value.split(';').map(s => s.trim()).filter(Boolean);
+                  }
+                  return;
+              }
+              // Semplifichiamo le chiavi per coerenza
+              if (key === 'pronome_soggetto' || key === 'pronome_oggetto') {
+                  analysis['pronome'] = value; // Unifichiamo i pronomi
+              } else {
+                  analysis[key] = value;
+              }
+            }
+          });
+          return analysis;
+        });
+
+        return structuredGroups.length ? structuredGroups : null;
+        
+      } catch (e) {
+        console.error('analisi GPT fallita', e);
+        return null;
+      }
+    }
+
+    function detectTense(term, lang){
+      const w = term.toLowerCase();
+      if(lang==='it'){
+        if(/(er|ir)(ò|ai|à|emo|ete|anno)$/.test(w)) return 'future';
+        const futIr = ['sarò','sarai','sarà','saremo','sarete','saranno','avrò','avrai','avrà','avremo','avrete','avranno','andrò','andrai','andrà','andremo','andrete','andranno','farò','farai','farà','faremo','farete','faranno','potrò','potrai','potrà','potremo','potrete','potranno','vorrò','vorrai','vorrà','vorremo','vorrete','vorranno','dovrò','dovrai','dovrà','dovremo','dovrete','dovranno','berrò','berrai','berrà','berremo','berrete','berranno','verrò','verrai','verrà','verremo','verrete','verranno','terrò','terrai','terrà','terremo','terrete','terranno','porrò','porrai','porrà','porremo','porrete','porranno','trarrò','trarrai','trarrà','trarremo','trarrete','trarranno'];
+        if(futIr.includes(w)) return 'future';
+        if(/(at|ut|it)[oaie]$/.test(w)) return 'past';
+        const imp = ['avo','avi','ava','avamo','avate','avano','evo','evi','eva','evamo','evate','avano','ivo','ivi','iva','ivamo','ivate','ivano'];
+        if(imp.some(s=>w.endsWith(s))) return 'past';
+        const rem = ['ai','asti','ò','ammo','aste','arono','ei','esti','é','emmo','este','erono','etti','ette','ettero','ii','isti','ì','immo','iste','irono'];
+        if(rem.some(s=>w.endsWith(s))) return 'past';
+        return null;
+      }
+      if(lang==='es'){
+        if(/(é|ás|á|emos|éis|án)$/.test(w)) return 'future';
+        if(/(é|aste|ó|amos|asteis|aron|í|iste|ió|imos|isteis|ieron)$/.test(w)) return 'past';
+        return null;
+      }
+      if(lang==='en'){
+        if(/^will\b/.test(w)) return 'future';
+        if(/ed$/.test(w)) return 'past';
+        return null;
+      }
+      return null;
+    }
+
+    const TENSE_WORDS = { 
+      it:{future:'futuro', past:'passato', present:'presente'}, 
+      es:{future:'futuro', past:'pasado', present:'presente'}, 
+      en:{future:'future', past:'past', present:'present'} 
+    };
+    
+    // Emoji/simboli Unicode per i badge grammaticali (più chiari delle icone ARASAAC)
+    const BADGE_SYMBOLS = {
+      // Tempi verbali
+      past: '⏪',        // passato
+      present: '▶️',    // presente
+      future: '⏩',      // futuro
+      // Numeri
+      singolare: '1️⃣',   // singolare
+      plurale: '➕',      // plurale
+    };
+    
+    const tenseBadgeCache = { future:null, past:null, present:null, lang:null };
+
+    // Sinonimi locali per termini comuni che spesso non hanno un pittogramma diretto.
+    // Se un lemma non trova un simbolo, questi sinonimi vengono usati per
+    // l’ulteriore ricerca. Si possono estendere liberamente secondo necessità.
+    const LOCAL_SYNONYMS_IT = {
+      'tante': ['molte','numerose'],
+      'tanti': ['molti','numerosi'],
+      'tanta': ['molta','numerosa'],
+      'tanto': ['molto','numeroso'],
+      'poche': ['poche','poco'],
+      'poca': ['poca','pochi'],
+      'poco': ['pochi','poca'],
+      'pochi': ['poco','poche'],
+      'ragazze': ['bambine','giovani'],
+      'ragazzi': ['bambini','giovani']
+    };
+    async function getTenseBadge(tense){
+      const lang = els.lang.value || 'it';
+      const text = TENSE_WORDS[lang][tense];
+      const emoji = BADGE_SYMBOLS[tense];
+      return { emoji, text };
+    }
+
+    async function addTile(id, word, skipped = false, tense = null, badges = [], highlight = false, insertBefore = null) {
+  // Crea un nuovo tile che può contenere più ID (pittogrammi ARASAAC, TAWASOL, OpenSymbols, ecc.) e badge multipli.
+  // insertBefore: se specificato, inserisce il tile prima di questo elemento, altrimenti lo aggiunge in fondo
+  // Puoi passare direttamente un array di simboli come id:
+  // Esempio:
+  // addTile([
+  //   {image_url: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/man.png.varianted-skin.png', name: 'uomo', repo: 'arasaac'},
+  //   {image_url: 'https://d18vdu4p71yql0.cloudfront.net/libraries/tawasol/Man_3.png', name: 'Uomo 3', repo: 'tawasol'}
+  // ], 'uomo');
+      console.log('[addTile] called with id:', id, 'word:', word);
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      if (highlight) {
+        tile.classList.add('inserted');
+      }
+      tile.dataset.word = word;
+      // Se id è una lista (array), utilizzalo, altrimenti trasformalo in array. Quando null o undefined, diventa array vuoto.
+      const ids = Array.isArray(id) ? id : (id ? [id] : []);
+      
+      // Verifica se esistono immagini custom per questa parola e inseriscile all'inizio (in ordine)
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      if (customImages[word]) {
+        let customUrls = customImages[word];
+        // Supporto retrocompatibilità: converti da stringa a array
+        if (!Array.isArray(customUrls)) {
+          customUrls = [customUrls];
+        }
+        // Rimuovi eventuali copie già presenti nell'array ids
+        customUrls.forEach(customUrl => {
+          const existingIndex = ids.findIndex(idItem => idItem === customUrl);
+          if (existingIndex !== -1) {
+            ids.splice(existingIndex, 1);
+          }
+        });
+        // Inserisci tutte le immagini custom all'inizio (in ordine inverso per mantenere l'ordine)
+        for (let i = customUrls.length - 1; i >= 0; i--) {
+          const customUrl = customUrls[i];
+          // Se è un ID di file locale (local-file::...), convertilo in oggetto
+          if (typeof customUrl === 'string' && customUrl.startsWith('local-file::')) {
+            const fileName = customUrl.replace('local-file::', '');
+            const localImageObj = {
+              type: 'local-file',
+              id: customUrl,
+              fileName: fileName,
+              word: word
+            };
+            ids.unshift(localImageObj);
+          } else {
+            // Immagine data: URL o altro formato
+            ids.unshift(customUrl);
+          }
+        }
+        console.log('[addTile] Added', customUrls.length, 'custom image(s) at beginning for:', word);
+      }
+      
+      // Verifica se ci sono immagini dalla cartella locale per questa parola
+      const wordLower = word.toLowerCase();
+      if (localImageFiles[wordLower] && localImageFiles[wordLower].length > 0) {
+        const localFiles = localImageFiles[wordLower];
+        console.log('[addTile] Found', localFiles.length, 'local image(s) for:', word);
+        
+        // Converti i FileHandle in oggetti con ID univoci (i FileHandle non sono serializzabili)
+        for (const fileHandle of localFiles) {
+          // Genera un ID univoco basato sul nome del file
+          const uniqueId = `local-file::${fileHandle.name}`;
+          
+          // Salva il FileHandle nella mappa globale
+          localFileHandleMap.set(uniqueId, fileHandle);
+          
+          // Crea un oggetto serializzabile
+          const localImageObj = {
+            type: 'local-file',
+            id: uniqueId,
+            fileName: fileHandle.name,
+            word: word
+          };
+          
+          // Inserisci dopo le immagini custom ma prima delle ARASAAC/OpenSymbols
+          const insertPosition = customImages[word] ? (Array.isArray(customImages[word]) ? customImages[word].length : 1) : 0;
+          ids.splice(insertPosition, 0, localImageObj);
+        }
+        console.log('[addTile] Added', localFiles.length, 'local image(s) for:', word);
+      }
+      
+      console.log('[addTile] ids array after processing:', ids);
+      tile.dataset.ids = JSON.stringify(ids);
+      tile.dataset.index = '0';
+      if (ids.length > 0) {
+        // Crea l'elemento immagine e impostalo in base all'id corrente
+        const img = document.createElement('img');
+        img.loading = 'lazy'; img.decoding = 'async'; img.crossOrigin = 'anonymous';
+        setImageForTile(tile, img);
+        tile.appendChild(img);
+        // Label della parola
+        const label = document.createElement('div');
+        label.className = 'word';
+        label.textContent = word;
+        tile.appendChild(label);
+        // Badge della fonte se OpenSymbols (repo presente)
+        if (Array.isArray(id) && id.length === 1 && typeof id[0] === 'object' && id[0].repo) {
+          const repoBadge = document.createElement('span');
+          repoBadge.className = 'repo-badge';
+          repoBadge.textContent = id[0].repo.toUpperCase();
+          repoBadge.style.background = '#e0e7ef';
+          repoBadge.style.color = '#1e293b';
+          repoBadge.style.fontSize = '.75rem';
+          repoBadge.style.fontWeight = 'bold';
+          repoBadge.style.borderRadius = '6px';
+          repoBadge.style.padding = '2px 6px';
+          repoBadge.style.marginLeft = '8px';
+          label.appendChild(repoBadge);
+        }
+        // Contenitore per i badge (tempo, genere, numero)
+        const badgesContainer = document.createElement('div');
+        badgesContainer.className = 'badges';
+        let needBadges = false;
+        // Tempo verbale
+        if (tense === 'past' || tense === 'future' || tense === 'present') {
+          const { emoji, text } = await getTenseBadge(tense);
+          if (emoji || text) {
+            needBadges = true;
+            const badge = document.createElement('div');
+            badge.className = 'badge';
+            if (emoji) {
+              const emojiSpan = document.createElement('span');
+              emojiSpan.style.fontSize = '1.2rem';
+              emojiSpan.textContent = emoji;
+              badge.appendChild(emojiSpan);
+            }
+            const badgeText = document.createElement('span');
+            badgeText.style.fontSize = '.8rem';
+            badgeText.style.color = '#374151';
+            badgeText.textContent = text;
+            badge.appendChild(badgeText);
+            badgesContainer.appendChild(badge);
+          }
+        }
+        // Badge aggiuntivi (genere, numero, pronome)
+        for (const b of badges) {
+          const token = b.token;
+          const type = b.type; // 'genere', 'numero', 'pronome'
+          // Ottieni l'ID del pittogramma o emoji per il token
+          let pictId = null;
+          let emoji = null;
+          
+          try {
+            // Usa emoji per numero se disponibile
+            if (type === 'numero' && BADGE_SYMBOLS[token]) {
+              emoji = BADGE_SYMBOLS[token];
+            } else {
+              // Per 'pronome', usiamo la mappatura per trovare il simbolo corretto (es. mi -> io)
+              let badgeSearchTerm = token;
+              if (type === 'pronome' && PRONOUN_SEARCH_MAP[els.lang.value] && PRONOUN_SEARCH_MAP[els.lang.value][token]) {
+                badgeSearchTerm = PRONOUN_SEARCH_MAP[els.lang.value][token];
+              }
+              pictId = await queryFirstId(els.lang.value || 'it', badgeSearchTerm);
+            }
+          } catch (e) {
+            pictId = null;
+          }
+          needBadges = true;
+          const badge = document.createElement('div');
+          badge.className = 'badge';
+          
+          if (emoji) {
+            // Usa emoji
+            const emojiSpan = document.createElement('span');
+            emojiSpan.style.fontSize = '1.2rem';
+            emojiSpan.textContent = emoji;
+            badge.appendChild(emojiSpan);
+          } else if (pictId) {
+            // Usa immagine ARASAAC
+            const badgeImg = document.createElement('img');
+            badgeImg.src = `${STATIC_ROOT}/${pictId}/${pictId}_500.png`;
+            badgeImg.alt = `Indicatore ${type}: ${token}`;
+            badge.appendChild(badgeImg);
+          }
+          const badgeText = document.createElement('span');
+          badgeText.style.fontSize = '.8rem';
+          badgeText.style.color = '#374151';
+          badgeText.textContent = token;
+          badge.appendChild(badgeText);
+          badgesContainer.appendChild(badge);
+        }
+        // Aggiungi i badge solo se l'utente ha attivato l'opzione
+        const showBadges = els.showGrammarBadges.checked;
+        if (needBadges && showBadges) {
+          tile.appendChild(badgesContainer);
+        }
+      } else {
+        // Nessun id trovato: mostra solo la parola (senza messaggio)
+        const label = document.createElement('div');
+        label.className = 'word';
+        label.textContent = word;
+        tile.appendChild(label);
+      }
+      // Pulsante per aggiungere un simbolo personale
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-symbol-btn';
+      addBtn.type = 'button';
+      addBtn.innerHTML = '+';
+      addBtn.title = 'Aggiungi simbolo personale';
+      tile.appendChild(addBtn);
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openFileChooserForWord(tile, word);
+      });
+      
+      // Pulsante per rimuovere l'associazione personalizzata
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-symbol-btn';
+      removeBtn.type = 'button';
+      removeBtn.innerHTML = '×';
+      removeBtn.title = 'Rimuovi questo simbolo personalizzato';
+      removeBtn.style.cssText = `
+        position: absolute;
+        top: 35px;
+        right: 8px;
+        background: #ef4444cc;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-weight: 700;
+        font-size: 18px;
+        line-height: 20px;
+        text-align: center;
+        cursor: pointer;
+        z-index: 2;
+      `;
+      tile.appendChild(removeBtn);
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        const currentIds = JSON.parse(tile.dataset.ids || '[]');
+        const currentIndex = parseInt(tile.dataset.index || '0', 10);
+        const currentId = currentIds[currentIndex];
+        
+        if (!currentId) {
+          alert('Nessun simbolo da rimuovere.');
+          return;
+        }
+        
+        // Determina il tipo di simbolo
+        let symbolDesc = 'questo simbolo';
+        if (typeof currentId === 'object' && currentId.type === 'local-file') {
+          symbolDesc = 'questa immagine personalizzata';
+        } else if (typeof currentId === 'string' && currentId.startsWith('data:')) {
+          symbolDesc = 'questa immagine generata';
+        }
+        
+        if (!confirm(`Vuoi rimuovere ${symbolDesc} per "${word}"?\n\nGli altri simboli disponibili rimarranno.`)) {
+          return;
+        }
+        
+        // Rimuovi solo il simbolo corrente dall'array
+        currentIds.splice(currentIndex, 1);
+        
+        // Aggiorna customImages rimuovendo solo questo simbolo
+        const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+        if (customImages[word] && Array.isArray(customImages[word])) {
+          // Trova e rimuovi lo stesso simbolo da customImages
+          const customIndex = customImages[word].findIndex(item => {
+            if (typeof item === 'object' && typeof currentId === 'object') {
+              return item.id === currentId.id;
+            }
+            return item === currentId;
+          });
+          if (customIndex !== -1) {
+            customImages[word].splice(customIndex, 1);
+            if (customImages[word].length === 0) {
+              delete customImages[word];
+            }
+            localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+          }
+        }
+        
+        // Aggiorna il tile
+        tile.dataset.ids = JSON.stringify(currentIds);
+        
+        // Passa al simbolo successivo o torna a 0
+        let newIndex = currentIndex;
+        if (newIndex >= currentIds.length) {
+          newIndex = currentIds.length > 0 ? 0 : 0;
+        }
+        tile.dataset.index = String(newIndex);
+        
+        console.log(`[Remove] Removed symbol at index ${currentIndex} for "${word}". Remaining: ${currentIds.length}`);
+        
+        // Aggiorna l'immagine del tile
+        const tileImg = tile.querySelector('img');
+        if (currentIds.length > 0) {
+          if (tileImg) {
+            setImageForTile(tile, tileImg);
+          }
+          setStatus(`Simbolo rimosso per "${word}". Mostro il prossimo simbolo disponibile.`);
+        } else {
+          // Non ci sono più simboli
+          if (tileImg) {
+            tileImg.remove();
+          }
+          // Aggiungi messaggio "nessun pittogramma"
+          if (!tile.querySelector('.miss')) {
+            const miss = document.createElement('div');
+            miss.className = 'miss';
+            miss.textContent = 'Nessun pittogramma trovato';
+            const wordLabel = tile.querySelector('.word');
+            if (wordLabel) {
+              tile.insertBefore(miss, wordLabel);
+            } else {
+              tile.insertBefore(miss, tile.firstChild);
+            }
+          }
+          setStatus(`Simbolo rimosso per "${word}". Nessun simbolo rimanente.`);
+        }
+      });
+
+      // Pulsante ABC per mostrare solo testo grande
+      const abcBtn = document.createElement('button');
+      abcBtn.className = 'abc-btn';
+      abcBtn.type = 'button';
+      abcBtn.innerHTML = 'abc';
+      abcBtn.title = 'Mostra solo testo';
+      tile.appendChild(abcBtn);
+      abcBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isTextMode = tile.dataset.textOnlyMode === 'true';
+        
+        if (isTextMode) {
+          // Torna alla modalità simbolo
+          showSymbolMode(tile, word);
+          abcBtn.innerHTML = 'abc';
+          abcBtn.title = 'Mostra solo testo';
+        } else {
+          // Passa alla modalità testo
+          showTextOnly(tile, word);
+          abcBtn.innerHTML = '🖼️';
+          abcBtn.title = 'Mostra simbolo';
+        }
+      });
+
+      // Contenitore per i bottoni GPT e Web Search
+      const actionButtonsContainer = document.createElement('div');
+      actionButtonsContainer.style.cssText = 'display: flex; gap: 4px; margin-top: auto;';
+      
+      // Pulsante per ricerca Wikipedia
+      const webSearchBtn = document.createElement('button');
+      webSearchBtn.className = 'gpt-symbol-btn';
+      webSearchBtn.type = 'button';
+      webSearchBtn.innerHTML = 'W';
+      webSearchBtn.style.fontWeight = 'bold';
+      webSearchBtn.style.fontFamily = 'serif';
+      webSearchBtn.title = 'Cerca immagini su Wikipedia';
+      actionButtonsContainer.appendChild(webSearchBtn);
+      webSearchBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const searchTerm = prompt(`Cerca un'immagine su Wikipedia per "${word}".\n\nInserisci il termine di ricerca (lascia vuoto per usare "${word}"):`, word);
+        if (searchTerm === null) return; // Annullato
+        const finalTerm = searchTerm.trim() || word;
+        await searchWebImages(tile, finalTerm);
+      });
+      
+      // Pulsante per ricerca Google Custom Search
+      const googleSearchBtn = document.createElement('button');
+      googleSearchBtn.className = 'gpt-symbol-btn';
+      googleSearchBtn.type = 'button';
+      googleSearchBtn.innerHTML = 'G';
+      googleSearchBtn.style.fontWeight = 'bold';
+      googleSearchBtn.style.fontFamily = 'serif';
+      googleSearchBtn.title = 'Cerca immagini su Google (100/giorno)';
+      actionButtonsContainer.appendChild(googleSearchBtn);
+      googleSearchBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const searchTerm = prompt(`Cerca un'immagine su Google per "${word}".\n\nInserisci il termine di ricerca (lascia vuoto per usare "${word}"):`, word);
+        if (searchTerm === null) return; // Annullato
+        const finalTerm = searchTerm.trim() || word;
+        await searchGoogleImages(tile, finalTerm);
+      });
+
+      // Pulsante per ricerca personalizzata
+      const searchBtn = document.createElement('button');
+      searchBtn.className = 'gpt-symbol-btn';
+      searchBtn.type = 'button';
+      searchBtn.innerHTML = '🔎';
+      searchBtn.title = 'Cerca simbolo con termine alternativo';
+      actionButtonsContainer.appendChild(searchBtn);
+      searchBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const searchTerm = prompt(`Cerca un simbolo alternativo per "${word}".\n\nInserisci il termine di ricerca (es: "cuore" per "amore"):`);
+        if (!searchTerm || !searchTerm.trim()) return;
+        
+        searchBtn.disabled = true;
+        searchBtn.textContent = '⏳';
+        
+        try {
+          const lang = els.lang.value || 'it';
+          const idsObj = await queryIds(lang, searchTerm.trim(), null);
+          const ids = [...(idsObj.arasaacIds || []), ...(idsObj.openSymbols || [])];
+          
+          if (ids && ids.length > 0) {
+            // Mostra una galleria per scegliere il simbolo
+            showSymbolGallery(ids, searchTerm, tile, word);
+            setStatus(`Trovati ${ids.length} simboli per "${searchTerm}"`);
+          } else {
+            alert(`Nessun simbolo trovato per "${searchTerm}"`);
+          }
+        } catch (err) {
+          console.error('[Custom Search] Error:', err);
+          alert('Errore nella ricerca: ' + (err.message || err));
+        }
+        
+        searchBtn.disabled = false;
+        searchBtn.innerHTML = '🔎';
+      });
+      
+      const gptBtn = document.createElement('button');
+      gptBtn.className = 'gpt-symbol-btn';
+      gptBtn.type = 'button';
+      gptBtn.innerHTML = '✨';
+      gptBtn.title = 'Genera simbolo con IA';
+      actionButtonsContainer.appendChild(gptBtn);
+      tile.appendChild(actionButtonsContainer);
+      gptBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        
+        // Controlla se la cartella è selezionata
+        if (!checkLocalFolderSelected('generare simboli con AI')) {
+          return;
+        }
+        
+        const promptText = prompt('Descrivi il simbolo da generare in stile ARASAAC:');
+        if (!promptText) return;
+        gptBtn.disabled = true;
+        gptBtn.textContent = '⏳';
+        let images = [];
+        try {
+          images = await generateArasaacStyleImages(promptText, 1);
+        } catch (err) {
+          alert('Errore generazione immagini: ' + (err.message || err));
+          console.error('[GPT Image] Error:', err);
+        }
+        gptBtn.disabled = false;
+        gptBtn.innerHTML = '✨';
+        if (images.length > 0) {
+          // Mostra l'immagine come preview e chiedi conferma
+          const imageUrl = images[0];
+          
+          // Crea un dialog di preview
+          const dialog = document.createElement('div');
+          dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            max-width: 500px;
+          `;
+          
+          const previewImg = document.createElement('img');
+          previewImg.src = imageUrl;
+          previewImg.style.cssText = 'max-width: 400px; max-height: 400px; border-radius: 8px; margin-bottom: 16px;';
+          
+          const message = document.createElement('p');
+          message.textContent = `Vuoi usare questa immagine per "${word}"?`;
+          message.style.cssText = 'font-size: 1.1rem; margin-bottom: 16px;';
+          
+          const btnContainer = document.createElement('div');
+          btnContainer.style.cssText = 'display: flex; gap: 12px; justify-content: center;';
+          
+          const cropBtn = document.createElement('button');
+          cropBtn.textContent = '✂️ Ritaglia';
+          cropBtn.className = 'button';
+          cropBtn.style.cssText = 'padding: 10px 20px; background: #f59e0b;';
+          
+          const acceptBtn = document.createElement('button');
+          acceptBtn.textContent = 'Usa questa immagine';
+          acceptBtn.className = 'button';
+          acceptBtn.style.cssText = 'padding: 10px 20px;';
+          
+          const rejectBtn = document.createElement('button');
+          rejectBtn.textContent = 'Annulla';
+          rejectBtn.className = 'button ghost';
+          rejectBtn.style.cssText = 'padding: 10px 20px;';
+          
+          const overlay = document.createElement('div');
+          overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+          `;
+          
+          cropBtn.onclick = () => {
+            // Chiudi il dialog corrente e apri il crop editor
+            document.body.removeChild(overlay);
+            document.body.removeChild(dialog);
+            openCropEditor(imageUrl, word, tile);
+          };
+          
+          acceptBtn.onclick = async () => {
+            acceptBtn.disabled = true;
+            acceptBtn.textContent = 'Salvataggio...';
+            
+            try {
+              // Salva l'immagine nella cartella locale
+              const fileHandle = await saveImageToLocalFolder(imageUrl, word);
+              
+              console.log('[GPT Image] Saved AI image for:', word, 'File:', fileHandle.name);
+              
+              // Genera ID univoco e salva il FileHandle nella mappa
+              const uniqueId = `local-file::${fileHandle.name}`;
+              localFileHandleMap.set(uniqueId, fileHandle);
+              
+              // Aggiorna l'array ids del tile aggiungendo l'oggetto local-file all'inizio
+              const ids = JSON.parse(tile.dataset.ids || '[]');
+              const newLocalFile = { 
+                type: 'local-file', 
+                id: uniqueId,
+                fileName: fileHandle.name,
+                word: word 
+              };
+              
+              // Rimuovi eventuali duplicati (confronto per id)
+              const existingIndex = ids.findIndex(id => 
+                id && typeof id === 'object' && id.type === 'local-file' && id.id === uniqueId
+              );
+              if (existingIndex !== -1) {
+                ids.splice(existingIndex, 1);
+              }
+              
+              ids.unshift(newLocalFile);
+              tile.dataset.ids = JSON.stringify(ids);
+              tile.dataset.index = '0';
+              
+              // Salva l'associazione parola → file in localStorage per riutilizzo futuro
+              const customImagesStore = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+              if (!customImagesStore[word]) {
+                customImagesStore[word] = [];
+              }
+              // Assicurati che sia un array
+              if (!Array.isArray(customImagesStore[word])) {
+                customImagesStore[word] = [customImagesStore[word]];
+              }
+              // Aggiungi solo se non già presente
+              if (!customImagesStore[word].includes(uniqueId)) {
+                customImagesStore[word].push(uniqueId);
+                localStorage.setItem('customSymbolImages', JSON.stringify(customImagesStore));
+                console.log('[GPT Image] Saved association:', word, '→', uniqueId);
+              }
+              
+              // Aggiorna l'immagine del tile
+              let tileImg = tile.querySelector('img');
+              if (!tileImg) {
+                // Se non c'è un'immagine, creala
+                tileImg = document.createElement('img');
+                tileImg.style.cssText = 'max-width: 100%; max-height: 130px; object-fit: contain; display: block; margin: 0 auto;';
+                // Inserisci prima del testo (wordLabel)
+                const wordLabel = tile.querySelector('.word');
+                if (wordLabel) {
+                  tile.insertBefore(tileImg, wordLabel);
+                } else {
+                  tile.insertBefore(tileImg, tile.firstChild);
+                }
+              }
+              
+              // Carica l'immagine dal file
+              const file = await fileHandle.getFile();
+              const dataUrl = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+              });
+              tileImg.src = dataUrl;
+              tileImg.alt = `Simbolo generato con AI per "${word}"`;
+              
+              // Rimuovi eventuale messaggio "nessun pittogramma"
+              const miss = tile.querySelector('.miss');
+              if (miss) miss.remove();
+              
+              // Rimuovi dialog e overlay
+              document.body.removeChild(overlay);
+              document.body.removeChild(dialog);
+              
+            } catch (error) {
+              console.error('[GPT Image] Failed to save:', error);
+              alert(error.message || 'Errore nel salvataggio dell\'immagine');
+              acceptBtn.disabled = false;
+              acceptBtn.textContent = 'Usa questa immagine';
+            }
+          };
+          
+          rejectBtn.onclick = () => {
+            // Annulla senza salvare
+            document.body.removeChild(overlay);
+            document.body.removeChild(dialog);
+          };
+          
+          btnContainer.appendChild(cropBtn);
+          btnContainer.appendChild(acceptBtn);
+          btnContainer.appendChild(rejectBtn);
+          
+          dialog.appendChild(previewImg);
+          dialog.appendChild(message);
+          dialog.appendChild(btnContainer);
+          
+          document.body.appendChild(overlay);
+          document.body.appendChild(dialog);
+        }
+      });
+
+// Funzione per aprire l'editor di ritaglio immagine
+function openCropEditor(imageDataUrl, word, tile) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  `;
+
+  const title = document.createElement('h2');
+  title.textContent = '✂️ Ritaglia l\'immagine';
+  title.style.cssText = 'color: white; margin-bottom: 20px; font-size: 1.5rem;';
+
+  const instruction = document.createElement('p');
+  instruction.textContent = 'Trascina per selezionare l\'area da mantenere';
+  instruction.style.cssText = 'color: #ccc; margin-bottom: 10px;';
+
+  const canvasContainer = document.createElement('div');
+  canvasContainer.style.cssText = 'position: relative; margin-bottom: 20px;';
+
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'max-width: 90vw; max-height: 60vh; cursor: crosshair; border: 2px solid white;';
+  
+  const ctx = canvas.getContext('2d');
+  
+  // Variabili per la selezione (a livello superiore per essere accessibili ovunque)
+  let isDrawing = false;
+  let startX, startY, currentX, currentY;
+  
+  const img = new Image();
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    
+    canvas.onmousedown = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      startX = (e.clientX - rect.left) * scaleX;
+      startY = (e.clientY - rect.top) * scaleY;
+      isDrawing = true;
+    };
+    
+    canvas.onmousemove = (e) => {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      currentX = (e.clientX - rect.left) * scaleX;
+      currentY = (e.clientY - rect.top) * scaleY;
+      
+      // Ridisegna l'immagine e il rettangolo di selezione
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      
+      // Disegna overlay scuro
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Cancella l'area selezionata (mostra l'immagine originale)
+      const x = Math.min(startX, currentX);
+      const y = Math.min(startY, currentY);
+      const w = Math.abs(currentX - startX);
+      const h = Math.abs(currentY - startY);
+      ctx.clearRect(x, y, w, h);
+      ctx.drawImage(img, x, y, w, h, x, y, w, h);
+      
+      // Disegna il bordo della selezione
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, w, h);
+    };
+    
+    canvas.onmouseup = () => {
+      isDrawing = false;
+    };
+  };
+  img.src = imageDataUrl;
+
+  const btnContainer = document.createElement('div');
+  btnContainer.style.cssText = 'display: flex; gap: 12px;';
+
+  const cropBtn = document.createElement('button');
+  cropBtn.textContent = '✓ Ritaglia e Salva';
+  cropBtn.className = 'button';
+  cropBtn.style.cssText = 'padding: 12px 24px; font-size: 1.1rem;';
+  
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '✕ Annulla';
+  cancelBtn.className = 'button ghost';
+  cancelBtn.style.cssText = 'padding: 12px 24px; font-size: 1.1rem; color: white; border-color: white;';
+
+  cropBtn.onclick = async () => {
+    if (!currentX || !currentY) {
+      alert('Seleziona un\'area da ritagliare trascinando il mouse sull\'immagine');
+      return;
+    }
+
+    cropBtn.disabled = true;
+    cropBtn.textContent = 'Ritaglio in corso...';
+
+    const x = Math.min(startX, currentX);
+    const y = Math.min(startY, currentY);
+    const w = Math.abs(currentX - startX);
+    const h = Math.abs(currentY - startY);
+
+    if (w < 10 || h < 10) {
+      alert('L\'area selezionata è troppo piccola');
+      cropBtn.disabled = false;
+      cropBtn.textContent = '✓ Ritaglia e Salva';
+      return;
+    }
+
+    // Crea un nuovo canvas con l'area ritagliata
+    const croppedCanvas = document.createElement('canvas');
+    croppedCanvas.width = w;
+    croppedCanvas.height = h;
+    const croppedCtx = croppedCanvas.getContext('2d');
+    croppedCtx.drawImage(img, x, y, w, h, 0, 0, w, h);
+
+    // Converti in data URL
+    const croppedDataUrl = croppedCanvas.toDataURL('image/png');
+
+    try {
+      // Salva l'immagine ritagliata
+      const fileHandle = await saveImageToLocalFolder(croppedDataUrl, word);
+      
+      console.log('[Crop] Saved cropped image for:', word);
+      
+      // Aggiorna il tile
+      const uniqueId = `local-file::${fileHandle.name}`;
+      localFileHandleMap.set(uniqueId, fileHandle);
+      
+      const ids = JSON.parse(tile.dataset.ids || '[]');
+      const newLocalFile = { 
+        type: 'local-file', 
+        id: uniqueId,
+        fileName: fileHandle.name,
+        word: word 
+      };
+      
+      ids.unshift(newLocalFile);
+      tile.dataset.ids = JSON.stringify(ids);
+      tile.dataset.index = '0';
+      
+      let tileImg = tile.querySelector('img');
+      if (!tileImg) {
+        // Se non c'è un'immagine, creala
+        tileImg = document.createElement('img');
+        tileImg.style.cssText = 'max-width: 100%; max-height: 130px; object-fit: contain; display: block; margin: 0 auto;';
+        const wordLabel = tile.querySelector('.word');
+        if (wordLabel) {
+          tile.insertBefore(tileImg, wordLabel);
+        } else {
+          tile.insertBefore(tileImg, tile.firstChild);
+        }
+      }
+      
+      const file = await fileHandle.getFile();
+      const dataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+      tileImg.src = dataUrl;
+      tileImg.alt = `Simbolo ritagliato per "${word}"`;
+      
+      // Rimuovi eventuale messaggio "nessun pittogramma"
+      const miss = tile.querySelector('.miss');
+      if (miss) miss.remove();
+      
+      document.body.removeChild(overlay);
+      
+    } catch (error) {
+      console.error('[Crop] Failed to save:', error);
+      alert(error.message || 'Errore nel salvataggio dell\'immagine');
+      cropBtn.disabled = false;
+      cropBtn.textContent = '✓ Ritaglia e Salva';
+    }
+  };
+
+  cancelBtn.onclick = () => {
+    document.body.removeChild(overlay);
+  };
+
+  btnContainer.appendChild(cropBtn);
+  btnContainer.appendChild(cancelBtn);
+
+  canvasContainer.appendChild(canvas);
+
+  overlay.appendChild(title);
+  overlay.appendChild(instruction);
+  overlay.appendChild(canvasContainer);
+  overlay.appendChild(btnContainer);
+
+  document.body.appendChild(overlay);
+}
+
+// Funzione per mostrare una galleria di simboli tra cui scegliere
+function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  `;
+
+  const container = document.createElement('div');
+  container.style.cssText = `
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  `;
+
+  const title = document.createElement('h2');
+  title.textContent = `Scegli un simbolo per "${targetWord}"`;
+  title.style.cssText = 'margin: 0 0 10px 0; font-size: 1.5rem; color: #1e293b;';
+
+  const subtitle = document.createElement('p');
+  subtitle.textContent = `Risultati per: "${searchTerm}" (${symbolIds.length} simboli)`;
+  subtitle.style.cssText = 'margin: 0 0 20px 0; color: #64748b; font-size: 0.95rem;';
+
+  const gallery = document.createElement('div');
+  gallery.style.cssText = `
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  `;
+
+  // Crea una card per ogni simbolo
+  symbolIds.forEach((symbolId, index) => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      background: white;
+    `;
+
+    const img = document.createElement('img');
+    img.style.cssText = 'max-width: 100%; max-height: 100px; object-fit: contain; margin-bottom: 8px;';
+    img.loading = 'lazy';
+    img.crossOrigin = 'anonymous';
+    
+    console.log('[showSymbolGallery] symbolId:', symbolId, 'type:', typeof symbolId);
+    
+    // Determina l'URL dell'immagine - STESSA LOGICA DI setImageForTile
+    if (typeof symbolId === 'string' && symbolId.startsWith('data:')) {
+      // Data URL
+      img.src = symbolId;
+    } else if (typeof symbolId === 'object' && symbolId.image_url) {
+      // Caso: simbolo OpenSymbols (TAWASOL, Bliss, ecc.) - USA PROXY CORS
+      const imageUrl = symbolId.image_url.startsWith('http') 
+        ? `https://corsproxy.io/?${encodeURIComponent(symbolId.image_url)}`
+        : symbolId.image_url;
+      console.log('[showSymbolGallery] OpenSymbols image_url via proxy:', imageUrl);
+      img.src = imageUrl;
+    } else if (typeof symbolId === 'object' && symbolId.url) {
+      // Caso: simbolo OpenSymbols (fallback su url SVG) - USA PROXY CORS
+      const imageUrl = symbolId.url.startsWith('http') 
+        ? `https://corsproxy.io/?${encodeURIComponent(symbolId.url)}`
+        : symbolId.url;
+      console.log('[showSymbolGallery] OpenSymbols url via proxy:', imageUrl);
+      img.src = imageUrl;
+    } else if (typeof symbolId === 'string' || typeof symbolId === 'number') {
+      // È un ID ARASAAC (stringa o numero)
+      img.src = `${API_ROOT}/${symbolId}?download=false`;
+      console.log('[showSymbolGallery] ARASAAC ID:', symbolId, 'URL:', img.src);
+    } else if (symbolId._id) {
+      // Oggetto ARASAAC con _id
+      img.src = `${API_ROOT}/${symbolId._id}?download=false`;
+    }
+    
+    // Aggiungi gestione errori
+    img.onerror = () => {
+      img.style.display = 'none';
+      const errorMsg = document.createElement('div');
+      errorMsg.textContent = '❌';
+      errorMsg.style.cssText = 'font-size: 2rem; color: #ef4444; padding: 20px;';
+      card.appendChild(errorMsg);
+    };
+
+    const label = document.createElement('div');
+    label.textContent = `#${index + 1}`;
+    label.style.cssText = 'font-size: 0.85rem; color: #64748b;';
+
+    card.appendChild(img);
+    card.appendChild(label);
+
+    // Hover effect
+    card.onmouseenter = () => {
+      card.style.borderColor = '#3b82f6';
+      card.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+      card.style.transform = 'translateY(-2px)';
+    };
+    card.onmouseleave = () => {
+      card.style.borderColor = '#e5e7eb';
+      card.style.boxShadow = 'none';
+      card.style.transform = 'translateY(0)';
+    };
+
+    // Click per selezionare
+    card.onclick = () => {
+      // Aggiorna il tile con il simbolo selezionato
+      const currentIds = JSON.parse(targetTile.dataset.ids || '[]');
+      
+      // Verifica duplicati
+      const isDuplicate = currentIds.some(existingId => {
+        if (typeof existingId === 'string' && typeof symbolId === 'string') {
+          return existingId === symbolId;
+        }
+        if (typeof existingId === 'object' && typeof symbolId === 'object') {
+          return existingId._id === symbolId._id;
+        }
+        return false;
+      });
+      
+      if (!isDuplicate) {
+        currentIds.unshift(symbolId);
+      }
+      
+      targetTile.dataset.ids = JSON.stringify(currentIds);
+      targetTile.dataset.index = '0';
+      
+      // SALVA LA SCELTA IN customImages per usarla nei prossimi usi della stessa parola
+      if (!customImages[targetWord]) {
+        customImages[targetWord] = [];
+      } else if (!Array.isArray(customImages[targetWord])) {
+        customImages[targetWord] = [customImages[targetWord]];
+      }
+      
+      // Aggiungi il simbolo scelto in prima posizione se non c'è già
+      if (!isDuplicate) {
+        customImages[targetWord].unshift(symbolId);
+        localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+        console.log(`[showSymbolGallery] Saved symbol ${JSON.stringify(symbolId)} for word "${targetWord}"`);
+      }
+      
+      // Aggiorna l'immagine
+      const tileImg = targetTile.querySelector('img');
+      if (tileImg) {
+        setImageForTile(targetTile, tileImg);
+      }
+      
+      // Rimuovi eventuale messaggio "nessun pittogramma trovato"
+      const miss = targetTile.querySelector('.miss');
+      if (miss) miss.remove();
+      
+      // Chiudi la galleria
+      document.body.removeChild(overlay);
+      setStatus(`Simbolo selezionato e salvato per "${targetWord}"`);
+    };
+
+    gallery.appendChild(card);
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Annulla';
+  cancelBtn.className = 'button ghost';
+  cancelBtn.style.cssText = 'width: 100%; padding: 12px;';
+  cancelBtn.onclick = () => {
+    document.body.removeChild(overlay);
+  };
+
+  container.appendChild(title);
+  container.appendChild(subtitle);
+  container.appendChild(gallery);
+  container.appendChild(cancelBtn);
+
+  overlay.appendChild(container);
+  document.body.appendChild(overlay);
+}
+      
+// Funzione per cercare immagini sul web e mostrarle in una modale
+async function searchWebImages(tile, word) {
+  console.log('[Web Search] Searching images for:', word);
+  
+  // Usa Wikipedia/Wikimedia Commons API italiana (completamente gratuita)
+  const searchQuery = encodeURIComponent(word);
+  const wikiUrl = `https://it.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${searchQuery}&gsrlimit=20&prop=pageimages|images&piprop=thumbnail&pithumbsize=300&pilimit=20`;
+  
+  try {
+    const response = await fetch(wikiUrl);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.query || !data.query.pages) {
+      alert('Nessuna immagine trovata per: ' + word + '\n\nProva a usare il bottone ✨ per generare un simbolo con AI, o il bottone + per caricare un\'immagine dal tuo computer.');
+      return;
+    }
+    
+    // Estrai le immagini dalle pagine
+    const images = [];
+    Object.values(data.query.pages).forEach(page => {
+      if (page.thumbnail && page.thumbnail.source) {
+        images.push({
+          thumbnail: page.thumbnail.source,
+          full: page.thumbnail.source.replace(/\/\d+px-/, '/800px-'),
+          title: page.title
+        });
+      }
+    });
+    
+    if (images.length === 0) {
+      alert('Nessuna immagine trovata per: ' + word + '\n\nProva a usare il bottone ✨ per generare un simbolo con AI, o il bottone + per caricare un\'immagine dal tuo computer.');
+      return;
+    }
+    
+    console.log('[Web Search] Found', images.length, 'images');
+    
+    // Crea modale per mostrare le immagini
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 9998;
+    `;
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 9999;
+    `;
+    
+    const title = document.createElement('h3');
+    title.textContent = `Scegli un'immagine per "${word}"`;
+    title.style.cssText = 'margin: 0 0 16px 0;';
+    modal.appendChild(title);
+    
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;';
+    
+    images.forEach((image, index) => {
+      const imgContainer = document.createElement('div');
+      imgContainer.style.cssText = 'cursor: pointer; border: 2px solid transparent; border-radius: 8px; overflow: hidden; transition: border-color 0.2s; position: relative;';
+      
+      const img = document.createElement('img');
+      img.src = image.thumbnail;
+      img.style.cssText = 'width: 100%; height: 150px; object-fit: cover;';
+      img.onerror = () => {
+        // Se l'immagine non si carica, nascondi il container
+        imgContainer.style.display = 'none';
+      };
+      
+      imgContainer.appendChild(img);
+      
+      // Aggiungi tooltip con il titolo
+      if (image.title) {
+        const tooltip = document.createElement('div');
+        tooltip.textContent = image.title;
+        tooltip.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; font-size: 0.7rem; padding: 4px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;';
+        imgContainer.appendChild(tooltip);
+      }
+      
+      imgContainer.addEventListener('mouseenter', () => {
+        imgContainer.style.borderColor = '#2a9df4';
+      });
+      
+      imgContainer.addEventListener('mouseleave', () => {
+        imgContainer.style.borderColor = 'transparent';
+      });
+      
+      imgContainer.addEventListener('click', async () => {
+        // Usa l'immagine full size
+        const selectedImageUrl = image.full;
+        document.body.removeChild(overlay);
+        document.body.removeChild(modal);
+        
+        // Scarica e salva l'immagine
+        await saveWebImageToTile(tile, word, selectedImageUrl);
+      });
+      
+      grid.appendChild(imgContainer);
+    });
+    
+    modal.appendChild(grid);
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Chiudi';
+    closeBtn.className = 'button ghost';
+    closeBtn.style.cssText = 'margin-top: 16px; width: 100%;';
+    closeBtn.addEventListener('click', () => {
+      document.body.removeChild(overlay);
+      document.body.removeChild(modal);
+    });
+    
+    modal.appendChild(closeBtn);
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
+    
+  } catch (error) {
+    console.error('[Web Search] Error:', error);
+    alert('Errore durante la ricerca: ' + error.message);
+  }
+}
+
+// Funzione per ricerca immagini Google Custom Search
+async function searchGoogleImages(tile, word) {
+  console.log('[Google Search] Searching images for:', word);
+  
+  // Verifica credenziali
+  if (!googleApiKey || !googleCx) {
+    alert('⚠️ Credenziali Google mancanti!\n\nPer usare la ricerca Google:\n\n1. Vai su https://developers.google.com/custom-search/v1/overview\n2. Crea un progetto e ottieni API Key e Search Engine ID (cx)\n3. Inseriscili nelle Impostazioni (⚙️)\n\nLimite gratuito: 100 ricerche/giorno');
+    return;
+  }
+  
+  try {
+    // Google Custom Search API v1
+    const searchQuery = encodeURIComponent(word);
+    const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${googleApiKey}&cx=${googleCx}&q=${searchQuery}&searchType=image&num=10&imgSize=medium&safe=active`;
+    
+    const response = await fetch(apiUrl);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      if (response.status === 429) {
+        throw new Error('Limite giornaliero raggiunto (100 ricerche/giorno). Riprova domani.');
+      }
+      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.items || data.items.length === 0) {
+      alert('Nessuna immagine trovata per: ' + word + '\n\nProva con Wikipedia (W) o genera con AI (✨).');
+      return;
+    }
+    
+    // Estrai le immagini
+    const images = data.items.map(item => ({
+      thumbnail: item.image.thumbnailLink,
+      full: item.link,
+      title: item.title,
+      context: item.displayLink
+    }));
+    
+    console.log('[Google Search] Found', images.length, 'images');
+    
+    // Crea modale identica a quella di Wikipedia
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 9998;
+    `;
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 9999;
+    `;
+    
+    const title = document.createElement('h3');
+    title.textContent = `Scegli un'immagine per "${word}" (Google)`;
+    title.style.cssText = 'margin: 0 0 16px 0;';
+    modal.appendChild(title);
+    
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;';
+    
+    images.forEach((image, index) => {
+      const imgContainer = document.createElement('div');
+      imgContainer.style.cssText = 'cursor: pointer; border: 2px solid transparent; border-radius: 8px; overflow: hidden; transition: border-color 0.2s; position: relative;';
+      
+      const img = document.createElement('img');
+      img.src = image.thumbnail;
+      img.style.cssText = 'width: 100%; height: 150px; object-fit: cover;';
+      img.onerror = () => {
+        imgContainer.style.display = 'none';
+      };
+      
+      imgContainer.appendChild(img);
+      
+      // Tooltip con titolo e fonte
+      if (image.title || image.context) {
+        const tooltip = document.createElement('div');
+        tooltip.textContent = `${image.title || ''} (${image.context || ''})`;
+        tooltip.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; font-size: 0.7rem; padding: 4px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;';
+        imgContainer.appendChild(tooltip);
+      }
+      
+      imgContainer.addEventListener('mouseenter', () => {
+        imgContainer.style.borderColor = '#2a9df4';
+      });
+      
+      imgContainer.addEventListener('mouseleave', () => {
+        imgContainer.style.borderColor = 'transparent';
+      });
+      
+      imgContainer.addEventListener('click', async () => {
+        try {
+          await saveWebImageToTile(tile, word, image.full);
+          document.body.removeChild(overlay);
+          document.body.removeChild(modal);
+        } catch (err) {
+          console.error('[Google Search] Error saving image:', err);
+          alert('Errore nel salvare l\'immagine: ' + err.message);
+        }
+      });
+      
+      grid.appendChild(imgContainer);
+    });
+    
+    modal.appendChild(grid);
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Chiudi';
+    closeBtn.className = 'button ghost';
+    closeBtn.style.cssText = 'margin-top: 16px; width: 100%;';
+    closeBtn.onclick = () => {
+      document.body.removeChild(overlay);
+      document.body.removeChild(modal);
+    };
+    
+    modal.appendChild(closeBtn);
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
+    
+  } catch (error) {
+    console.error('[Google Search] Error:', error);
+    alert('Errore durante la ricerca Google:\n\n' + error.message);
+  }
+}
+
+// Funzione per salvare immagine web nel tile
+async function saveWebImageToTile(tile, word, imageUrl) {
+  try {
+    console.log('[Web Image] Saving image for:', word, 'URL:', imageUrl);
+    
+    // Lista di proxy CORS da provare in ordine
+    const corsProxies = [
+      'https://corsproxy.io/?',
+      'https://api.allorigins.win/raw?url=',
+      'https://api.codetabs.com/v1/proxy?quest='
+    ];
+    
+    let blob = null;
+    let lastError = null;
+    
+    // Scarica l'immagine usando proxy CORS se necessario
+    if (!imageUrl.startsWith('data:') && !imageUrl.startsWith('blob:')) {
+      // Prova con ciascun proxy finché uno non funziona
+      for (let i = 0; i < corsProxies.length; i++) {
+        const proxy = corsProxies[i];
+        const fetchUrl = `${proxy}${encodeURIComponent(imageUrl)}`;
+        
+        try {
+          console.log(`[Web Image] Attempt ${i + 1}/${corsProxies.length} using proxy:`, proxy);
+          const response = await fetch(fetchUrl);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          blob = await response.blob();
+          console.log('[Web Image] Downloaded blob size:', blob.size, 'type:', blob.type);
+          
+          // Verifica che sia davvero un'immagine
+          if (!blob.type.startsWith('image/')) {
+            console.warn('[Web Image] Response is not an image:', blob.type);
+            throw new Error('Response is not an image');
+          }
+          
+          // Successo! Esci dal loop
+          break;
+        } catch (err) {
+          console.warn(`[Web Image] Proxy ${proxy} failed:`, err.message);
+          lastError = err;
+          // Prova con il prossimo proxy
+          continue;
+        }
+      }
+      
+      // Se nessun proxy ha funzionato, lancia errore
+      if (!blob) {
+        throw new Error(`Impossibile scaricare l'immagine dopo ${corsProxies.length} tentativi. Ultimo errore: ${lastError?.message || 'Unknown'}`);
+      }
+    } else {
+      // È già un data: o blob: URL, scaricalo direttamente
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      blob = await response.blob();
+      console.log('[Web Image] Downloaded blob size:', blob.size, 'type:', blob.type);
+    }
+    
+    // Converti in data URL
+    const dataUrl = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+    
+    // Comprimi l'immagine
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // Importante per evitare errori CORS nel canvas
+    
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = (err) => {
+        console.error('[Web Image] Error loading image into canvas:', err);
+        reject(new Error('Impossibile caricare l\'immagine'));
+      };
+      img.src = dataUrl;
+    });
+    
+    console.log('[Web Image] Image loaded, dimensions:', img.width, 'x', img.height);
+    
+    const maxSize = 800;
+    let width = img.width;
+    let height = img.height;
+    
+    if (width > maxSize || height > maxSize) {
+      if (width > height) {
+        height = (height / width) * maxSize;
+        width = maxSize;
+      } else {
+        width = (width / height) * maxSize;
+        height = maxSize;
+      }
+    }
+    
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(img, 0, 0, width, height);
+    
+    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    
+    // Verifica se la cartella locale è selezionata
+    if (!checkLocalFolderSelected('salvare immagini da web')) {
+      return;
+    }
+    
+    // Salva nella cartella locale
+    try {
+      // Converti data URL in blob
+      const compressedBlob = await fetch(compressedDataUrl).then(r => r.blob());
+      
+      // Salva usando la funzione esistente
+      const fileHandle = await saveImageToLocalFolder(compressedBlob, word);
+      
+      console.log('[Web Image] Saved to local folder:', fileHandle.name);
+      
+      // Genera ID univoco e salva il FileHandle nella mappa
+      const uniqueId = `local-file::${fileHandle.name}`;
+      localFileHandleMap.set(uniqueId, fileHandle);
+      
+      // Aggiorna il tile con riferimento al file locale
+      const ids = JSON.parse(tile.dataset.ids || '[]');
+      const newLocalFile = { 
+        type: 'local-file', 
+        id: uniqueId,
+        fileName: fileHandle.name,
+        word: word 
+      };
+      
+      ids.unshift(newLocalFile);
+      tile.dataset.ids = JSON.stringify(ids);
+      tile.dataset.index = '0';
+      
+      // Salva l'associazione parola → file in localStorage per riutilizzo futuro
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      if (!customImages[word]) {
+        customImages[word] = [];
+      } else if (!Array.isArray(customImages[word])) {
+        customImages[word] = [customImages[word]];
+      }
+      // Aggiungi solo se non già presente (usa l'ID univoco invece dell'oggetto)
+      if (!customImages[word].includes(uniqueId)) {
+        customImages[word].push(uniqueId);
+        localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
+        console.log('[Web Image] Saved association:', word, '→', uniqueId);
+      }
+      
+      // Aggiorna l'immagine del tile
+      let tileImg = tile.querySelector('img');
+      if (!tileImg) {
+        // Se non c'è un'immagine, creala
+        tileImg = document.createElement('img');
+        tileImg.style.cssText = 'max-width: 100%; max-height: 130px; object-fit: contain; display: block; margin: 0 auto;';
+        const wordLabel = tile.querySelector('.word');
+        if (wordLabel) {
+          tile.insertBefore(tileImg, wordLabel);
+        } else {
+          tile.insertBefore(tileImg, tile.firstChild);
+        }
+      }
+      
+      // Carica l'immagine dal file salvato
+      const file = await fileHandle.getFile();
+      const fileDataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+      tileImg.src = fileDataUrl;
+      tileImg.alt = `Immagine web per "${word}"`;
+      
+      // Rimuovi eventuale messaggio "nessun pittogramma"
+      const miss = tile.querySelector('.miss');
+      if (miss) miss.remove();
+      
+      console.log('[Web Image] Image saved and tile updated successfully');
+      
+    } catch (err) {
+      console.error('[Web Image] Could not save to local folder:', err);
+      alert('Errore nel salvataggio: ' + err.message);
+    }
+    
+  } catch (error) {
+    console.error('[Web Image] Error saving:', error);
+    alert('Errore nel salvataggio: ' + error.message);
+  }
+}
+
+// Funzione per generazione immagini GPT con DALL-E 3 (genera 1 immagine)
+async function generateArasaacStyleImages(prompt, count = 1) {
+  if (!openaiApiKey) {
+    throw new Error('Chiave API OpenAI non impostata. Salvala usando il campo in alto.');
+  }
+  
+  console.log('[GPT Image] Generating', count, 'images for prompt:', prompt);
+  
+  // Prompt per stile illustrazione da libro per bambini
+  const fullPrompt = `Create a simple, colorful children's book illustration for: ${prompt}.
+
+STYLE REQUIREMENTS:
+- COLORFUL: Bright, cheerful colors that appeal to children
+- SIMPLE: Clear and easy to understand, no details
+- Colori piatti - solidi, senza sfumature o ombre
+- Stile cartoon semplice - come Tintin, Asterix
+- CHILDREN'S BOOK STYLE: Like illustrations from picture books for young children
+- FRIENDLY AND WARM: Appealing, gentle, inviting style
+- CLEAN LINES: Simple outlines, not too detailed
+- WHITE BACKGROUND: Clean white background
+- CENTERED: Main subject centered in the image
+- NO TEXT: No words or labels
+
+Style should be like a simple, happy illustration from a children's storybook.`;
+
+  
+  const images = [];
+  
+  // DALL-E 3 genera 1 sola immagine per chiamata, quindi facciamo 3 chiamate
+  for (let i = 0; i < count; i++) {
+    try {
+      console.log(`[GPT Image] Generating image ${i + 1}/${count}...`);
+      
+      const res = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openaiApiKey}`
+        },
+        body: JSON.stringify({
+          model: 'dall-e-3',
+          prompt: fullPrompt,
+          n: 1, // DALL-E 3 supporta solo n=1
+          size: '1024x1024', // DALL-E 3: 1024x1024, 1792x1024, o 1024x1792
+          quality: 'standard', // 'standard' o 'hd'
+          response_format: 'b64_json' // b64_json evita problemi CORS
+        })
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(`DALL-E API error ${res.status}: ${errorData.error?.message || 'Unknown error'}`);
+      }
+      
+      const data = await res.json();
+      
+      if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+        throw new Error('Risposta non valida da DALL-E: nessuna immagine generata');
+      }
+      
+      // Estrai URL dell'immagine
+      // Con b64_json la risposta contiene direttamente il base64
+      const b64Data = data.data[0].b64_json;
+      
+      if (!b64Data) {
+        throw new Error('Immagine base64 non presente nella risposta');
+      }
+      
+      const base64Image = `data:image/png;base64,${b64Data}`;
+      console.log(`[GPT Image] Image ${i + 1}/${count} received (${base64Image.length} chars)`);
+      images.push(base64Image);
+      
+    } catch (err) {
+      console.error(`[GPT Image] Error generating image ${i + 1}:`, err);
+      // Continua con le altre immagini anche se una fallisce
+    }
+  }
+  
+  if (images.length === 0) {
+    throw new Error('Nessuna immagine generata con successo');
+  }
+  
+  console.log('[GPT Image] Total images generated:', images.length);
+  return images;
+}
+      // Gestisce il cambio immagine quando si clicca sul tile (eccetto il pulsante '+')
+      // Con Ctrl+Click seleziona il tile per l'unione
+      tile.addEventListener('click', (e) => {
+        // Se Ctrl è premuto, seleziona/deseleziona il tile
+        if (e.ctrlKey || e.metaKey) {
+          e.stopPropagation();
+          toggleTileSelection(tile);
+        } else {
+          // Altrimenti cicla l'immagine normalmente
+          cycleTileImage(tile);
+        }
+      });
+      
+      // Inserisci il tile nella posizione specificata o in fondo
+      if (insertBefore) {
+        els.res.insertBefore(tile, insertBefore);
+      } else {
+        els.res.appendChild(tile);
+      }
+      
+      // Se è una parola funzionale (skipped), mostra automaticamente solo il testo grande
+      if (skipped) {
+        showTextOnly(tile, word);
+        // Aggiorna l'icona del bottone abc
+        const abcBtn = tile.querySelector('.abc-btn');
+        if (abcBtn) {
+          abcBtn.innerHTML = '🖼️';
+          abcBtn.title = 'Mostra simbolo';
+        }
+      }
+    }
+
+    /**
+     * Funzione di traduzione PRINCIPALE (Rifattorizzata)
+     */
+    async function translate(){
+      const text = els.input.value.trim();
+      const lang = els.lang.value;
+      const skipStop = els.skipStop.checked;
+      els.res.innerHTML = '';
+      if(!text){ setStatus('Inserisci una frase.'); els.input.focus(); return; }
+      if(aborter) aborter.abort();
+      aborter = new AbortController();
+
+      /*
+       * Determiniamo le parole da tradurre.
+       * 1. Tentiamo di ottenere un'analisi strutturata da GPT (analyzeSentence).
+       * 2. Se fallisce, creiamo una struttura di fallback locale.
+       * In entrambi i casi, 'groups' sarà un array di oggetti, uno per parola.
+       */
+      const tokens = tokenize(text);
+      // Array di token originali (con lettere maiuscole/minuscole e accenti) per l'etichetta da mostrare
+      const originalTokens = text.replace(/\u00A0/g, ' ').split(/\s+/).filter(Boolean);
+      const rawWords = tokens.map(sanitizeWord).filter(Boolean);
+      
+      // "groups" ora conterrà un array di oggetti di analisi
+      let groups = await analyzeSentence(text, lang).catch(() => null);
+      
+      if (!Array.isArray(groups) || !groups.length) {
+          // Fallback locale: crea una struttura dati simile
+          groups = rawWords.map((w, i) => ({
+              lemma: w, // Il "lemma" è solo la parola stessa
+              originalIndex: i // Salviamo l'indice per recuperare la parola originale
+          }));
+      } else {
+          // Assicuriamoci che i gruppi di GPT abbiano un riferimento all'indice originale
+          // e che la lunghezza corrisponda
+          const analyzedGroups = groups;
+          groups = [];
+          for (let i = 0; i < rawWords.length; i++) {
+            const analysis = analyzedGroups[i] || {}; // Prendi l'analisi o un oggetto vuoto
+            analysis.originalIndex = i; // Associa l'indice
+            // Se GPT non ha trovato un lemma (es. punteggiatura), usa la parola raw
+            if (!analysis.lemma) {
+                analysis.lemma = rawWords[i];
+            } else {
+                const originalLemma = analysis.lemma;
+                // Pulisci il lemma da eventuale punteggiatura
+                analysis.lemma = sanitizeWord(analysis.lemma);
+                if (originalLemma !== analysis.lemma) {
+                    console.log('[Lemma Sanitize] Original:', originalLemma, '→ Cleaned:', analysis.lemma);
+                }
+                // Se dopo la pulizia è vuoto, usa la parola raw
+                if (!analysis.lemma) {
+                    analysis.lemma = rawWords[i];
+                }
+            }
+            groups.push(analysis);
+          }
+      }
+
+      /**
+       * Heuristic adjustment for Italian subject pronouns with the verb "essere".
+       *
+       * The verb "sono" can correspond both to the first person singular ("io sono") and
+       * to the third person plural ("loro sono"). When GPT fails to infer the
+       * correct subject pronoun from context, we fall back on the number and
+       * gender of the following words. If an instance of "essere" has pronome
+       * undefined or set to "io" but a later word is marked as plural, we
+       * reinterpret the subject as "loro". We also propagate the number and
+       * gender to the pronoun so that appropriate badges can be shown.
+       */
+      function adjustAmbiguousPronounForEssere(groupsArr) {
+        // only for Italian
+        if (lang !== 'it' || !Array.isArray(groupsArr) || groupsArr.length === 0) return;
+        for (let idx = 0; idx < groupsArr.length; idx++) {
+          const g = groupsArr[idx];
+          // Identify the verb "essere"
+          // The lemma may be returned as "essere" by GPT or identical to the raw word in fallback
+          if (!g || typeof g.lemma !== 'string') continue;
+          const lemma = g.lemma.toLowerCase();
+          // Consider both the infinitive "essere" and the conjugated form "sono" as candidates for ambiguity
+          if (lemma !== 'essere' && lemma !== 'sono') continue;
+          // Only adjust if the pronoun is absent or set to "io"
+          const currentPron = (g.pronome || '').toLowerCase();
+          if (currentPron && currentPron !== 'io') continue;
+          // Look ahead for plural markers and gender markers
+          let foundPlural = false;
+          let foundFem = false;
+          let foundMas = false;
+          for (let j = idx + 1; j < groupsArr.length; j++) {
+            const nxt = groupsArr[j];
+            if (!nxt) continue;
+            const num = (nxt.numero || '').toLowerCase();
+            const gen = (nxt.genere || '').toLowerCase();
+            if (num === 'plurale') foundPlural = true;
+            if (gen === 'femminile') foundFem = true;
+            if (gen === 'maschile') foundMas = true;
+          }
+          // If no plural found, do not adjust
+          if (!foundPlural) return;
+          // Adjust pronoun to "loro"
+          g.pronome = 'loro';
+          // Propagate number and gender onto the pronoun if not already set
+          // Only set these fields if they are not defined on the verb group
+          if (!g.numero) g.numero = 'plurale';
+          // Determine gender: if both feminine and masculine markers are present,
+          // or none, leave undefined (unknown). If only one present, set it.
+          if (!g.genere) {
+            if (foundFem && !foundMas) g.genere = 'femminile';
+            else if (foundMas && !foundFem) g.genere = 'maschile';
+            // else leave undefined (ambiguous)
+          }
+          // We adjust only the first occurrence of "essere"
+          return;
+        }
+      }
+
+      // Apply heuristic before building tiles
+      adjustAmbiguousPronounForEssere(groups);
+
+      setStatus('Ricerca in corso…');
+      let found = 0, missing = 0;
+
+      // Ciclo principale che tenta di formare locuzioni tramite ricerche API
+      for (let idx = 0; idx < groups.length; idx++) {
+        // Se l'aborter è abortito, esci
+        if (aborter.signal.aborted) break;
+
+  // By default treat as single word
+  let len = 1;
+  let idsForPhrase = null;
+  let phraseTried = false;
+
+        // Tentiamo prima con una locuzione di 3 parole, poi di 2 parole
+        for (let attemptLen of [3, 2]) {
+          if (idx + attemptLen - 1 < groups.length) {
+            const wordsForCandidate = rawWords.slice(idx, idx + attemptLen);
+            const candidateTerm = wordsForCandidate.join(' ');
+            // Non tentare locuzioni composte da sole parole funzionali. Almeno una
+            // parola deve essere "significativa" (non stop word) affinché abbia
+            // senso cercare un pittogramma composito. Questo previene casi come
+            // "ho visto un", dove tutte le parole sono ausiliari o articoli.
+            // Evita locuzioni che iniziano con una stop word: devono
+            // cominciare con una parola significativa (non stop) per poter
+            // rappresentare un concetto autonomo. Questo filtra espressioni
+            // come "ho visto un" o "il mio" che altrimenti restituiscono
+            // pittogrammi non pertinenti.
+            const startsWithNonStop = !STOP_IT.has(wordsForCandidate[0]);
+            // Verifica se la locuzione è presente nel dizionario delle parole di
+            // ARASAAC e contiene almeno una lettera. In caso contrario, salta
+            // la ricerca.
+            if (startsWithNonStop && /\w/.test(candidateTerm) && keywordEntries.has(candidateTerm)) {
+              phraseTried = true;
+              try {
+                const candidateIds = await queryIds(lang, candidateTerm, aborter.signal);
+                if (candidateIds && candidateIds.length > 0) {
+                  len = attemptLen;
+                  idsForPhrase = candidateIds;
+                  break;
+                }
+              } catch {}
+            }
+          }
+        }
+
+        const start = idx;
+        const end = idx + len - 1;
+        const segmentAnalyses = [];
+        for (let j = start; j <= end; j++) {
+          segmentAnalyses.push(groups[j]);
+        }
+        // Costruisci la stringa da visualizzare (originale con apostrofi e punteggiatura) 
+        // e la stringa di ricerca (pulita)
+        const displayOriginal = originalTokens.slice(start, end + 1).join(' ');
+        const searchTerm = rawWords.slice(start, end + 1).map(t => sanitizeWord(t)).filter(Boolean).join(' ');
+
+        // Se è una singola parola (non locuzione) e la funzione di salto delle parole funzionali è attiva,
+        // verifica se questa parola è da considerare stop word. Skip se necessario.
+        if (len === 1 && skipStop) {
+          const analysis = segmentAnalyses[0];
+          // Pulisci il lemma da punteggiatura prima di controllare se è stopword
+          let lemmaForStop = (analysis.lemma && analysis.lemma !== 'null') ? analysis.lemma : rawWords[start];
+          console.log('[StopWord Check] Original word:', displayOriginal, 'analysis.lemma:', analysis.lemma, 'rawWords[start]:', rawWords[start]);
+          lemmaForStop = sanitizeWord(lemmaForStop);
+          console.log('[StopWord Check] After sanitize, lemmaForStop:', lemmaForStop, 'is in STOP_IT:', STOP_IT.has(lemmaForStop), 'analysis.pronome:', analysis.pronome);
+          // Una parola è stopword SOLO se è nello STOP_IT e non è un pronome
+          // Non saltiamo parole solo perché GPT non conosce il lemma (null)
+          const isStop = STOP_IT.has(lemmaForStop) && !analysis.pronome;
+          console.log('[StopWord Check] Final isStop:', isStop);
+          if (isStop) {
+            await addTile([], displayOriginal, true, null, [], false);
+            continue;
+          }
+        }
+
+        // Combina le analisi: scegli pronome, genere, numero, tempo, sinonimi
+        let combined = { pronome: null, genere: null, numero: null, tempo: null, sinonimi: [] };
+        for (const an of segmentAnalyses) {
+          if (an.pronome && !combined.pronome) combined.pronome = an.pronome;
+          if (an.genere && !combined.genere && an.genere !== 'sconosciuto') combined.genere = an.genere;
+          if (an.numero && !combined.numero) combined.numero = an.numero;
+          if (an.tempo && !combined.tempo) combined.tempo = an.tempo;
+          if (an.sinonimi && Array.isArray(an.sinonimi)) {
+            // Pulisci i sinonimi da punteggiatura
+            const cleanedSynonyms = an.sinonimi.map(s => sanitizeWord(s)).filter(s => s.length > 0);
+            combined.sinonimi.push(...cleanedSynonyms);
+          }
+        }
+        // Badge e highlight
+        const badges = [];
+        let highlightInsert = false;
+        if (combined.pronome) {
+          badges.push({ token: combined.pronome, type: 'pronome' });
+          const displayWordsLower = rawWords.slice(start, end + 1).map(w => w.toLowerCase());
+          if (!displayWordsLower.includes(combined.pronome.toLowerCase())) {
+            highlightInsert = true;
+          }
+        }
+        if (combined.genere) badges.push({ token: combined.genere, type: 'genere' });
+        if (combined.numero) badges.push({ token: combined.numero, type: 'numero' });
+        // Determina il tempo verbale tramite euristiche locali. Ignoriamo il
+        // valore fornito da GPT per evitare falsi positivi su sostantivi (es.
+        // "estate" interpretato come verbo al passato). Le nostre euristiche
+        // considerano solo le desinenze verbali, così i nomi restano senza
+        // badge di tempo.
+        const tense = detectTense(searchTerm.split(' ')[0], lang);
+
+        // Determina il termine di ricerca effettivo
+        let searchKey = searchTerm;
+        if (len === 1) {
+          const w = searchTerm;
+          if (PRONOUNS[lang] && PRONOUNS[lang].has(w)) {
+            if (PRONOUN_SEARCH_MAP[lang] && PRONOUN_SEARCH_MAP[lang][w]) {
+              searchKey = PRONOUN_SEARCH_MAP[lang][w];
+            }
+            if (lang === 'it' && OBJECT_PRONOUN_MAP[w]) {
+              const map = OBJECT_PRONOUN_MAP[w];
+              searchKey = map.base;
+              if (!combined.genere) badges.push({ token: map.gender, type: 'genere' });
+              if (!combined.numero) badges.push({ token: map.number, type: 'numero' });
+            }
+          }
+
+          // Se la parola è una forma di "stato" (stato, stata, stati, state) e
+          // il tempo verbale rilevato o fornito è passato, interpretala come
+          // participio del verbo "stare" anziché come sostantivo "stato".
+          if (['stato','stata','stati','state'].includes(w.toLowerCase())) {
+            if (tense === 'past' || combined.tempo === 'past') {
+              searchKey = 'stare';
+            }
+          }
+
+          // Se la parola è una forma irregolare del presente (es. "ho", "hai", "ha")
+          // usa il lemma corretto per la ricerca ("avere" o "essere"). Questo
+          // evita di ottenere pittogrammi non pertinenti (es. "ho bisogno di aiuto")
+          // per l'ausiliare e consente di trovare l'immagine appropriata del verbo.
+          const irregularBase = IRREGULAR_PRESENT_LEMMA_MAP[w.toLowerCase()];
+          if (irregularBase) {
+            searchKey = irregularBase;
+          }
+        }
+
+        let ids;
+        if (idsForPhrase) {
+          if (Array.isArray(idsForPhrase)) {
+            ids = idsForPhrase;
+          } else {
+            ids = [...(idsForPhrase.arasaacIds || []), ...(idsForPhrase.openSymbols || [])];
+            arasaacCount = (idsForPhrase.arasaacIds || []).length;
+            openSymbolsCount = (idsForPhrase.openSymbols || []).length;
+          }
+        } else {
+          try {
+            console.log('[translate] About to call queryIds with searchKey:', searchKey);
+            const idsObj = await queryIds(lang, searchKey, aborter.signal);
+            console.log('[translate] queryIds result for "' + searchKey + '":', idsObj);
+            ids = [...(idsObj.arasaacIds || []), ...(idsObj.openSymbols || [])];
+            console.log('[translate] merged ids array:', ids);
+            arasaacCount = (idsObj.arasaacIds || []).length;
+            openSymbolsCount = (idsObj.openSymbols || []).length;
+          } catch {
+            ids = [];
+          }
+        }
+        // Se non trovi nulla, prova con sinonimi (GPT o locali)
+        if (!ids || ids.length === 0) {
+          // Aggiungi sinonimi locali basati sul lemma / termine di ricerca (solo per italiano e singole parole)
+          if (lang === 'it' && len === 1) {
+            const lk = searchKey.toLowerCase();
+            if (LOCAL_SYNONYMS_IT[lk]) {
+              combined.sinonimi.push(...LOCAL_SYNONYMS_IT[lk]);
+            }
+          }
+          if (combined.sinonimi && combined.sinonimi.length) {
+            for (const syn of combined.sinonimi) {
+              try {
+                const synIdsObj = await queryIds(lang, syn, aborter.signal);
+                const synIds = [...(synIdsObj.arasaacIds || []), ...(synIdsObj.openSymbols || [])];
+                if (synIds && synIds.length) {
+                  ids = synIds;
+                  arasaacCount = (synIdsObj.arasaacIds || []).length;
+                  openSymbolsCount = (synIdsObj.openSymbols || []).length;
+                  break;
+                }
+              } catch {}
+            }
+          }
+        }
+        if (ids && ids.length > 0) {
+          found++;
+          console.log('[translate] calling addTile with ids:', ids, 'word:', displayOriginal);
+          await addTile(ids, displayOriginal, false, tense, badges, highlightInsert);
+          // I simboli OpenSymbols sono ora integrati nel tile come alternative ciclabili
+        } else {
+          missing++;
+          await addTile([], displayOriginal, false, null, badges, highlightInsert);
+        }
+        // Messaggio per ogni parola/locuzione: quanti simboli trovati per fonte
+        setStatus(`ARASAAC: ${arasaacCount} | OpenSymbols: ${openSymbolsCount}`, false);
+        // Salta gli indici coperti dalla locuzione
+        idx = end;
+      }
+      setStatus(`Completato. Trovati ${found}, mancanti ${missing}${skipStop ? ' (parole funzionali escluse)' : ''}.`);
+  // Messaggio finale: somma totale simboli trovati per fonte
+  // (opzionale: puoi accumulare i totali in variabili e mostrarli qui)
+    }
+
+    function getItalianVoice(){ 
+      const voices = window.speechSynthesis.getVoices(); 
+      // Se l'utente ha selezionato una voce specifica, usala
+      const selectedVoiceName = els.voiceSelect.value;
+      if (selectedVoiceName) {
+        const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+        if (selectedVoice) return selectedVoice;
+      }
+      // Altrimenti cerca automaticamente una voce italiana
+      let v = voices.find(v=>/it[-_]/i.test(v.lang)); 
+      if(!v) v = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('it')); 
+      return v || voices[0] || null; 
+    }
+    
+    function populateVoices() {
+      const voices = window.speechSynthesis.getVoices();
+      els.voiceSelect.innerHTML = '<option value="">Voce automatica (IT)</option>';
+      voices.forEach(voice => {
+        const option = document.createElement('option');
+        option.value = voice.name;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        els.voiceSelect.appendChild(option);
+      });
+      // Recupera la voce salvata
+      const savedVoice = localStorage.getItem('selectedVoice');
+      if (savedVoice) {
+        els.voiceSelect.value = savedVoice;
+      }
+    }
+    
+    function speakText(){
+      const text = els.input.value.trim(); if(!text){ setStatus('Nulla da leggere.'); return; }
+      const u = new SpeechSynthesisUtterance(text); u.lang='it-IT'; const v = getItalianVoice(); if(v) u.voice=v; u.rate=1; u.pitch=1; u.onstart=()=>setStatus('Riproduzione avviata…'); u.onend=()=>setStatus('Riproduzione terminata.'); u.onerror=()=>setStatus('Errore nella sintesi vocale.');
+      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    }
+    
+    if(typeof speechSynthesis!=='undefined'){ 
+      speechSynthesis.onvoiceschanged = populateVoices;
+      populateVoices(); // Carica subito se già disponibili
+    }
+    
+    // Salva la voce selezionata
+    els.voiceSelect.addEventListener('change', () => {
+      localStorage.setItem('selectedVoice', els.voiceSelect.value);
+    });
+    
+    // Carica e salva la preferenza dei badge grammaticali
+    const savedShowBadges = localStorage.getItem('showGrammarBadges');
+    if (savedShowBadges !== null) {
+      els.showGrammarBadges.checked = savedShowBadges === 'true';
+    }
+    els.showGrammarBadges.addEventListener('change', () => {
+      localStorage.setItem('showGrammarBadges', els.showGrammarBadges.checked);
+      setStatus('✅ Preferenza badge grammaticali salvata');
+    });
+
+    // ========== FUNZIONALITÀ UNIONE SIMBOLI ==========
+    const selectedTiles = new Set();
+    const mergeButton = document.getElementById('mergeButton');
+
+    // Funzione per toggleare la selezione di un tile
+    function toggleTileSelection(tile) {
+      if (selectedTiles.has(tile)) {
+        selectedTiles.delete(tile);
+        tile.classList.remove('selected');
+      } else {
+        selectedTiles.add(tile);
+        tile.classList.add('selected');
+      }
+      
+      // Mostra/nascondi bottone unisci
+      if (selectedTiles.size >= 2) {
+        mergeButton.classList.add('visible');
+      } else {
+        mergeButton.classList.remove('visible');
+      }
+    }
+
+    // Funzione per unire i simboli selezionati
+    async function mergeSelectedTiles() {
+      if (selectedTiles.size < 2) {
+        alert('Seleziona almeno 2 simboli da unire!');
+        return;
+      }
+
+      // Estrai le parole dai tile selezionati nell'ordine
+      const tilesArray = Array.from(selectedTiles);
+      const words = tilesArray.map(tile => {
+        const wordEl = tile.querySelector('.word');
+        return wordEl ? wordEl.textContent.trim() : '';
+      }).filter(Boolean);
+
+      const mergedPhrase = words.join(' ');
+      
+      console.log('[Merge] Unendo simboli:', words, '→', mergedPhrase);
+      
+      // Salva la posizione del primo tile prima di rimuoverli
+      const firstTile = tilesArray[0];
+      let insertPosition = firstTile.nextSibling;
+      
+      // Verifica che insertPosition non sia uno dei tile che stiamo per rimuovere
+      while (insertPosition && selectedTiles.has(insertPosition)) {
+        insertPosition = insertPosition.nextSibling;
+      }
+      
+      // Rimuovi i tile selezionati
+      tilesArray.forEach(tile => tile.remove());
+      selectedTiles.clear();
+      mergeButton.classList.remove('visible');
+      
+      // Verifica che insertPosition sia ancora nel DOM
+      if (insertPosition && !insertPosition.parentNode) {
+        insertPosition = null;
+      }
+
+      // Cerca il simbolo per la frase unita
+      const lang = els.lang.value || 'it';
+      try {
+        const idsObj = await queryIds(lang, mergedPhrase, null);
+        const ids = [...(idsObj.arasaacIds || []), ...(idsObj.openSymbols || [])];
+        
+        if (ids && ids.length > 0) {
+          console.log('[Merge] Simbolo trovato per:', mergedPhrase);
+          await addTile(ids, mergedPhrase, false, null, [], false, insertPosition);
+          setStatus(`Simbolo trovato per: "${mergedPhrase}"`);
+        } else {
+          console.log('[Merge] Nessun simbolo trovato per:', mergedPhrase);
+          await addTile([], mergedPhrase, false, null, [], false, insertPosition);
+          setStatus(`Nessun simbolo trovato per: "${mergedPhrase}". Usa W per cercare su Wikipedia o ✨ per generare con AI.`);
+        }
+      } catch (err) {
+        console.error('[Merge] Errore:', err);
+        await addTile([], mergedPhrase, false, null, [], false, insertPosition);
+        setStatus(`Errore nella ricerca per: "${mergedPhrase}"`);
+      }
+    }
+
+    // Aggiungi event listener al bottone unisci
+    if (mergeButton) {
+      mergeButton.addEventListener('click', mergeSelectedTiles);
+    }
+
+    // Avvia il caricamento dell'indice delle keyword alla prima apertura se la lingua è italiano.
+    document.addEventListener('DOMContentLoaded', () => {
+      if ((els.lang.value || 'it') === 'it') {
+        loadKeywordIndexIT();
+      }
+      
+      // Mostra un reminder per la cartella locale all'avvio se non è già impostata
+      setTimeout(() => {
+        if (!localImageFolderHandle) {
+          setStatus('💡 Ricorda: clicca su "📁 Seleziona Cartella Immagini" per salvare immagini personalizzate (AI, web, ecc.)');
+        }
+      }, 1000); // Mostra dopo 1 secondo
+    });
+    // Se l'utente cambia la lingua in italiano e l'indice non è ancora pronto, caricalo.
+    if (els.lang) {
+      els.lang.addEventListener('change', (e) => {
+        if (e.target.value === 'it' && !keywordIndexReady) {
+          loadKeywordIndexIT();
+        }
+      });
+    }
+
+    window.addEventListener('error', (e)=>{ setStatus('Errore JS: ' + (e.message||'sconosciuto')); });
+    window.addEventListener('unhandledrejection', (e)=>{ setStatus('Errore: ' + (e.reason && e.reason.message ? e.reason.message : 'richiesta annullata')); });
+  </script>
+</body>
+</html>
