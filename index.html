@@ -2101,6 +2101,18 @@ function depluralizeItalian(word) {
 
             localImageFolderHandle = dirHandle;
 
+            // Richiedi permesso di lettura/scrittura subito per evitare problemi successivi
+            try {
+              const perm = await dirHandle.requestPermission({ mode: 'readwrite' });
+              if (perm !== 'granted') {
+                // Se l'utente non concede permessi di scrittura, avvisa e prosegui in sola lettura
+                console.warn('[Local Folder] Write permission not granted:', perm);
+                els.localFolderStatus.textContent = `⚠️ Permessi limitati per "${dirHandle.name}"`;
+              }
+            } catch (e) {
+              console.warn('[Local Folder] requestPermission failed:', e);
+            }
+
             // Scansiona tutti i file nella cartella
             console.log('[Local Folder] Scanning folder:', dirHandle.name);
             localImageFiles = {}; // Struttura: { "parola": [FileHandle/File, ...] }
@@ -2132,7 +2144,16 @@ function depluralizeItalian(word) {
               // Prova a salvare il handle in IndexedDB per ricollegare la cartella in seguito
               const saved = await persistHandleToIDB('localImageFolder', dirHandle);
               if (saved) {
-                localStorage.setItem('localImageFolderName', dirHandle.name);
+                try {
+                  const saved = await persistHandleToIDB('localImageFolder', dirHandle);
+                  if (saved) {
+                    localStorage.setItem('localImageFolderName', dirHandle.name);
+                  } else {
+                    localStorage.setItem('localImageFolderName', dirHandle.name);
+                  }
+                } catch (e) {
+                  try { localStorage.setItem('localImageFolderName', dirHandle.name); } catch(_){}
+                }
               } else {
                 // Se non possiamo salvare il handle, salviamo comunque il nome per compatibilità
                 localStorage.setItem('localImageFolderName', dirHandle.name);
