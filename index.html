@@ -68,16 +68,15 @@
   justify-content: flex-end; /* li allinea a destra */
   margin-top: 4px;
 }
-
-.badges .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #ffffffee;
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
-  padding: 2px 6px;
-}
+        .badges .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ffffffee;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      padding: 2px 6px;
+    }
     .badges .badge img {
       max-height: 20px;
       max-width: 20px;
@@ -561,7 +560,13 @@
         </div>
       </div>
       
-      <button id="closeSettingsButton" class="button" aria-label="Chiudi impostazioni" style="width: 100%; margin-top: 16px;">Chiudi</button>
+        <!-- Diagnostics: environmental checks for folder selection -->
+        <div style="margin-top:12px;">
+          <button id="runDirDiagButton" class="button ghost" style="width:100%; margin-bottom:8px;">🔍 Esegui diagnosi cartella</button>
+          <div style="font-size:0.9rem; color:#64748b;">Usa questo strumento per raccogliere informazioni sul browser e i permessi del File System Access API.</div>
+        </div>
+
+        <button id="closeSettingsButton" class="button" aria-label="Chiudi impostazioni" style="width: 100%; margin-top: 16px;">Chiudi</button>
     </div>
   </div>
 
@@ -1151,6 +1156,7 @@ function depluralizeItalian(word) {
   saveGoogleCreds: qs('saveGoogleCredsButton'),
   selectLocalFolder: qs('selectLocalFolderButton'),
   disconnectLocalFolder: qs('disconnectLocalFolderButton'),
+    runDirDiagButton: qs('runDirDiagButton'),
   localFolderStatus: qs('localFolderStatus'),
   settingsButton: qs('settingsButton'),
   settingsModal: qs('settingsModal'),
@@ -1209,6 +1215,22 @@ function depluralizeItalian(word) {
         it: 'Trovati simboli OpenSymbols (TAWASOL, Bliss, ecc.): {n}',
         en: 'Found OpenSymbols pictograms (TAWASOL, Bliss, etc.): {n}',
         es: 'Símbolos encontrados en OpenSymbols (TAWASOL, Bliss, etc.): {n}'
+      },
+      // New keys for diagnostics / persistence UX
+      localFolder_permission_limited: {
+        it: 'Permessi limitati per la cartella selezionata: alcune operazioni potrebbero non funzionare.',
+        en: 'Limited permissions for the selected folder: some operations may not work.',
+        es: 'Permisos limitados para la carpeta seleccionada: algunas operaciones pueden no funcionar.'
+      },
+      localFolder_session_only: {
+        it: 'Cartella connessa per questa sessione, ma non può essere ricordata su questo browser.',
+        en: 'Folder connected for this session, but cannot be remembered on this browser.',
+        es: 'Carpeta conectada para esta sesión, pero no se puede recordar en este navegador.'
+      },
+      diag_copied: {
+        it: 'Diagnostica copiata negli appunti.',
+        en: 'Diagnostics copied to clipboard.',
+        es: 'Diagnósticos copiados al portapapeles.'
       },
       opensymbols_saved: {
         it: 'Token OpenSymbols salvato.',
@@ -1363,7 +1385,85 @@ function depluralizeItalian(word) {
       }
     };
 
-    function formatStatusText(key, params, lang){
+      // --- Helpers: IndexedDB check, persist-with-retries and diagnostics ---
+      async function checkIndexedDBAvailable() {
+        try {
+          if (!window.indexedDB) return { ok: false, reason: 'no-indexeddb' };
+          const req = indexedDB.open('__diag_test__', 1);
+          await new Promise((res, rej) => {
+            req.onupgradeneeded = () => {};
+            req.onsuccess = () => res();
+            req.onerror = () => rej(req.error || new Error('idb open error'));
+          });
+          return { ok: true };
+        } catch (e) {
+          return { ok: false, reason: String(e) };
+        }
+      }
+
+      async function saveHandleWithFallback(key, handle, maxRetries = 2) {
+        try {
+          for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+              const ok = await persistHandleToIDB(key, handle);
+              if (ok) {
+                console.log('[IDB] handle persisted (attempt', attempt, ')');
+                try { localStorage.setItem('localImageFolderName', handle.name || '(cartella)'); } catch(_){}
+                return { savedToIDB: true };
+              }
+            } catch (e) {
+              console.warn('[IDB] persist attempt failed', attempt, e);
+            }
+            await new Promise(r => setTimeout(r, 200));
+          }
+          try { localStorage.setItem('localImageFolderName', handle.name || '(cartella)'); } catch(_){}
+          console.warn('[IDB] persist failed - falling back to store folder name only');
+          return { savedToIDB: false, fallback: 'nameOnly' };
+        } catch (e) {
+          try { localStorage.setItem('localImageFolderName', handle.name || '(cartella)'); } catch(_){}
+          return { savedToIDB: false, error: String(e) };
+        }
+      }
+
+      async function runDirDiagnostics() {
+        const out = (k,v) => console.log('[DIAG] '+k+':', v);
+        const ua = navigator.userAgent || '(n/a)';
+        out('userAgent', ua);
+        out('platform', navigator.platform || '(n/a)');
+        out('isSecureContext', !!window.isSecureContext);
+        const isWebView = /\bwv\b|; wv\)|WebView/i.test(ua) || /\bFBAN\b|\bFBAV\b|\bInstagram\b/i.test(ua);
+        out('looksLikeWebView', isWebView);
+        out('hasShowDirectoryPicker', typeof window.showDirectoryPicker === 'function');
+        out('hasShowOpenFilePicker', typeof window.showOpenFilePicker === 'function');
+        const idb = await checkIndexedDBAvailable(); out('indexedDB', idb);
+        try {
+          const est = navigator.storage && navigator.storage.estimate ? await navigator.storage.estimate() : null;
+          out('storageEstimate', est);
+        } catch(e) { out('storageEstimateError', String(e)); }
+        try {
+          const saved = await readHandleFromIDB('localImageFolder');
+          out('savedHandleInIDB', !!saved);
+          if (saved) {
+            out('savedHandleName', saved.name || '(unknown)');
+            try {
+              const q = saved.queryPermission ? await saved.queryPermission({mode:'read'}) : 'unknown';
+              out('savedHandle.queryPermission(read)', q);
+              const rq = saved.requestPermission ? await saved.requestPermission({mode:'read'}) : 'unknown';
+              out('savedHandle.requestPermission(read)', rq);
+            } catch (e) { out('savedHandle.permissionError', String(e)); }
+          }
+        } catch (e) { out('readSavedHandleError', String(e)); }
+        const diag = { time: new Date().toISOString(), userAgent: ua, isWebView, hasShowDirectoryPicker: !!window.showDirectoryPicker, idb };
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(diag, null, 2));
+          setStatusKey('diag_copied');
+        } catch (e) {
+          alert('Diagnostica:\n' + JSON.stringify(diag, null, 2));
+        }
+        return diag;
+      }
+
+      function formatStatusText(key, params, lang){
       let tmpl = (statusMessages[key] && statusMessages[key][lang]) || (statusMessages[key] && statusMessages[key]['it']) || key;
       if(!params) return tmpl;
       Object.keys(params).forEach(k=>{
@@ -2205,25 +2305,17 @@ function depluralizeItalian(word) {
             }
 
             try {
-              // Prova a salvare il handle in IndexedDB per ricollegare la cartella in seguito
-              const saved = await persistHandleToIDB('localImageFolder', dirHandle);
-              if (saved) {
-                try {
-                  const saved = await persistHandleToIDB('localImageFolder', dirHandle);
-                  if (saved) {
-                    localStorage.setItem('localImageFolderName', dirHandle.name);
-                  } else {
-                    localStorage.setItem('localImageFolderName', dirHandle.name);
-                  }
-                } catch (e) {
-                  try { localStorage.setItem('localImageFolderName', dirHandle.name); } catch(_){}
-                }
-              } else {
-                // Se non possiamo salvare il handle, salviamo comunque il nome per compatibilità
-                localStorage.setItem('localImageFolderName', dirHandle.name);
+              // Prova a salvare il handle in IndexedDB per ricollegare la cartella in seguito.
+              // Usa la funzione saveHandleWithFallback che tenta più volte e salva il nome come fallback.
+              const saveRes = await saveHandleWithFallback('localImageFolder', dirHandle);
+              if (!saveRes.savedToIDB) {
+                // Informiamo l'utente che la cartella è disponibile solo per la sessione
+                setStatusKey('localFolder_session_only');
               }
             } catch (e) {
-              try { localStorage.setItem('localImageFolderName', dirHandle.name); } catch(_){}
+              console.warn('[Local Folder] Could not persist handle (fallback to name)', e);
+              try { localStorage.setItem('localImageFolderName', dirHandle.name); } catch(_){ }
+              setStatusKey('localFolder_session_only');
             }
             const uniqueWords = Object.keys(localImageFiles).length;
             els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
