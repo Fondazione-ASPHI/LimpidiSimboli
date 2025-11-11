@@ -493,8 +493,9 @@
       </div>
     </div>
     <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
-      <button id="selectLocalFolderButton" class="button ghost" aria-label="Seleziona cartella con immagini personali">📁 Seleziona Cartella Immagini</button>
-      <button id="reconnectLocalFolderButton" class="button ghost" aria-label="Ricollega cartella">🔌 Ricollega Cartella</button>
+  <button id="selectLocalFolderButton" class="button ghost" aria-label="Seleziona cartella con immagini personali">📁 Seleziona Cartella Immagini</button>
+  <button id="reconnectLocalFolderButton" class="button ghost" aria-label="Ricollega cartella">🔌 Ricollega Cartella</button>
+  <button id="disconnectLocalFolderButton" class="button ghost" aria-label="Disconnetti cartella" title="Rimuovi riferimento alla cartella salvata">🚫 Disconnetti</button>
       <span id="localFolderStatus" style="color: #64748b; font-size: 0.9rem;"></span>
     </div>
     <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
@@ -1149,6 +1150,7 @@ function depluralizeItalian(word) {
   saveGoogleCreds: qs('saveGoogleCredsButton'),
   selectLocalFolder: qs('selectLocalFolderButton'),
     reconnectLocalFolder: qs('reconnectLocalFolderButton'),
+  disconnectLocalFolder: qs('disconnectLocalFolderButton'),
   localFolderStatus: qs('localFolderStatus'),
   settingsButton: qs('settingsButton'),
   settingsModal: qs('settingsModal'),
@@ -2260,6 +2262,9 @@ function depluralizeItalian(word) {
     if (els.reconnectLocalFolder) {
       els.reconnectLocalFolder.addEventListener('click', safeAsync(async () => {
         try {
+          // se l'utente ha premuto 'disconnect' prima, cancella handle residui
+          // (no-op se non presente)
+          
           if (!window.showDirectoryPicker || !window.indexedDB) {
             alert(translateUI('browserNoFolderSupport'));
             return;
@@ -2267,10 +2272,17 @@ function depluralizeItalian(word) {
 
           const saved = await readHandleFromIDB('localImageFolder');
           if (!saved) {
+            // Mostra messaggio esplicativo e offri un'azione rapida
             setStatusKey('selectFolderNotConnected');
-            // Offri all'utente di selezionare ora
-            if (confirm(translateUI('selectFolderReminder', { actionName: 'ricollegare la cartella' }))) {
-              if (els.selectLocalFolder) els.selectLocalFolder.click();
+            try {
+              els.localFolderStatus.innerHTML = `${translateUI('selectFolderNotConnected')} <button id="localFolderQuickSelect" class="button ghost" style="margin-left:8px;">Seleziona ora</button>`;
+              const quick = document.getElementById('localFolderQuickSelect');
+              if (quick) quick.addEventListener('click', () => { if (els.selectLocalFolder) els.selectLocalFolder.click(); });
+            } catch (_) {
+              // fallback semplice: offri prompt per ricollegare
+              if (confirm(translateUI('selectFolderReminder', { actionName: 'ricollegare la cartella' }))) {
+                if (els.selectLocalFolder) els.selectLocalFolder.click();
+              }
             }
             return;
           }
@@ -2326,6 +2338,35 @@ function depluralizeItalian(word) {
         }
       }));
     }
+
+      // Disconnetti cartella: rimuove handle salvato e resetta stato UI
+      if (els.disconnectLocalFolder) {
+        els.disconnectLocalFolder.addEventListener('click', safeAsync(async () => {
+          try {
+            // Rimuovi da IndexedDB
+            if (window.indexedDB) {
+              const req = indexedDB.open('ls-handles', 1);
+              req.onsuccess = (e) => {
+                try {
+                  const db = e.target.result;
+                  const tx = db.transaction('handles', 'readwrite');
+                  tx.objectStore('handles').delete('localImageFolder');
+                  tx.oncomplete = () => { db.close(); };
+                  tx.onerror = () => { db.close(); };
+                } catch (er) { console.warn('[Disconnect] IDB delete error', er); }
+              };
+            }
+            try { localStorage.removeItem('localImageFolderName'); } catch(_){}
+            localImageFolderHandle = null;
+            localImageFiles = {};
+            if (els.localFolderStatus) els.localFolderStatus.textContent = translateUI('selectFolderNotConnected');
+            setStatusKey('selectFolderNotConnected');
+          } catch (e) {
+            console.error('[Disconnect] Error', e);
+            setStatusKey('js_error', { msg: e && e.message ? e.message : String(e) }, true);
+          }
+        }));
+      }
     
       els.saveApiKey.addEventListener('click', () => {
         const key = (els.apiInput.value || '').trim();
