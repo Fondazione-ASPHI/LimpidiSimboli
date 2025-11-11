@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
@@ -186,11 +186,163 @@
         margin-bottom: 16px !important;
       }
     }
+    
+    /* Styles for guide modals */
+    .guide-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 10001;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    
+    .guide-modal-content {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      max-width: 900px;
+      width: 95%;
+      max-height: 85vh;
+      overflow-y: auto;
+      margin: auto;
+      position: relative;
+    }
+    
+    .guide-modal-content h1,
+    .guide-modal-content h2,
+    .guide-modal-content h3 {
+      color: var(--brand);
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    
+    .guide-modal-content h1 {
+      font-size: 2rem;
+      margin-top: 0;
+    }
+    
+    .guide-modal-content h2 {
+      font-size: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.3em;
+    }
+    
+    .guide-modal-content h3 {
+      font-size: 1.2rem;
+    }
+    
+    .guide-modal-content code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+    
+    .guide-modal-content pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.9em;
+    }
+    
+    .guide-modal-content pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+    }
+    
+    .guide-modal-content ul,
+    .guide-modal-content ol {
+      line-height: 1.8;
+      margin: 1em 0;
+    }
+    
+    .guide-modal-content li {
+      margin: 0.5em 0;
+    }
+    
+    .guide-modal-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+    }
+    
+    .guide-modal-content th,
+    .guide-modal-content td {
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      text-align: left;
+    }
+    
+    .guide-modal-content th {
+      background: #f9fafb;
+      font-weight: 600;
+    }
+    
+    .guide-modal-content a {
+      color: var(--brand);
+      text-decoration: none;
+    }
+    
+    .guide-modal-content a:hover {
+      text-decoration: underline;
+    }
+    
+    .guide-close-btn {
+      position: sticky;
+      top: 0;
+      right: 0;
+      float: right;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      z-index: 10;
+    }
+    
+    .guide-close-btn:hover {
+      background: #dc2626;
+    }
+    
+    @media (max-width: 768px) {
+      .guide-modal-content {
+        padding: 20px;
+        max-width: 100%;
+      }
+      
+      .guide-modal-content h1 {
+        font-size: 1.5rem;
+      }
+      
+      .guide-modal-content h2 {
+        font-size: 1.3rem;
+      }
+      
+      .guide-modal-content h3 {
+        font-size: 1.1rem;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>Limpidi Simboli - ASPHI Onlus</h1>
-  <p class="sub">Inserisci una frase in italiano. L’app cerca un pittogramma ARASAAC per ogni parola significativa.</p>
+  <p class="sub">Inserisci una frase. L’app cerca o crea un simbolo per ogni parola significativa.</p>
 
   <div class="toolbar" role="search">
     <div style="display: flex; flex-direction: row; gap: 24px; align-items: flex-start; margin-bottom: 8px;">
@@ -213,9 +365,14 @@
         <button id="settingsButton" class="button ghost" aria-label="Impostazioni API" style="margin-top: 4px;">⚙️ Settings</button>
       </div>
     </div>
-    <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
       <button id="selectLocalFolderButton" class="button ghost" aria-label="Seleziona cartella con immagini personali">📁 Seleziona Cartella Immagini</button>
       <span id="localFolderStatus" style="color: #64748b; font-size: 0.9rem;"></span>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
+      <button id="guidaRapidaButton" class="button ghost" aria-label="Apri guida rapida">📖 Guida Rapida</button>
+      <button id="guidaAvanzataButton" class="button ghost" aria-label="Apri guida avanzata">🎓 Guida Avanzata</button>
+      <button id="videoTutorialButton" class="button ghost" aria-label="Guarda video tutorial">🎥 Video Tutorial</button>
     </div>
   </div>
   
@@ -275,6 +432,39 @@
       </div>
       
       <button id="closeSettingsButton" class="button" aria-label="Chiudi impostazioni" style="width: 100%; margin-top: 16px;">Chiudi</button>
+    </div>
+  </div>
+
+  <!-- Guida Rapida Modal -->
+  <div id="guidaRapidaModal" class="guide-modal">
+    <div class="guide-modal-content">
+      <button class="guide-close-btn" onclick="document.getElementById('guidaRapidaModal').style.display='none'">✕ Chiudi</button>
+      <div id="guidaRapidaContent">Caricamento...</div>
+    </div>
+  </div>
+
+  <!-- Guida Avanzata Modal -->
+  <div id="guidaAvanzataModal" class="guide-modal">
+    <div class="guide-modal-content">
+      <button class="guide-close-btn" onclick="document.getElementById('guidaAvanzataModal').style.display='none'">✕ Chiudi</button>
+      <div id="guidaAvanzataContent">Caricamento...</div>
+    </div>
+  </div>
+
+  <!-- Video Tutorial Modal -->
+  <div id="videoTutorialModal" class="guide-modal">
+    <div class="guide-modal-content" style="max-width: 1200px;">
+      <button class="guide-close-btn" onclick="document.getElementById('videoTutorialModal').style.display='none'; document.getElementById('youtubeContainer').innerHTML='';">✕ Chiudi</button>
+      <h1>🎥 Video Tutorial</h1>
+      <div id="youtubeContainer" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin-top: 20px;">
+        <!-- L'iframe verrà creato dinamicamente qui -->
+      </div>
+      <p style="margin-top: 20px; color: #64748b; text-align: center;">
+        📺 Guarda il tutorial completo su come usare Limpidi Simboli
+      </p>
+      <p style="margin-top: 10px; color: #64748b; text-align: center; font-size: 0.9rem;">
+        � <a href="https://www.youtube.com/watch?v=w_leLI6oyow" target="_blank" style="color: #2a9df4;">Apri direttamente su YouTube</a>
+      </p>
     </div>
   </div>
 
@@ -913,6 +1103,110 @@ function depluralizeItalian(word) {
         }
       });
     }
+    
+    // ========== GESTIONE GUIDE E VIDEO TUTORIAL ==========
+    
+    // Funzione per convertire Markdown in HTML (semplice)
+    function markdownToHTML(markdown) {
+      let html = markdown;
+      
+      // Titoli
+      html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+      html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+      html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+      
+      // Bold
+      html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+      
+      // Italic
+      html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+      
+      // Code inline
+      html = html.replace(/`([^`]+)`/gim, '<code>$1</code>');
+      
+      // Code blocks
+      html = html.replace(/```([a-z]*)\n([\s\S]*?)```/gim, '<pre><code>$2</code></pre>');
+      
+      // Links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank">$1</a>');
+      
+      // Immagini
+      html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, '<img src="$2" alt="$1" style="max-width:100%;">');
+      
+      // Liste non ordinate
+      html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>');
+      
+      // Liste ordinate
+      html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+      
+      // Checkbox
+      html = html.replace(/- \[x\]/gi, '✅');
+      html = html.replace(/- \[ \]/gi, '❌');
+      
+      // Paragrafi (righe con contenuto)
+      html = html.replace(/^([^\n<][^\n]+)$/gim, '<p>$1</p>');
+      
+      // Rimuovi paragrafi multipli vuoti
+      html = html.replace(/<p><\/p>/g, '');
+      
+      // Horizontal rules
+      html = html.replace(/^---$/gim, '<hr>');
+      
+      return html;
+    }
+    
+    // Funzione per aprire la guida rapida in una nuova scheda
+    function loadGuidaRapida() {
+      window.open('GuidaRapida.html', '_blank');
+    }
+    
+    // Funzione per aprire la guida avanzata in una nuova scheda
+    function loadGuidaAvanzata() {
+      window.open('GuidaAvanzata.html', '_blank');
+    }
+    
+    // Funzione per aprire il video tutorial direttamente su YouTube
+    function openVideoTutorial() {
+      // Apri direttamente il video su YouTube in una nuova scheda
+      window.open('https://www.youtube.com/watch?v=w_leLI6oyow', '_blank');
+    }
+    
+    // Event listeners per i pulsanti delle guide
+    const guidaRapidaBtn = document.getElementById('guidaRapidaButton');
+    const guidaAvanzataBtn = document.getElementById('guidaAvanzataButton');
+    const videoTutorialBtn = document.getElementById('videoTutorialButton');
+    
+    if (guidaRapidaBtn) {
+      guidaRapidaBtn.addEventListener('click', loadGuidaRapida);
+    }
+    
+    if (guidaAvanzataBtn) {
+      guidaAvanzataBtn.addEventListener('click', loadGuidaAvanzata);
+    }
+    
+    if (videoTutorialBtn) {
+      videoTutorialBtn.addEventListener('click', openVideoTutorial);
+    }
+    
+    // Chiudi i modal cliccando fuori
+    ['guidaRapidaModal', 'guidaAvanzataModal', 'videoTutorialModal'].forEach(modalId => {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.style.display = 'none';
+            // Ferma il video quando chiudi il modal
+            if (modalId === 'videoTutorialModal') {
+              const container = document.getElementById('youtubeContainer');
+              if (container) container.innerHTML = '';
+            }
+          }
+        });
+      }
+    });
+    
+    // ========== FINE GESTIONE GUIDE E VIDEO TUTORIAL ==========
     
     // Carica handle salvato se esiste (File System Access API supporta la persistenza)
     (async function loadSavedFolderHandle() {
