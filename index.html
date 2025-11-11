@@ -492,10 +492,11 @@
         <button id="settingsButton" class="button ghost" aria-label="Impostazioni API" style="margin-top: 4px;">⚙️ Settings</button>
       </div>
     </div>
-    <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
-  <button id="selectLocalFolderButton" class="button ghost" aria-label="Seleziona cartella con immagini personali">📁 Seleziona Cartella Immagini</button>
-  <button id="reconnectLocalFolderButton" class="button ghost" aria-label="Ricollega cartella">🔌 Ricollega Cartella</button>
-  <button id="disconnectLocalFolderButton" class="button ghost" aria-label="Disconnetti cartella" title="Rimuovi riferimento alla cartella salvata">🚫 Disconnetti</button>
+    <div style="display:flex; gap:8px; align-items:flex-start; margin-bottom: 8px; flex-wrap: wrap;">
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <button id="selectLocalFolderButton" class="button ghost" aria-label="Seleziona cartella con immagini personali">📁 Seleziona cartella immagini</button>
+        <button id="disconnectLocalFolderButton" class="button ghost" aria-label="Disconnetti cartella" title="Rimuovi riferimento alla cartella salvata">🚫 Disconnetti cartella</button>
+      </div>
       <span id="localFolderStatus" style="color: #64748b; font-size: 0.9rem;"></span>
     </div>
     <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
@@ -606,7 +607,7 @@
     <br>
     Sviluppo: <a href="https://www.asphi.it" target="_blank" rel="noreferrer noopener">Fondazione ASPHI Onlus</a>.
     <br>
-    Licenza: <a href="LICENSE" target="_blank" rel="noreferrer noopener">CC BY-NC-SA 4.0</a>
+    Licenza: <a href="LICENSE.md" target="_blank" rel="noreferrer noopener">CC BY-NC-SA 4.0</a>
   </div>
 
   <script>
@@ -1149,7 +1150,6 @@ function depluralizeItalian(word) {
   googleCxInput: qs('googleCxInput'),
   saveGoogleCreds: qs('saveGoogleCredsButton'),
   selectLocalFolder: qs('selectLocalFolderButton'),
-    reconnectLocalFolder: qs('reconnectLocalFolderButton'),
   disconnectLocalFolder: qs('disconnectLocalFolderButton'),
   localFolderStatus: qs('localFolderStatus'),
   settingsButton: qs('settingsButton'),
@@ -1451,6 +1451,21 @@ function depluralizeItalian(word) {
         speakButton: '🔊 Ascolta',
         settingsButton: '⚙️ Impostazioni',
         selectLocalFolderButton: '📁 Seleziona Cartella Immagini',
+          disconnectLocalFolderButton: '🚫 Disconnetti cartella',
+          disconnectLocalFolderTitle: 'Rimuovi riferimento alla cartella salvata',
+          asphiLogoTitle: 'ASPHI Onlus',
+          lang_it: 'Italiano',
+          lang_es: 'Español',
+          lang_en: 'Inglese',
+          addSymbolButtonTitle: 'Aggiungi simbolo personale',
+          removeSymbolButtonTitle: 'Rimuovi questo simbolo personalizzato',
+          abcShowText: 'Mostra solo testo',
+          abcShowSymbol: 'Mostra simbolo',
+          wikiSearchButtonTitle: 'Cerca immagini su Wikipedia',
+          googleSearchButtonTitle: 'Cerca immagini su Google (100/giorno)',
+          altSearchButtonTitle: 'Cerca simbolo con termine alternativo',
+          gptButtonTitle: 'Genera simbolo con IA',
+          fileNotFoundTitle: 'File non trovato - riconnetti la cartella',
         guidaRapidaButton: '📖 Guida Rapida',
         guidaAvanzataButton: '🎓 Guida Avanzata',
         videoTutorialButton: '🎥 Video Tutorial',
@@ -1469,6 +1484,21 @@ function depluralizeItalian(word) {
         speakButton: '🔊 Listen',
         settingsButton: '⚙️ Settings',
         selectLocalFolderButton: '📁 Select Image Folder',
+          disconnectLocalFolderButton: '🚫 Disconnect folder',
+          disconnectLocalFolderTitle: 'Remove saved folder reference',
+          asphiLogoTitle: 'ASPHI Onlus',
+          lang_it: 'Italian',
+          lang_es: 'Spanish',
+          lang_en: 'English',
+          addSymbolButtonTitle: 'Add personal symbol',
+          removeSymbolButtonTitle: 'Remove this custom symbol',
+          abcShowText: 'Show text only',
+          abcShowSymbol: 'Show symbol',
+          wikiSearchButtonTitle: 'Search images on Wikipedia',
+          googleSearchButtonTitle: 'Search images on Google (100/day)',
+          altSearchButtonTitle: 'Search symbol with alternate term',
+          gptButtonTitle: 'Generate symbol with AI',
+          fileNotFoundTitle: 'File not found - reconnect the folder',
         guidaRapidaButton: '📖 Quick Guide',
         guidaAvanzataButton: '🎓 Advanced Guide',
         videoTutorialButton: '🎥 Video Tutorial',
@@ -1487,6 +1517,21 @@ function depluralizeItalian(word) {
         speakButton: '🔊 Escuchar',
         settingsButton: '⚙️ Ajustes',
         selectLocalFolderButton: '📁 Seleccionar Carpeta de Imágenes',
+          disconnectLocalFolderButton: '🚫 Desconectar carpeta',
+          disconnectLocalFolderTitle: 'Eliminar referencia a la carpeta guardada',
+          asphiLogoTitle: 'ASPHI Onlus',
+          lang_it: 'Italiano',
+          lang_es: 'Español',
+          lang_en: 'Inglés',
+          addSymbolButtonTitle: 'Agregar símbolo personal',
+          removeSymbolButtonTitle: 'Eliminar este símbolo personalizado',
+          abcShowText: 'Mostrar solo texto',
+          abcShowSymbol: 'Mostrar símbolo',
+          wikiSearchButtonTitle: 'Buscar imágenes en Wikipedia',
+          googleSearchButtonTitle: 'Buscar imágenes en Google (100/día)',
+          altSearchButtonTitle: 'Buscar símbolo con término alternativo',
+          gptButtonTitle: 'Generar símbolo con IA',
+          fileNotFoundTitle: 'Archivo no encontrado - reconecta la carpeta',
         guidaRapidaButton: '📖 Guía Rápida',
         guidaAvanzataButton: '🎓 Guía Avanzada',
         videoTutorialButton: '🎥 Tutorial en Video',
@@ -1516,6 +1561,23 @@ function depluralizeItalian(word) {
       const spk = document.getElementById('speakButton'); if(spk) { spk.textContent = t.speakButton; spk.setAttribute('aria-label', t.speakButton); }
       const setBtn = document.getElementById('settingsButton'); if(setBtn) { setBtn.textContent = t.settingsButton; setBtn.setAttribute('aria-label', t.settingsButton); }
       const folderBtn = document.getElementById('selectLocalFolderButton'); if(folderBtn) { folderBtn.textContent = t.selectLocalFolderButton; folderBtn.setAttribute('aria-label', t.selectLocalFolderButton); }
+  const disconnectBtn = document.getElementById('disconnectLocalFolderButton');
+  if (disconnectBtn) {
+    disconnectBtn.textContent = t.disconnectLocalFolderButton;
+    disconnectBtn.setAttribute('aria-label', t.disconnectLocalFolderButton);
+    if (typeof t.disconnectLocalFolderTitle !== 'undefined') disconnectBtn.title = t.disconnectLocalFolderTitle;
+  }
+  // Logo tooltip
+  const logoLink = document.getElementById('asphiLogoLink');
+  if (logoLink && typeof t.asphiLogoTitle !== 'undefined') logoLink.title = t.asphiLogoTitle;
+  // Localize language flag tooltips (show language names in the UI language)
+  document.querySelectorAll('.lang-flag').forEach(b => {
+    try {
+      const code = (b.dataset && b.dataset.lang) ? b.dataset.lang : 'it';
+      const key = 'lang_' + code;
+      if (t && typeof t[key] !== 'undefined') b.title = t[key];
+    } catch (e) { /* non critico */ }
+  });
       const gr = document.getElementById('guidaRapidaButton'); if(gr) { gr.textContent = t.guidaRapidaButton; gr.setAttribute('aria-label', t.guidaRapidaButton); }
       const ga = document.getElementById('guidaAvanzataButton'); if(ga) { ga.textContent = t.guidaAvanzataButton; ga.setAttribute('aria-label', t.guidaAvanzataButton); }
       const vb = document.getElementById('videoTutorialButton'); if(vb) { vb.textContent = t.videoTutorialButton; vb.setAttribute('aria-label', t.videoTutorialButton); }
@@ -2258,86 +2320,7 @@ function depluralizeItalian(word) {
       }));
     }
 
-    // Ricollega la cartella salvata (se presente in IndexedDB)
-    if (els.reconnectLocalFolder) {
-      els.reconnectLocalFolder.addEventListener('click', safeAsync(async () => {
-        try {
-          // se l'utente ha premuto 'disconnect' prima, cancella handle residui
-          // (no-op se non presente)
-          
-          if (!window.showDirectoryPicker || !window.indexedDB) {
-            alert(translateUI('browserNoFolderSupport'));
-            return;
-          }
-
-          const saved = await readHandleFromIDB('localImageFolder');
-          if (!saved) {
-            // Mostra messaggio esplicativo e offri un'azione rapida
-            setStatusKey('selectFolderNotConnected');
-            try {
-              els.localFolderStatus.innerHTML = `${translateUI('selectFolderNotConnected')} <button id="localFolderQuickSelect" class="button ghost" style="margin-left:8px;">Seleziona ora</button>`;
-              const quick = document.getElementById('localFolderQuickSelect');
-              if (quick) quick.addEventListener('click', () => { if (els.selectLocalFolder) els.selectLocalFolder.click(); });
-            } catch (_) {
-              // fallback semplice: offri prompt per ricollegare
-              if (confirm(translateUI('selectFolderReminder', { actionName: 'ricollegare la cartella' }))) {
-                if (els.selectLocalFolder) els.selectLocalFolder.click();
-              }
-            }
-            return;
-          }
-
-          // Verifica permessi
-          try {
-            const perm = await saved.queryPermission({ mode: 'read' });
-            if (perm !== 'granted') {
-              const req = await saved.requestPermission({ mode: 'read' });
-              if (req !== 'granted') {
-                els.localFolderStatus.textContent = '⚠️ Permesso non concesso';
-                setStatusKey('opensymbols_network_error', null, true);
-                return;
-              }
-            }
-          } catch (e) {
-            // Alcuni browser possono non implementare queryPermission: proviamo comunque a request
-            try { await saved.requestPermission({ mode: 'read' }); } catch(_){}
-          }
-
-          // Scansiona la cartella e ripopola la cache locale
-          localImageFolderHandle = saved;
-          localImageFiles = {};
-          let totalFiles = 0;
-          try {
-            for await (const entry of saved.values()) {
-              if (entry.kind === 'file') {
-                try {
-                  const file = await entry.getFile();
-                  if (file.type && file.type.startsWith('image/')) {
-                    totalFiles++;
-                    const nameNoExt = entry.name.replace(/\.[^/.]+$/, '').toLowerCase();
-                    const words = nameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
-                    for (const word of words) {
-                      if (!localImageFiles[word]) localImageFiles[word] = [];
-                      localImageFiles[word].push(entry);
-                    }
-                  }
-                } catch (e) { /* ignore individual file errors */ }
-              }
-            }
-          } catch (e) {
-            console.warn('[Reconnect] Error scanning folder', e);
-          }
-
-          const uniqueWords = Object.keys(localImageFiles).length;
-          els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
-          setStatusKey('local_folder_connected', { dir: localStorage.getItem('localImageFolderName') || '(cartella salvata)', files: totalFiles, words: uniqueWords });
-          console.log('[Reconnect] Reconnected to saved folder:', localImageFiles);
-        } catch (e) {
-          console.error('[Reconnect] Error', e);
-          setStatusKey('js_error', { msg: e && e.message ? e.message : String(e) }, true);
-        }
-      }));
-    }
+    
 
       // Disconnetti cartella: rimuove handle salvato e resetta stato UI
       if (els.disconnectLocalFolder) {
@@ -2519,7 +2502,7 @@ function depluralizeItalian(word) {
                   }
                 } else {
                   img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">Non trovato</text></svg>';
-                  img.title = 'File non trovato - riconnetti la cartella';
+              img.title = translateUI('fileNotFoundTitle');
                 }
               } else if (typeof symbolId === 'string' && symbolId.startsWith('data:')) {
                 img.src = symbolId;
@@ -4082,7 +4065,7 @@ function scoreWithKeywords(detail, term, lang) {
       addBtn.className = 'add-symbol-btn';
       addBtn.type = 'button';
       addBtn.innerHTML = '+';
-      addBtn.title = 'Aggiungi simbolo personale';
+  addBtn.title = translateUI('addSymbolButtonTitle');
       tile.appendChild(addBtn);
       addBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4094,7 +4077,7 @@ function scoreWithKeywords(detail, term, lang) {
       removeBtn.className = 'remove-symbol-btn';
       removeBtn.type = 'button';
       removeBtn.innerHTML = '×';
-      removeBtn.title = 'Rimuovi questo simbolo personalizzato';
+  removeBtn.title = translateUI('removeSymbolButtonTitle');
       removeBtn.style.cssText = `
         position: absolute;
         top: 35px;
@@ -4204,7 +4187,7 @@ function scoreWithKeywords(detail, term, lang) {
       abcBtn.className = 'abc-btn';
       abcBtn.type = 'button';
       abcBtn.innerHTML = 'abc';
-      abcBtn.title = 'Mostra solo testo';
+  abcBtn.title = translateUI('abcShowText');
       tile.appendChild(abcBtn);
       abcBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4214,12 +4197,12 @@ function scoreWithKeywords(detail, term, lang) {
           // Torna alla modalità simbolo
           showSymbolMode(tile, word);
           abcBtn.innerHTML = 'abc';
-          abcBtn.title = 'Mostra solo testo';
+          abcBtn.title = translateUI('abcShowText');
         } else {
           // Passa alla modalità testo
           showTextOnly(tile, word);
           abcBtn.innerHTML = '🖼️';
-          abcBtn.title = 'Mostra simbolo';
+          abcBtn.title = translateUI('abcShowSymbol');
         }
       });
 
@@ -4234,7 +4217,7 @@ function scoreWithKeywords(detail, term, lang) {
       webSearchBtn.innerHTML = 'W';
       webSearchBtn.style.fontWeight = 'bold';
       webSearchBtn.style.fontFamily = 'serif';
-      webSearchBtn.title = 'Cerca immagini su Wikipedia';
+  webSearchBtn.title = translateUI('wikiSearchButtonTitle');
       actionButtonsContainer.appendChild(webSearchBtn);
   webSearchBtn.addEventListener('click', safeAsync(async (e) => {
         e.stopPropagation();
@@ -4252,7 +4235,7 @@ function scoreWithKeywords(detail, term, lang) {
       googleSearchBtn.innerHTML = 'G';
       googleSearchBtn.style.fontWeight = 'bold';
       googleSearchBtn.style.fontFamily = 'serif';
-      googleSearchBtn.title = 'Cerca immagini su Google (100/giorno)';
+  googleSearchBtn.title = translateUI('googleSearchButtonTitle');
       actionButtonsContainer.appendChild(googleSearchBtn);
   googleSearchBtn.addEventListener('click', safeAsync(async (e) => {
         e.stopPropagation();
@@ -4268,7 +4251,7 @@ function scoreWithKeywords(detail, term, lang) {
       searchBtn.className = 'gpt-symbol-btn';
       searchBtn.type = 'button';
       searchBtn.innerHTML = '🔎';
-      searchBtn.title = 'Cerca simbolo con termine alternativo';
+  searchBtn.title = translateUI('altSearchButtonTitle');
       actionButtonsContainer.appendChild(searchBtn);
   searchBtn.addEventListener('click', safeAsync(async (e) => {
         e.stopPropagation();
@@ -4304,7 +4287,7 @@ function scoreWithKeywords(detail, term, lang) {
       gptBtn.className = 'gpt-symbol-btn';
       gptBtn.type = 'button';
       gptBtn.innerHTML = '✨';
-      gptBtn.title = 'Genera simbolo con IA';
+  gptBtn.title = translateUI('gptButtonTitle');
       actionButtonsContainer.appendChild(gptBtn);
       tile.appendChild(actionButtonsContainer);
   gptBtn.addEventListener('click', safeAsync(async (e) => {
@@ -5524,7 +5507,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
         const abcBtn = tile.querySelector('.abc-btn');
         if (abcBtn) {
           abcBtn.innerHTML = '🖼️';
-          abcBtn.title = 'Mostra simbolo';
+          abcBtn.title = translateUI('abcShowSymbol');
         }
       }
     }
