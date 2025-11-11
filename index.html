@@ -28,6 +28,28 @@
     .controls select, .controls input[type="checkbox"] { margin-left: 6px; }
     .button { appearance: none; border: 0; background: var(--brand); color: #fff; padding: 12px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; }
     .button:hover { background: var(--brand-600); }
+    .lang-flag {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 6px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;           /* keep flag + label aligned */
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 56px;               /* ensures consistent button width */
+      box-sizing: border-box;
+    }
+  .lang-flag .lang-abbr { margin-left: 0; font-weight: 700; font-size: 0.85rem; vertical-align: middle; display: inline-block; }
+  /* Ensure SVG flags display consistently across platforms */
+  .lang-flag svg { width: 22px; height: 14px; vertical-align: middle; display: inline-block; flex: 0 0 auto; }
+  /* Slightly different styling for active state to avoid layout jump */
+  .lang-flag.active { border-color: var(--brand); box-shadow: 0 0 0 4px var(--ring); transform: translateY(0); }
+    .lang-flag:hover { background: #f3f4f6; }
+    .lang-flag.active { border-color: var(--brand); box-shadow: 0 0 0 4px var(--ring); }
     .ghost { background: transparent; color: var(--brand); border: 1px solid var(--brand); }
     .result { display: flex; flex-wrap: wrap; gap: 14px; max-width: 1100px; margin: 0 auto; }
     .tile { background: var(--card); border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.06); min-height: 184px; display: flex; flex-direction: column; gap: 8px; position: relative; min-width: 140px; flex: 0 0 auto; }
@@ -339,9 +361,101 @@
       }
     }
   </style>
+  <style>
+    /* Mobile-first responsive tweaks: make the UI friendlier on phones */
+    @media (max-width: 720px) {
+      /* Reduce page padding */
+      body { padding: 12px; }
+
+      /* Stack the toolbar into a single column */
+      .toolbar { grid-template-columns: 1fr !important; gap: 12px; }
+
+      /* Ensure toolbar inner containers become vertical and full-width */
+      .toolbar > div { display: flex !important; flex-direction: column !important; align-items: stretch !important; }
+
+      /* Make the main textarea larger and easier to tap */
+      #textInput { font-size: 1.15rem !important; min-height: 4.5em !important; padding: 12px !important; }
+
+      /* Language flags: bigger tappable area but avoid layout jump */
+      .lang-flag { padding: 10px 12px; min-width: 50px; border-radius: 10px; }
+      .lang-flag .lang-abbr { font-size: 0.9rem; }
+
+      /* Make primary toolbar buttons full-width for easy tapping */
+      .toolbar .button, .toolbar .button.ghost, .toolbar .merge-btn, .toolbar .merge-btn.visible {
+        width: 100% !important; box-sizing: border-box; padding: 12px !important; font-size: 1rem !important;
+      }
+
+      /* Individual auxiliary buttons in the rows should wrap and be full width */
+      #selectLocalFolderButton, #guidaRapidaButton, #guidaAvanzataButton, #videoTutorialButton { width: 100% !important; }
+
+      /* Results: use a single-column list and leave room for sticky status bar */
+      .result { flex-direction: column; gap: 12px; padding-bottom: 90px; }
+
+      /* Tile layout: compact horizontal card with image on the left */
+      .tile { width: 100% !important; min-height: 96px; flex-direction: row; gap: 12px; align-items: center; padding: 8px; }
+      .tile img { width: 88px; height: 88px; object-fit: contain; margin: 0; }
+      .tile .word { font-size: 1.05rem; white-space: normal; }
+
+      /* Place badges to the left and reduce spacing */
+      .badges { justify-content: flex-start; margin-top: 0; }
+
+      /* Move tiny action buttons inside tile toward bottom-right without overlapping */
+      .add-symbol-btn, .abc-btn { top: auto !important; right: 8px !important; bottom: 8px !important; }
+
+      /* Make the status area sticky at bottom as an overlay (non-intrusive) */
+      .status {
+        position: fixed !important;
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+        background: rgba(255,255,255,0.95) !important;
+        padding: 10px 14px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.14) !important;
+        z-index: 9999 !important;
+        text-align: center !important;
+      }
+
+      /* Ensure there is room at the bottom of the page for the sticky status */
+      body { padding-bottom: 110px; }
+
+      /* Guide and settings modals: take most of the width on small screens */
+      .guide-modal-content { padding: 16px !important; width: 100% !important; max-width: 100% !important; border-radius: 12px !important; }
+      #settingsModal > div { width: 95% !important; padding: 12px !important; }
+      #customSymbolsList { max-height: 220px !important; }
+    }
+  </style>
+  <style>
+  /* Logo styling: larger default size, responsive reductions on small screens, subtle hover and pointer */
+  #asphiLogo { height: 48px; width: auto; display: inline-block; vertical-align: middle; transition: transform 120ms ease, opacity 120ms ease; cursor: pointer; }
+    #asphiLogoLink { display: inline-block; line-height: 1; }
+    #asphiLogoLink:hover #asphiLogo { transform: scale(1.05); opacity: 0.95; }
+
+    /* Larger touch targets for buttons and language flags for accessibility */
+    .button, .button.ghost, .lang-flag { min-height: 44px; padding-top: 10px; padding-bottom: 10px; }
+    .lang-flag { padding-left: 12px; padding-right: 12px; }
+
+    /* Mobile tweaks for very small screens */
+    @media (max-width: 720px) {
+      /* Slightly smaller on small screens but still tappable */
+      #asphiLogo { height: 36px; }
+      .button, .button.ghost, .lang-flag { min-height: 48px; padding: 12px 14px; font-size: 1.02rem; }
+    }
+
+    @media (max-width: 360px) {
+      /* Very small screens */
+      #asphiLogo { height: 30px; }
+      #textInput { font-size: 1.05rem !important; }
+    }
+  </style>
 </head>
 <body>
-  <h1>Limpidi Simboli - ASPHI Onlus</h1>
+  <h1 style="display:flex; align-items:center; justify-content:center; gap:10px;">
+    <span id="appTitleText">Limpidi Simboli</span>
+    <a id="asphiLogoLink" href="https://www.asphi.it" target="_blank" rel="noopener noreferrer" title="ASPHI Onlus">
+      <img id="asphiLogo" src="logo.png" alt="ASPHI Onlus" style="height:48px; display:inline-block; vertical-align:middle;" />
+    </a>
+  </h1>
   <p class="sub">Inserisci una frase. L’app cerca o crea un simbolo per ogni parola significativa.</p>
 
   <div class="toolbar" role="search">
@@ -349,12 +463,25 @@
       <div style="flex: 1; display: flex; flex-direction: column;">
         <textarea id="textInput" rows="3" style="width: 100%; min-height: 3.5em; font-size: 1.25rem; padding: 14px; border: 1.5px solid #bfc4cc; border-radius: 12px; resize: vertical; box-sizing: border-box;" placeholder="Inserisci qui la frase..." aria-label="Inserisci frase"></textarea>
         <div style="margin-top: 8px; display: flex; gap: 8px; align-items: center;">
-          <select id="lang" aria-label="Lingua per la ricerca ARASAAC">
-            <option value="it" selected>Italiano (it)</option>
-            <option value="es">Español (es)</option>
-            <option value="en">English (en)</option>
-          </select>
-          <label title="Se attivo, ignora articoli, preposizioni e congiunzioni comuni;"><input id="skipStop" type="checkbox" checked /> Ignora parole funzionali</label>
+          <div id="langFlags" style="display:flex; gap:6px; align-items:center;">
+            <button class="lang-flag" data-lang="it" title="Italiano">
+              <!-- Italy flag SVG -->
+              <svg viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="1" height="2" x="0" y="0" fill="#008C45"/><rect width="1" height="2" x="1" y="0" fill="#F4F5F0"/><rect width="1" height="2" x="2" y="0" fill="#CD212A"/></svg>
+              <span class="lang-abbr">ITA</span>
+            </button>
+            <button class="lang-flag" data-lang="es" title="Español">
+              <!-- Spain flag SVG simplified -->
+              <svg viewBox="0 0 5 3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="5" height="3" fill="#C60B1E"/><rect width="5" height="1" y="1" fill="#FFC400"/></svg>
+              <span class="lang-abbr">ESP</span>
+            </button>
+            <button class="lang-flag" data-lang="en" title="English">
+              <!-- UK flag (Union Jack) simplified -->
+              <svg viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="60" height="30" fill="#012169"/><path d="M0 0 L60 30 M60 0 L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0 L60 30 M60 0 L0 30" stroke="#C8102E" stroke-width="4"/><rect x="25" width="10" height="30" fill="#fff"/><rect y="10" width="60" height="10" fill="#fff"/><rect x="27" width="6" height="30" fill="#C8102E"/><rect y="12" width="60" height="6" fill="#C8102E"/></svg>
+              <span class="lang-abbr">GB</span>
+            </button>
+            <input type="hidden" id="lang" value="it" />
+          </div>
+          <label id="skipStopLabel" title="Se attivo, ignora articoli, preposizioni e congiunzioni comuni;"><input id="skipStop" type="checkbox" checked /> Ignora parole funzionali</label>
         </div>
       </div>
       <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end; justify-content: flex-end; min-width: 120px;">
@@ -379,7 +506,7 @@
   <!-- Settings Modal -->
   <div id="settingsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
     <div style="background: white; padding: 24px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; margin: auto;">
-      <h2 style="margin: 0 0 24px 0; font-size: 1.5rem; color: #1e293b;">⚙️ Impostazioni</h2>
+  <h2 id="settingsModalTitle" style="margin: 0 0 24px 0; font-size: 1.5rem; color: #1e293b;">⚙️ Impostazioni</h2>
       
       <div style="margin-bottom: 20px;">
         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569;">Chiave API OpenAI (GPT)</label>
@@ -474,6 +601,10 @@
   <div class="footer">
     Pittogrammi ARASAAC – <em>Gobierno de Aragón</em>. Autore: Sergio Palao. Licenza <a href="https://beta.arasaac.org/terms-of-use" target="_blank" rel="noreferrer noopener">CC BY-NC-SA</a>.
     Documentazione API: <a href="https://arasaac.org/developers/api" target="_blank" rel="noreferrer noopener">Developers</a>.
+    <br>
+    Sviluppo: <a href="https://www.asphi.it" target="_blank" rel="noreferrer noopener">Fondazione ASPHI Onlus</a>.
+    <br>
+    Licenza: <a href="LICENSE" target="_blank" rel="noreferrer noopener">CC BY-NC-SA 4.0</a>
   </div>
 
   <script>
@@ -746,7 +877,7 @@
         engTerm = await translateItToEn(term);
         console.log('[OpenSymbols] Traduzione ITA->ENG:', term, '->', engTerm);
         if (!engTerm || engTerm.toLowerCase() === term.toLowerCase()) {
-          setStatus(`Attenzione: la traduzione ITA→ENG per "${term}" non è riuscita o non è cambiata.`, true);
+          setStatusKey('translate_ita_en_failed', { term: term }, true);
         }
       } else {
         engTerm = term;
@@ -781,18 +912,18 @@
         console.warn('[OpenSymbols] Impossibile leggere la risposta grezza:', e);
       }
       if (res.status === 401 || res.status === 403) {
-        setStatus('Token OpenSymbols mancante o non valido. Controlla e salva il token in alto.', true);
+  setStatusKey('opensymbols_token_missing', null, true);
         return [];
       }
       if (!res.ok) {
-        setStatus('Errore di rete o autenticazione OpenSymbols. Controlla la connessione o il token.', true);
+  setStatusKey('opensymbols_network_error', null, true);
         return [];
       }
       let data;
       try {
         data = await res.json();
       } catch (e) {
-        setStatus('Risposta non valida da OpenSymbols.', true);
+  setStatusKey('opensymbols_invalid_response', null, true);
         return [];
       }
       console.log('[searchOpenSymbols] Parsed JSON data:', data);
@@ -800,7 +931,7 @@
       const symbols = Array.isArray(data) ? data : (Array.isArray(data.symbols) ? data.symbols : []);
       console.log('[searchOpenSymbols] Total symbols from API:', symbols.length);
       if (!symbols || symbols.length === 0) {
-        setStatus('Nessun simbolo trovato su OpenSymbols per "' + engTerm + '".', true);
+  setStatusKey('opensymbols_none_found', { term: engTerm }, true);
         window.lastOpenSymbolsResult = [];
         return [];
       }
@@ -831,11 +962,11 @@
       console.log('[searchOpenSymbols] After removing duplicates:', uniqueSymbols.length);
       
       if (uniqueSymbols.length === 0) {
-        setStatus('OpenSymbols ha trovato solo simboli ARASAAC (già inclusi nella ricerca principale).', false);
+  setStatusKey('opensymbols_only_arasaac', null, false);
         window.lastOpenSymbolsResult = [];
         return [];
       }
-      setStatus('Trovati simboli OpenSymbols (TAWASOL, Bliss, ecc.): ' + uniqueSymbols.length, false);
+  setStatusKey('opensymbols_found_count', { n: uniqueSymbols.length }, false);
       // Aggiorna sempre la variabile globale con i risultati filtrati e deduplicati
       window.lastOpenSymbolsResult = uniqueSymbols.map(s => ({ url: s.svg, label: s.label || engTerm, repo: s.repo_key || '', image_url: s.image_url, name: s.name }));
       
@@ -847,7 +978,7 @@
     } catch (e) {
       const searchTime = performance.now() - startTime;
       console.error('[OpenSymbols] Errore fetch after', searchTime.toFixed(0), 'ms:', e);
-      setStatus('Errore di rete o autenticazione OpenSymbols. Controlla la connessione o il token.', true);
+  setStatusKey('opensymbols_network_error', null, true);
       return [];
     }
   }
@@ -995,7 +1126,604 @@ function depluralizeItalian(word) {
       apiInput: qs('apiKeyInput'),
       saveApiKey: qs('saveApiKeyButton'),
     };
-    function setStatus(msg){ els.live.textContent = msg; }
+
+    // Messaggi di status localizzati (chiavi usate con setStatusKey)
+    const statusMessages = {
+      translate_ita_en_failed: {
+        it: 'Attenzione: la traduzione ITA→ENG per "{term}" non è riuscita o non è cambiata.',
+        en: 'Warning: ITA→ENG translation for "{term}" failed or did not change.',
+        es: 'Atención: la traducción ITA→ENG para "{term}" falló o no cambió.'
+      },
+      opensymbols_token_missing: {
+        it: 'Token OpenSymbols mancante o non valido. Controlla e salva il token in alto.',
+        en: 'OpenSymbols token missing or invalid. Check and save the token above.',
+        es: 'Token de OpenSymbols ausente o no válido. Comprueba y guarda el token arriba.'
+      },
+      opensymbols_network_error: {
+        it: 'Errore di rete o autenticazione OpenSymbols. Controlla la connessione o il token.',
+        en: 'Network or authentication error with OpenSymbols. Check connection or token.',
+        es: 'Error de red o autenticación en OpenSymbols. Comprueba la conexión o el token.'
+      },
+      opensymbols_invalid_response: {
+        it: 'Risposta non valida da OpenSymbols.',
+        en: 'Invalid response from OpenSymbols.',
+        es: 'Respuesta no válida de OpenSymbols.'
+      },
+      opensymbols_none_found: {
+        it: 'Nessun simbolo trovato su OpenSymbols per "{term}".',
+        en: 'No symbols found on OpenSymbols for "{term}".',
+        es: 'No se encontraron símbolos en OpenSymbols para "{term}".'
+      },
+      opensymbols_only_arasaac: {
+        it: 'OpenSymbols ha trovato solo simboli ARASAAC (già inclusi nella ricerca principale).',
+        en: 'OpenSymbols found only ARASAAC symbols (already included in the main search).',
+        es: 'OpenSymbols encontró solo símbolos ARASAAC (ya incluidos en la búsqueda principal).'
+      },
+      opensymbols_found_count: {
+        it: 'Trovati simboli OpenSymbols (TAWASOL, Bliss, ecc.): {n}',
+        en: 'Found OpenSymbols pictograms (TAWASOL, Bliss, etc.): {n}',
+        es: 'Símbolos encontrados en OpenSymbols (TAWASOL, Bliss, etc.): {n}'
+      },
+      opensymbols_saved: {
+        it: 'Token OpenSymbols salvato.',
+        en: 'OpenSymbols token saved.',
+        es: 'Token de OpenSymbols guardado.'
+      },
+      local_folder_connected: {
+        it: 'Cartella "{dir}" connessa: {files} immagini per {words} parole.',
+        en: 'Folder "{dir}" connected: {files} images for {words} words.',
+        es: 'Carpeta "{dir}" conectada: {files} imágenes para {words} palabras.'
+      },
+      openai_saved: {
+        it: 'Chiave API salvata.',
+        en: 'API key saved.',
+        es: 'Clave API guardada.'
+      },
+      google_saved: {
+        it: 'Credenziali Google salvate. Limite: 100 ricerche/giorno.',
+        en: 'Google credentials saved. Limit: 100 searches/day.',
+        es: 'Credenciales de Google guardadas. Límite: 100 búsquedas/día.'
+      },
+      customsymbols_deleted_for_word: {
+        it: '✅ Simboli per "{word}" cancellati',
+        en: '✅ Symbols for "{word}" deleted',
+        es: '✅ Símbolos para "{word}" eliminados'
+      },
+      customsymbol_deleted: {
+        it: '✅ Simbolo cancellato',
+        en: '✅ Symbol deleted',
+        es: '✅ Símbolo eliminado'
+      },
+      customsymbols_all_deleted: {
+        it: '✅ Tutti i simboli personalizzati sono stati cancellati',
+        en: '✅ All custom symbols have been deleted',
+        es: '✅ Todos los símbolos personalizados han sido eliminados'
+      },
+      export_completed: {
+        it: '✅ Esportazione completata',
+        en: '✅ Export completed',
+        es: '✅ Exportación completada'
+      },
+      list_refreshed: {
+        it: '🔄 Lista aggiornata',
+        en: '🔄 List refreshed',
+        es: '🔄 Lista actualizada'
+      },
+      clean: {
+        it: 'Pulito.',
+        en: 'Clean.',
+        es: 'Limpiado.'
+      },
+      symbol_removed_next: {
+        it: 'Simbolo rimosso per "{word}". Mostro il prossimo simbolo disponibile.',
+        en: 'Symbol removed for "{word}". Showing next available symbol.',
+        es: 'Símbolo eliminado para "{word}". Mostrando el siguiente símbolo disponible.'
+      },
+      symbol_removed_none: {
+        it: 'Simbolo rimosso per "{word}". Nessun simbolo rimanente.',
+        en: 'Symbol removed for "{word}". No symbols remaining.',
+        es: 'Símbolo eliminado para "{word}". No quedan símbolos.'
+      },
+      // Messaggi aggiuntivi (localizzati)
+      search_found_for_term: {
+        it: 'Trovati {n} simboli per "{term}"',
+        en: 'Found {n} symbols for "{term}"',
+        es: 'Encontrados {n} símbolos para "{term}"'
+      },
+      symbol_selected_saved: {
+        it: 'Simbolo selezionato e salvato per "{word}"',
+        en: 'Symbol selected and saved for "{word}"',
+        es: 'Símbolo seleccionado y guardado para "{word}"'
+      },
+      enter_phrase_prompt: {
+        it: 'Inserisci una frase.',
+        en: 'Please enter a sentence.',
+        es: 'Introduce una frase.'
+      },
+      search_in_progress: {
+        it: 'Ricerca in corso…',
+        en: 'Search in progress…',
+        es: 'Búsqueda en curso…'
+      },
+      search_counts: {
+        it: 'ARASAAC: {arasaac} | OpenSymbols: {opensymbols}',
+        en: 'ARASAAC: {arasaac} | OpenSymbols: {opensymbols}',
+        es: 'ARASAAC: {arasaac} | OpenSymbols: {opensymbols}'
+      },
+      search_complete: {
+        it: 'Completato. Trovati {found}, mancanti {missing}.',
+        en: 'Completed. Found {found}, missing {missing}.',
+        es: 'Completado. Encontrados {found}, faltantes {missing}.'
+      },
+      search_complete_skipstop: {
+        it: 'Completato. Trovati {found}, mancanti {missing} (parole funzionali escluse).',
+        en: 'Completed. Found {found}, missing {missing} (stop-words excluded).',
+        es: 'Completado. Encontrados {found}, faltantes {missing} (palabras vacías excluidas).'
+      },
+      nothing_to_read: {
+        it: 'Nulla da leggere.',
+        en: 'Nothing to read.',
+        es: 'Nada que leer.'
+      },
+      speech_started: {
+        it: 'Riproduzione avviata…',
+        en: 'Playback started…',
+        es: 'Reproducción iniciada…'
+      },
+      speech_ended: {
+        it: 'Riproduzione terminata.',
+        en: 'Playback finished.',
+        es: 'Reproducción finalizada.'
+      },
+      speech_error: {
+        it: 'Errore nella sintesi vocale.',
+        en: 'Speech synthesis error.',
+        es: 'Error en la síntesis de voz.'
+      },
+      grammar_badges_saved: {
+        it: '✅ Preferenza badge grammaticali salvata',
+        en: '✅ Grammar badges preference saved',
+        es: '✅ Preferencia de insignias gramaticales guardada'
+      },
+      merged_symbol_found: {
+        it: 'Simbolo trovato per: "{phrase}"',
+        en: 'Symbol found for: "{phrase}"',
+        es: 'Símbolo encontrado para: "{phrase}"'
+      },
+      merged_symbol_not_found: {
+        it: 'Nessun simbolo trovato per: "{phrase}". Usa W per cercare su Wikipedia o ✨ per generare con AI.',
+        en: 'No symbol found for: "{phrase}". Use W to search Wikipedia or ✨ to generate with AI.',
+        es: 'No se encontró símbolo para: "{phrase}". Usa W para buscar en Wikipedia o ✨ para generar con IA.'
+      },
+      merged_search_error: {
+        it: 'Errore nella ricerca per: "{phrase}"',
+        en: 'Error searching for: "{phrase}"',
+        es: 'Error al buscar: "{phrase}"'
+      },
+      remind_select_folder: {
+        it: '💡 Ricorda: clicca su "📁 Seleziona Cartella Immagini" per salvare immagini personalizzate (AI, web, ecc.)',
+        en: '💡 Tip: click "📁 Select Image Folder" to save custom images (AI, web, etc.)',
+        es: '💡 Consejo: haz clic en "📁 Seleccionar Carpeta de Imágenes" para guardar imágenes personalizadas (IA, web, etc.)'
+      },
+      js_error: {
+        it: 'Errore JS: {msg}',
+        en: 'JS error: {msg}',
+        es: 'Error JS: {msg}'
+      },
+      unhandled_rejection: {
+        it: 'Errore: {msg}',
+        en: 'Error: {msg}',
+        es: 'Error: {msg}'
+      }
+    };
+
+    function formatStatusText(key, params, lang){
+      let tmpl = (statusMessages[key] && statusMessages[key][lang]) || (statusMessages[key] && statusMessages[key]['it']) || key;
+      if(!params) return tmpl;
+      Object.keys(params).forEach(k=>{
+        tmpl = tmpl.replace(new RegExp('\{'+k+'\}','g'), params[k]);
+      });
+      return tmpl;
+    }
+
+    // Nuova funzione: usare chiavi per i messaggi di status in modo che siano localizzati
+    function setStatusKey(key, params = null, isError = false){
+      const lang = (document.getElementById('lang') || { value: 'it' }).value || localStorage.getItem('appLang') || 'it';
+      const text = formatStatusText(key, params, lang);
+      if(els && els.live) {
+        els.live.textContent = text;
+        if(isError) els.live.classList.add('error'); else els.live.classList.remove('error');
+      }
+    }
+
+    // Manteniamo compatibilità: setStatus(msg, isError) — se chiamato con stringa esistente
+    function setStatus(msg, isError = false){
+      if(typeof msg === 'string' && msg.startsWith('key:')){
+        const key = msg.slice(4);
+        setStatusKey(key, null, isError);
+        return;
+      }
+      if(els && els.live){
+        els.live.textContent = msg;
+        if(isError) els.live.classList.add('error'); else els.live.classList.remove('error');
+      }
+    }
+
+    // Global error handlers: show JS errors and unhandled promise rejections in the status bar
+    try {
+      window.addEventListener('error', function (ev) {
+        try {
+          const msg = ev && ev.error && ev.error.message ? ev.error.message : (ev && ev.message) || String(ev);
+          console.error('[Global Error]', ev.error || ev.message || ev);
+          setStatusKey('js_error', { msg: msg }, true);
+        } catch (e) {
+          console.error('[Global Error handler failed]', e);
+        }
+      });
+
+      window.addEventListener('unhandledrejection', function (ev) {
+        try {
+          const reason = ev && ev.reason ? (ev.reason.message || String(ev.reason)) : 'Promise rejected';
+          console.error('[Unhandled Rejection]', ev.reason || ev);
+          setStatusKey('unhandled_rejection', { msg: reason }, true);
+        } catch (e) {
+          console.error('[UnhandledRejection handler failed]', e);
+        }
+      });
+    } catch (e) {
+      console.warn('Could not attach global error handlers', e);
+    }
+    
+    // Helper to wrap async handlers and automatically catch/report rejections
+    function safeAsync(fn){
+      return function(...args){
+        try{
+          const res = fn.apply(this, args);
+          if(res && typeof res.then === 'function'){
+            res.catch(err => {
+              try{ console.error('[safeAsync] caught', err); }catch(e){}
+              try{ setStatusKey('js_error', { msg: (err && err.message) ? err.message : String(err) }, true); }catch(e){}
+            });
+          }
+          return res;
+        }catch(e){
+          console.error('[safeAsync] sync error', e);
+          try{ setStatusKey('js_error', { msg: (e && e.message) ? e.message : String(e) }, true); }catch(_){}
+          throw e;
+        }
+      };
+    }
+    // --- Localizzazione (i18n) ---
+    const translations = {
+      it: {
+        title: 'Limpidi Simboli - ASPHI Onlus',
+        appName: 'Limpidi Simboli',
+        subtitle: "Inserisci una frase. L'app cerca o crea un simbolo per ogni parola significativa.",
+        textareaPlaceholder: 'Inserisci qui la frase...',
+        translateButton: '🔄 Traduci',
+        clearButton: '🗑️ Pulisci',
+        speakButton: '🔊 Ascolta',
+        settingsButton: '⚙️ Impostazioni',
+        selectLocalFolderButton: '📁 Seleziona Cartella Immagini',
+        guidaRapidaButton: '📖 Guida Rapida',
+        guidaAvanzataButton: '🎓 Guida Avanzata',
+        videoTutorialButton: '🎥 Video Tutorial',
+        mergeButton: '🔗 Unisci',
+        settingsModalTitle: '⚙️ Impostazioni',
+        skipStopLabel: 'Ignora parole funzionali',
+        skipStopTitle: 'Se attivo, ignora articoli, preposizioni e congiunzioni comuni.'
+      },
+      en: {
+        title: 'Clear Symbols - ASPHI Onlus',
+        appName: 'Clear Symbols',
+        subtitle: 'Enter a sentence. The app searches or creates a symbol for each meaningful word.',
+        textareaPlaceholder: 'Type the sentence here...',
+        translateButton: '🔄 Translate',
+        clearButton: '🗑️ Clear',
+        speakButton: '🔊 Listen',
+        settingsButton: '⚙️ Settings',
+        selectLocalFolderButton: '📁 Select Image Folder',
+        guidaRapidaButton: '📖 Quick Guide',
+        guidaAvanzataButton: '🎓 Advanced Guide',
+        videoTutorialButton: '🎥 Video Tutorial',
+        mergeButton: '🔗 Merge',
+        settingsModalTitle: '⚙️ Settings',
+        skipStopLabel: 'Ignore stop-words',
+        skipStopTitle: 'When enabled, ignore articles, prepositions and common conjunctions.'
+      },
+      es: {
+        title: 'Símbolos Claros - ASPHI Onlus',
+        appName: 'Símbolos Claros',
+        subtitle: 'Escribe una frase. La aplicación busca o crea un símbolo para cada palabra significativa.',
+        textareaPlaceholder: 'Escribe la frase aquí...',
+        translateButton: '🔄 Traducir',
+        clearButton: '🗑️ Limpiar',
+        speakButton: '🔊 Escuchar',
+        settingsButton: '⚙️ Ajustes',
+        selectLocalFolderButton: '📁 Seleccionar Carpeta de Imágenes',
+        guidaRapidaButton: '📖 Guía Rápida',
+        guidaAvanzataButton: '🎓 Guía Avanzada',
+        videoTutorialButton: '🎥 Tutorial en Video',
+        mergeButton: '🔗 Unir',
+        settingsModalTitle: '⚙️ Ajustes',
+        skipStopLabel: 'Ignorar palabras funcionales',
+        skipStopTitle: 'Si está activado, ignora artículos, preposiciones y conjunciones comunes.'
+      }
+    };
+
+    function applyTranslations(lang){
+      if(!translations[lang]) lang = 'it';
+      const t = translations[lang];
+      // Header: update visible app name text but keep the logo link intact
+      const titleSpan = document.getElementById('appTitleText');
+      if (titleSpan) {
+        titleSpan.textContent = t.appName || t.title || 'Limpidi Simboli';
+      } else {
+        const h1 = document.querySelector('h1'); if(h1) h1.textContent = t.title;
+      }
+      const sub = document.querySelector('.sub'); if(sub) sub.textContent = t.subtitle;
+      // Textarea placeholder
+      const ta = document.getElementById('textInput'); if(ta) ta.placeholder = t.textareaPlaceholder;
+      // Buttons
+      const btn = document.getElementById('translateButton'); if(btn) { btn.textContent = t.translateButton; btn.setAttribute('aria-label', t.translateButton); }
+      const clr = document.getElementById('clearButton'); if(clr) { clr.textContent = t.clearButton; clr.setAttribute('aria-label', t.clearButton); }
+      const spk = document.getElementById('speakButton'); if(spk) { spk.textContent = t.speakButton; spk.setAttribute('aria-label', t.speakButton); }
+      const setBtn = document.getElementById('settingsButton'); if(setBtn) { setBtn.textContent = t.settingsButton; setBtn.setAttribute('aria-label', t.settingsButton); }
+      const folderBtn = document.getElementById('selectLocalFolderButton'); if(folderBtn) { folderBtn.textContent = t.selectLocalFolderButton; folderBtn.setAttribute('aria-label', t.selectLocalFolderButton); }
+      const gr = document.getElementById('guidaRapidaButton'); if(gr) { gr.textContent = t.guidaRapidaButton; gr.setAttribute('aria-label', t.guidaRapidaButton); }
+      const ga = document.getElementById('guidaAvanzataButton'); if(ga) { ga.textContent = t.guidaAvanzataButton; ga.setAttribute('aria-label', t.guidaAvanzataButton); }
+      const vb = document.getElementById('videoTutorialButton'); if(vb) { vb.textContent = t.videoTutorialButton; vb.setAttribute('aria-label', t.videoTutorialButton); }
+      const mb = document.getElementById('mergeButton'); if(mb) mb.textContent = t.mergeButton;
+      // Settings modal title (if present)
+      const sm = document.getElementById('settingsModalTitle'); if(sm) sm.textContent = t.settingsModalTitle;
+
+  // Close button for settings modal
+  const closeSettingsBtn = document.getElementById('closeSettingsButton'); if (closeSettingsBtn) { closeSettingsBtn.textContent = t.close; closeSettingsBtn.setAttribute('aria-label', t.close); }
+
+      // Update document language and title
+      try { document.documentElement.lang = lang; } catch(e){}
+      try { document.title = t.title; } catch(e){}
+      // Update active flag
+      document.querySelectorAll('.lang-flag').forEach(b => {
+        if(b.dataset && b.dataset.lang === lang) b.classList.add('active'); else b.classList.remove('active');
+      });
+
+      // Update guide modal placeholders and close buttons
+      try {
+        const grContent = document.getElementById('guidaRapidaContent');
+        if (grContent) grContent.textContent = t.loading;
+        const gaContent = document.getElementById('guidaAvanzataContent');
+        if (gaContent) gaContent.textContent = t.loading;
+        // Localize any close buttons for guides
+        document.querySelectorAll('.guide-close-btn').forEach(b => {
+          try { b.innerHTML = '✕ ' + t.close; b.setAttribute('aria-label', t.close); } catch(e){}
+        });
+
+        // Replace any stray static "Caricamento..." / "Loading..." / "Cargando..." texts
+        document.querySelectorAll('div, p, span').forEach(el => {
+          try {
+            const txt = (el.textContent || '').trim();
+            if (!txt) return;
+            if (txt === 'Caricamento...' || txt === 'Loading...' || txt === 'Cargando...') {
+              el.textContent = t.loading;
+            }
+          } catch(e){}
+        });
+      } catch (e) { /* non critico */ }
+
+      // Aggiorna etichetta "ignora parole funzionali"
+      try {
+        const skipLbl = document.getElementById('skipStopLabel');
+        if (skipLbl) {
+          const cb = document.getElementById('skipStop');
+          // rimuovi eventuali nodi di testo successivi al checkbox
+          if (cb && cb.nextSibling) {
+            // rimuovi tutti i nodi di testo dopo il checkbox
+            let node = cb.nextSibling;
+            while (node) {
+              const toRemove = node;
+              node = node.nextSibling;
+              if (toRemove && toRemove.parentNode) toRemove.parentNode.removeChild(toRemove);
+            }
+            // aggiungi nuovo nodo di testo
+            cb.insertAdjacentText('afterend', ' ' + t.skipStopLabel);
+          }
+          // imposta anche il tooltip
+          if (typeof t.skipStopTitle !== 'undefined') skipLbl.title = t.skipStopTitle;
+        }
+      } catch (e) { /* non critico */ }
+
+      // persist
+      try { localStorage.setItem('appLang', lang); } catch(e){}
+    }
+
+    // Helper per tradurre stringhe UI con placeholder usando l'oggetto translations
+    function translateUI(key, params) {
+      const lang = (document.getElementById('lang') || { value: 'it' }).value || localStorage.getItem('appLang') || 'it';
+      const dict = translations[lang] || translations['it'];
+      let tmpl = (dict && dict[key]) || key;
+      if (!params) return tmpl;
+      Object.keys(params).forEach(k => {
+        tmpl = tmpl.replace(new RegExp('\\{' + k + '\\}','g'), params[k]);
+      });
+      return tmpl;
+    }
+
+    // Aggiungi traduzioni specifiche per la ricerca Wikipedia (prompt e messaggi)
+    translations.it.wikiPromptEnterTerm = 'Cerca un\'immagine su Wikipedia per "{word}".\n\nInserisci il termine di ricerca (lascia vuoto per usare "{word}"): ';
+    translations.it.wikiNoImagesFoundAlert = 'Nessuna immagine trovata per: {word}\n\nProva a usare il bottone ✨ per generare un simbolo con AI, o il bottone + per caricare un\'immagine dal tuo computer.';
+    translations.en.wikiPromptEnterTerm = 'Search Wikipedia for an image for "{word}".\n\nEnter the search term (leave empty to use "{word}"): ';
+    translations.en.wikiNoImagesFoundAlert = 'No images found for: {word}\n\nTry the ✨ button to generate a symbol with AI, or the + button to upload an image from your computer.';
+    translations.es.wikiPromptEnterTerm = 'Busca en Wikipedia una imagen para "{word}".\n\nIntroduce el término de búsqueda (deja vacío para usar "{word}"): ';
+    translations.es.wikiNoImagesFoundAlert = 'No se encontraron imágenes para: {word}\n\nPrueba el botón ✨ para generar un símbolo con IA, o el botón + para subir una imagen desde tu ordenador.';
+
+  // Google / GPT / ARASAAC UI strings
+  translations.it.googlePromptEnterTerm = 'Cerca un\'immagine su Google per "{word}".\n\nInserisci il termine di ricerca (lascia vuoto per usare "{word}"): ';
+  translations.en.googlePromptEnterTerm = 'Search Google for an image for "{word}".\n\nEnter the search term (leave empty to use "{word}"): ';
+  translations.es.googlePromptEnterTerm = 'Busca en Google una imagen para "{word}".\n\nIntroduce el término de búsqueda (deja vacío para usar "{word}"): ';
+
+  translations.it.googleNoImagesFoundAlert = 'Nessuna immagine trovata per: {word}\n\nProva con Wikipedia (W) o genera con AI (✨).';
+  translations.en.googleNoImagesFoundAlert = 'No images found for: {word}\n\nTry Wikipedia (W) or generate with AI (✨).';
+  translations.es.googleNoImagesFoundAlert = 'No se encontraron imágenes para: {word}\n\nPrueba Wikipedia (W) o genera con IA (✨).';
+
+  translations.it.googleCredsMissingAlert = '⚠️ Credenziali Google mancanti!\n\nPer usare la ricerca Google:\n\n1. Vai su https://developers.google.com/custom-search/v1/overview\n2. Crea un progetto e ottieni API Key e Search Engine ID (cx)\n3. Inseriscili nelle Impostazioni (⚙️)\n\nLimite gratuito: 100 ricerche/giorno';
+  translations.en.googleCredsMissingAlert = '⚠️ Google credentials missing!\n\nTo use Google search:\n\n1. Visit https://developers.google.com/custom-search/v1/overview\n2. Create a project and get an API Key and Search Engine ID (cx)\n3. Enter them in Settings (⚙️)\n\nFree limit: 100 searches/day';
+  translations.es.googleCredsMissingAlert = '⚠️ Credenciales de Google ausentes!\n\nPara usar la búsqueda de Google:\n\n1. Visita https://developers.google.com/custom-search/v1/overview\n2. Crea un proyecto y obtén una API Key y Search Engine ID (cx)\n3. Introdúcelos en Ajustes (⚙️)\n\nLímite gratis: 100 búsquedas/día';
+
+  translations.it.googleDailyLimitError = 'Limite giornaliero raggiunto (100 ricerche/giorno). Riprova domani.';
+  translations.en.googleDailyLimitError = 'Daily limit reached (100 searches/day). Try again tomorrow.';
+  translations.es.googleDailyLimitError = 'Límite diario alcanzado (100 búsquedas/día). Intenta de nuevo mañana.';
+
+  translations.it.altSymbolPrompt = 'Cerca un simbolo alternativo per "{word}".\n\nInserisci il termine di ricerca (es: "cuore" per "amore"):';
+  translations.en.altSymbolPrompt = 'Search for an alternative symbol for "{word}".\n\nEnter the search term (e.g. "heart" for "love"): ';
+  translations.es.altSymbolPrompt = 'Busca un símbolo alternativo para "{word}".\n\nIntroduce el término de búsqueda (p.ej. "corazón" para "amor"): ';
+
+  translations.it.altSymbolNotFoundAlert = 'Nessun simbolo trovato per "{term}"';
+  translations.en.altSymbolNotFoundAlert = 'No symbol found for "{term}"';
+  translations.es.altSymbolNotFoundAlert = 'No se encontró símbolo para "{term}"';
+
+  translations.it.gptDescribePrompt = 'Descrivi il simbolo da generare in stile ARASAAC:';
+  translations.en.gptDescribePrompt = 'Describe the symbol to generate in ARASAAC style:';
+  translations.es.gptDescribePrompt = 'Describe el símbolo a generar en estilo ARASAAC:';
+  // Alert / prompt generici localizzati
+  translations.it.browserNoFolderSupport = 'Il tuo browser non supporta la selezione di cartelle.\n\nUsa Chrome, Edge o un browser moderno.';
+  translations.en.browserNoFolderSupport = 'Your browser does not support folder selection.\n\nUse Chrome, Edge or a modern browser.';
+  translations.es.browserNoFolderSupport = 'Tu navegador no admite la selección de carpetas.\n\nUsa Chrome, Edge o un navegador moderno.';
+
+  translations.it.localFolderSelectError = 'Errore nella selezione della cartella: {msg}';
+  translations.en.localFolderSelectError = 'Error selecting folder: {msg}';
+  translations.es.localFolderSelectError = 'Error al seleccionar la carpeta: {msg}';
+
+  translations.it.imageSaveError = 'Errore nel salvataggio dell\'immagine';
+  translations.en.imageSaveError = 'Error saving image';
+  translations.es.imageSaveError = 'Error al guardar la imagen';
+
+  translations.it.noSymbolsToRemove = 'Nessun simbolo da rimuovere.';
+  translations.en.noSymbolsToRemove = 'No symbols to remove.';
+  translations.es.noSymbolsToRemove = 'No hay símbolos para eliminar.';
+
+  translations.it.searchError = 'Errore nella ricerca: {msg}';
+  translations.en.searchError = 'Search error: {msg}';
+  translations.es.searchError = 'Error en la búsqueda: {msg}';
+
+  translations.it.gptImageError = 'Errore generazione immagini: {msg}';
+  translations.en.gptImageError = 'Image generation error: {msg}';
+  translations.es.gptImageError = 'Error al generar imágenes: {msg}';
+
+  translations.it.selectCropArea = 'Seleziona un\'area da ritagliare trascinando il mouse sull\'immagine';
+  translations.en.selectCropArea = 'Select an area to crop by dragging the mouse over the image';
+  translations.es.selectCropArea = 'Selecciona un área para recortar arrastrando el ratón sobre la imagen';
+
+  translations.it.cropAreaTooSmall = 'L\'area selezionata è troppo piccola';
+  translations.en.cropAreaTooSmall = 'The selected area is too small';
+  translations.es.cropAreaTooSmall = 'El área seleccionada es demasiado pequeña';
+
+  translations.it.genericSaveErrorWithMsg = 'Errore nel salvataggio: {msg}';
+  translations.en.genericSaveErrorWithMsg = 'Save error: {msg}';
+  translations.es.genericSaveErrorWithMsg = 'Error al guardar: {msg}';
+
+  translations.it.selectTwoSymbols = 'Seleziona almeno 2 simboli da unire!';
+  translations.en.selectTwoSymbols = 'Select at least 2 symbols to merge!';
+  translations.es.selectTwoSymbols = '¡Selecciona al menos 2 símbolos para unir!';
+
+  // UI strings added for dialog / crop / custom symbols
+  translations.it.useImageForWord = 'Vuoi usare questa immagine per "{word}"?';
+  translations.en.useImageForWord = 'Do you want to use this image for "{word}"?';
+  translations.es.useImageForWord = '¿Quieres usar esta imagen para "{word}"?';
+
+  translations.it.useImage = 'Usa questa immagine';
+  translations.en.useImage = 'Use this image';
+  translations.es.useImage = 'Usar esta imagen';
+
+  translations.it.cancel = 'Annulla';
+  translations.en.cancel = 'Cancel';
+  translations.es.cancel = 'Cancelar';
+
+  translations.it.cropShort = '✂️ Ritaglia';
+  translations.en.cropShort = '✂️ Crop';
+  translations.es.cropShort = '✂️ Recortar';
+
+  translations.it.cropAndSave = '✓ Ritaglia e Salva';
+  translations.en.cropAndSave = '✓ Crop and Save';
+  translations.es.cropAndSave = '✓ Recortar y Guardar';
+
+  translations.it.cropEditorTitle = '✂️ Ritaglia l\'immagine';
+  translations.en.cropEditorTitle = '✂️ Crop the image';
+  translations.es.cropEditorTitle = '✂️ Recorta la imagen';
+
+  translations.it.cropInstruction = 'Trascina per selezionare l\'area da mantenere';
+  translations.en.cropInstruction = 'Drag to select the area to keep';
+  translations.es.cropInstruction = 'Arrastra para seleccionar el área a conservar';
+
+  translations.it.saving = 'Salvataggio...';
+  translations.en.saving = 'Saving...';
+  translations.es.saving = 'Guardando...';
+
+  translations.it.croppingInProgress = 'Ritaglio in corso...';
+  translations.en.croppingInProgress = 'Cropping...';
+  translations.es.croppingInProgress = 'Recortando...';
+
+  translations.it.noCustomSymbolsSaved = 'Nessun simbolo personalizzato salvato.';
+  translations.en.noCustomSymbolsSaved = 'No custom symbols saved.';
+  translations.es.noCustomSymbolsSaved = 'No hay símbolos personalizados guardados.';
+
+  translations.it.selectFolderNotConnected = '⚠️ Cartella immagini non connessa. Clicca su "📁 Seleziona Cartella Immagini" per visualizzare i simboli salvati localmente.';
+  translations.en.selectFolderNotConnected = '⚠️ Image folder not connected. Click "📁 Select Image Folder" to view locally saved symbols.';
+  translations.es.selectFolderNotConnected = '⚠️ Carpeta de imágenes no conectada. Haz clic en "📁 Seleccionar Carpeta de Imágenes" para ver los símbolos guardados localmente.';
+
+  translations.it.confirmDeleteAll = '⚠️ ATTENZIONE!\n\nQuesta operazione cancellerà TUTTI i simboli personalizzati salvati.\n\nSei sicuro?';
+  translations.en.confirmDeleteAll = '⚠️ WARNING!\n\nThis operation will delete ALL saved custom symbols.\n\nAre you sure?';
+  translations.es.confirmDeleteAll = '⚠️ ¡ATENCIÓN!\n\nEsta operación eliminará TODOS los símbolos personalizados guardados.\n\n¿Estás seguro?';
+
+  translations.it.confirmDeleteAllForWord = 'Vuoi cancellare tutti i simboli personalizzati per "{word}"?';
+  translations.en.confirmDeleteAllForWord = 'Do you want to delete all custom symbols for "{word}"?';
+  translations.es.confirmDeleteAllForWord = '¿Quieres eliminar todos los símbolos personalizados para "{word}"?';
+
+  translations.it.deleteAllForWordBtn = '🗑️ Cancella tutti';
+  translations.en.deleteAllForWordBtn = '🗑️ Delete all';
+  translations.es.deleteAllForWordBtn = '🗑️ Eliminar todo';
+
+  translations.it.selectFolderReminder = '⚠️ Cartella immagini non selezionata!\n\nPer {actionName}, devi prima:\n\n1. Cliccare su "📁 Seleziona Cartella Immagini"\n2. Scegliere una cartella dove salvare le immagini\n\nVuoi selezionare la cartella ora?';
+  translations.en.selectFolderReminder = '⚠️ Image folder not selected!\n\nTo {actionName}, you must first:\n\n1. Click "📁 Select Image Folder"\n2. Choose a folder to save images\n\nDo you want to select the folder now?';
+  translations.es.selectFolderReminder = '⚠️ Carpeta de imágenes no seleccionada!\n\nPara {actionName}, primero debes:\n\n1. Hacer clic en "📁 Seleccionar Carpeta de Imágenes"\n2. Elegir una carpeta para guardar las imágenes\n\n¿Quieres seleccionar la carpeta ahora?';
+
+  translations.it.noPictogramFound = 'Nessun pittogramma trovato';
+  translations.en.noPictogramFound = 'No pictogram found';
+  translations.es.noPictogramFound = 'No se encontró pictograma';
+
+  translations.it.close = 'Chiudi';
+  translations.en.close = 'Close';
+  translations.es.close = 'Cerrar';
+
+  // Loading / error strings used by guide placeholders and image alt texts
+  translations.it.loading = 'Caricamento...';
+  translations.en.loading = 'Loading...';
+  translations.es.loading = 'Cargando...';
+
+  translations.it.errorLoading = 'Errore caricamento';
+  translations.en.errorLoading = 'Error loading';
+  translations.es.errorLoading = 'Error de carga';
+
+  translations.it.confirmRemoveSymbol = 'Vuoi rimuovere {symbolDesc} per "{word}"?\n\nGli altri simboli disponibili rimarranno.';
+  translations.en.confirmRemoveSymbol = 'Do you want to remove {symbolDesc} for "{word}"?\n\nOther available symbols will remain.';
+  translations.es.confirmRemoveSymbol = '¿Quieres eliminar {symbolDesc} para "{word}"?\n\nLos otros símbolos disponibles permanecerán.';
+
+    // Initialize language from saved value or from #lang hidden input
+    (function initLanguage(){
+      const saved = localStorage.getItem('appLang');
+      const hid = document.getElementById('lang');
+      const start = saved || (hid && hid.value) || 'it';
+      if(hid) hid.value = start;
+      applyTranslations(start);
+      // bind flag buttons
+      document.querySelectorAll('.lang-flag').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const l = btn.dataset.lang || 'it';
+          if(hid) hid.value = l;
+          applyTranslations(l);
+        });
+      });
+  })();
     // Definizione della chiave API predefinita e della variabile utilizzata dall'app.
     // Queste variabili devono essere definite prima di essere utilizzate in loadApiKey(),
     // altrimenti si verificherà un ReferenceError a causa della temporal dead zone di "let"/"const".
@@ -1015,7 +1743,7 @@ function depluralizeItalian(word) {
     // Funzione helper per verificare se la cartella locale è selezionata
     function checkLocalFolderSelected(actionName = 'questa azione') {
       if (!localImageFolderHandle) {
-        const message = `⚠️ Cartella immagini non selezionata!\n\nPer ${actionName}, devi prima:\n\n1. Cliccare su "📁 Seleziona Cartella Immagini"\n2. Scegliere una cartella dove salvare le immagini\n\nVuoi selezionare la cartella ora?`;
+          const message = translateUI('selectFolderReminder', { actionName });
         
         if (confirm(message)) {
           // Trigger il click sul bottone di selezione cartella
@@ -1082,7 +1810,7 @@ function depluralizeItalian(word) {
         } catch (e) {
           console.warn('Impossibile salvare il token OpenSymbols nel localStorage', e);
         }
-        setStatus('Token OpenSymbols salvato.');
+  setStatusKey('opensymbols_saved');
       });
     }
     
@@ -1158,12 +1886,16 @@ function depluralizeItalian(word) {
     
     // Funzione per aprire la guida rapida in una nuova scheda
     function loadGuidaRapida() {
-      window.open('GuidaRapida.html', '_blank');
+      const lang = (document.getElementById('lang') || { value: 'it' }).value || 'it';
+      const file = `GuidaRapida_${lang}.html`;
+      window.open(file, '_blank');
     }
     
     // Funzione per aprire la guida avanzata in una nuova scheda
     function loadGuidaAvanzata() {
-      window.open('GuidaAvanzata.html', '_blank');
+      const lang = (document.getElementById('lang') || { value: 'it' }).value || 'it';
+      const file = `GuidaAvanzata_${lang}.html`;
+      window.open(file, '_blank');
     }
     
     // Funzione per aprire il video tutorial direttamente su YouTube
@@ -1221,11 +1953,11 @@ function depluralizeItalian(word) {
     })();
     
     if (els.selectLocalFolder) {
-      els.selectLocalFolder.addEventListener('click', async () => {
+      els.selectLocalFolder.addEventListener('click', safeAsync(async () => {
         try {
           // Verifica supporto File System Access API
           if (!window.showDirectoryPicker) {
-            alert('Il tuo browser non supporta la selezione di cartelle.\n\nUsa Chrome, Edge o un browser moderno.');
+            alert(translateUI('browserNoFolderSupport'));
             return;
           }
           
@@ -1282,17 +2014,17 @@ function depluralizeItalian(word) {
           els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
           
           console.log('[Local Folder] Loaded files for', uniqueWords, 'words:', localImageFiles);
-          setStatus(`Cartella "${dirHandle.name}" connessa: ${totalFiles} immagini per ${uniqueWords} parole.`);
+          setStatusKey('local_folder_connected', { dir: dirHandle.name, files: totalFiles, words: uniqueWords });
           
         } catch (e) {
           if (e.name === 'AbortError') {
             console.log('[Local Folder] User cancelled folder selection');
           } else {
             console.error('[Local Folder] Error:', e);
-            alert('Errore nella selezione della cartella: ' + e.message);
+            alert(translateUI('localFolderSelectError', { msg: e.message }));
           }
         }
-      });
+      }));
     }
     
       els.saveApiKey.addEventListener('click', () => {
@@ -1307,7 +2039,7 @@ function depluralizeItalian(word) {
         } catch (e) {
           console.warn('Impossibile salvare la chiave API nel localStorage', e);
         }
-        setStatus('Chiave API salvata.');
+  setStatusKey('openai_saved');
       });
       
       // Gestione credenziali Google Custom Search
@@ -1324,7 +2056,7 @@ function depluralizeItalian(word) {
         } catch (e) {
           console.warn('Impossibile salvare le credenziali Google nel localStorage', e);
         }
-        setStatus('Credenziali Google salvate. Limite: 100 ricerche/giorno.');
+  setStatusKey('google_saved');
       });
       
       // Carica credenziali Google all'avvio
@@ -1366,7 +2098,7 @@ function depluralizeItalian(word) {
       });
       
       if (words.length === 0) {
-        container.innerHTML = '<p style="color: #64748b; text-align: center; margin: 0;">Nessun simbolo personalizzato salvato.</p>';
+        container.innerHTML = `<p style="color: #64748b; text-align: center; margin: 0;">${translateUI('noCustomSymbolsSaved')}</p>`;
         return;
       }
       
@@ -1375,8 +2107,7 @@ function depluralizeItalian(word) {
       // Avviso se cartella non connessa
       if (!hasFolderAccess) {
         headerHTML += `<div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 10px; margin-bottom: 12px; font-size: 0.9rem; color: #856404;">
-          ⚠️ <strong>Cartella immagini non connessa.</strong><br>
-          Clicca su "📁 Seleziona Cartella Immagini" per visualizzare i simboli salvati localmente.
+          ${translateUI('selectFolderNotConnected')}
         </div>`;
       }
       
@@ -1401,8 +2132,8 @@ function depluralizeItalian(word) {
         wordTitle.style.cssText = 'font-weight: 600; color: #1e293b; font-size: 1.05rem;';
         wordTitle.textContent = word;
         
-        const deleteWordBtn = document.createElement('button');
-        deleteWordBtn.textContent = '🗑️ Cancella tutti';
+  const deleteWordBtn = document.createElement('button');
+  deleteWordBtn.textContent = translateUI('deleteAllForWordBtn');
         deleteWordBtn.className = 'button ghost';
         deleteWordBtn.style.cssText = 'padding: 4px 10px; font-size: 0.85rem; background: #fee; color: #c00;';
         deleteWordBtn.onclick = () => deleteAllSymbolsForWord(word);
@@ -1437,6 +2168,7 @@ function depluralizeItalian(word) {
                     reader.onload = (e) => { img.src = e.target.result; };
                     reader.onerror = () => {
                       img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+                      try { img.alt = translateUI('errorLoading'); } catch(e){}
                     };
                     reader.readAsDataURL(file);
                   } catch (err) {
@@ -1493,14 +2225,14 @@ function depluralizeItalian(word) {
     
     // Cancella tutti i simboli per una parola
     function deleteAllSymbolsForWord(word) {
-      if (!confirm(`Vuoi cancellare tutti i simboli personalizzati per "${word}"?`)) return;
+      if (!confirm(translateUI('confirmDeleteAllForWord', { word: word }))) return;
       
       const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
       delete customImages[word];
       localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
       
       loadCustomSymbolsList();
-      setStatus(`✅ Simboli per "${word}" cancellati`);
+  setStatusKey('customsymbols_deleted_for_word', { word: word });
     }
     
     // Cancella un singolo simbolo
@@ -1523,16 +2255,16 @@ function depluralizeItalian(word) {
       
       localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
       loadCustomSymbolsList();
-      setStatus(`✅ Simbolo cancellato`);
+  setStatusKey('customsymbol_deleted');
     }
     
     // Cancella tutto
     els.clearAllCustomSymbolsButton.addEventListener('click', () => {
-      if (!confirm('⚠️ ATTENZIONE!\n\nQuesta operazione cancellerà TUTTI i simboli personalizzati salvati.\n\nSei sicuro?')) return;
+      if (!confirm(translateUI('confirmDeleteAll'))) return;
       
       localStorage.removeItem('customSymbolImages');
       loadCustomSymbolsList();
-      setStatus('✅ Tutti i simboli personalizzati sono stati cancellati');
+  setStatusKey('customsymbols_all_deleted');
     });
     
     // Esporta come JSON
@@ -1548,13 +2280,13 @@ function depluralizeItalian(word) {
       a.click();
       
       URL.revokeObjectURL(url);
-      setStatus('✅ Esportazione completata');
+  setStatusKey('export_completed');
     });
     
     // Aggiorna lista
     els.refreshCustomSymbolsButton.addEventListener('click', () => {
       loadCustomSymbolsList();
-      setStatus('🔄 Lista aggiornata');
+  setStatusKey('list_refreshed');
     });
     
     // Carica la lista quando si apre il settings
@@ -1637,9 +2369,50 @@ function depluralizeItalian(word) {
     }
 
     els.btn.addEventListener('click', () => translate().catch(console.error));
-    els.clear.addEventListener('click', () => { els.res.innerHTML=''; setStatus('Pulito.'); els.input.focus(); });
+  els.clear.addEventListener('click', () => { els.res.innerHTML=''; setStatusKey('clean'); els.input.focus(); });
     els.speak.addEventListener('click', () => speakText().catch(console.error));
     els.input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); translate(); }});
+
+    // Basic runtime sanity checks for critical functions / DOM elements
+    function runAppSanityChecks() {
+      try {
+        const problems = [];
+        // Required DOM elements
+        const requiredIds = ['textInput', 'translateButton', 'live', 'translateButton', 'speakButton'];
+        requiredIds.forEach(id => {
+          if (!document.getElementById(id)) problems.push(`missing element: ${id}`);
+        });
+
+        // Check key globals
+        if (typeof translations === 'undefined') problems.push('missing translations object');
+        if (typeof safeAsync !== 'function') problems.push('safeAsync helper missing');
+        if (typeof setStatusKey !== 'function') problems.push('setStatusKey missing');
+
+        // Quick check for a handful of translation keys we rely on at startup
+        const sampleKeys = ['translateButton', 'selectLocalFolderButton', 'guidaRapidaButton', 'guidaAvanzataButton', 'videoTutorialButton'];
+        sampleKeys.forEach(k => {
+          const lang = (document.getElementById('lang') || { value: 'it' }).value || 'it';
+          if (!translations || !translations[lang] || typeof translations[lang][k] === 'undefined') {
+            problems.push(`missing translation for key: ${k} (lang=${lang})`);
+          }
+        });
+
+        if (problems.length) {
+          const msg = 'Sanity check: ' + problems.join('; ');
+          console.error(msg);
+          try { setStatusKey('js_error', { msg: msg }, true); } catch (e) { /* ignore */ }
+        } else {
+          // Small informative status so user knows checks passed
+          try { setStatusKey('list_refreshed'); } catch (e) { /* ignore */ }
+        }
+      } catch (e) {
+        console.error('[runAppSanityChecks] failed', e);
+        try { setStatusKey('js_error', { msg: e.message || String(e) }, true); } catch (_){ }
+      }
+    }
+
+    // Run sanity checks after a short delay to allow DOM wiring
+    setTimeout(runAppSanityChecks, 250);
 
     const API_ROOT = 'https://api.arasaac.org/api/pictograms';
     const STATIC_ROOT = 'https://static.arasaac.org/pictograms';
@@ -2420,7 +3193,7 @@ function scoreWithKeywords(detail, term, lang) {
         } catch (err) {
           console.error('[setImageForTile] Error loading local file:', err);
           img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" text-anchor="middle" fill="red">Errore</text></svg>';
-          img.alt = 'Errore caricamento';
+          img.alt = translateUI('errorLoading');
         }
         return;
       }
@@ -2514,7 +3287,7 @@ function scoreWithKeywords(detail, term, lang) {
         return;
       }
       
-      fileInput.onchange = async function() {
+  fileInput.onchange = safeAsync(async function() {
         const file = fileInput.files && fileInput.files[0];
         if (file) {
           try {
@@ -2580,12 +3353,12 @@ function scoreWithKeywords(detail, term, lang) {
           
           } catch (error) {
             console.error('[Upload] Failed to save:', error);
-            alert(error.message || 'Errore nel salvataggio dell\'immagine');
+            alert(error.message || translateUI('imageSaveError'));
           }
         }
         // resetta l'input per consentire selezioni successive
         fileInput.value = '';
-      };
+      });
       fileInput.click();
     }
 
@@ -3007,7 +3780,7 @@ function scoreWithKeywords(detail, term, lang) {
         const currentId = currentIds[currentIndex];
         
         if (!currentId) {
-          alert('Nessun simbolo da rimuovere.');
+          alert(translateUI('noSymbolsToRemove'));
           return;
         }
         
@@ -3019,7 +3792,7 @@ function scoreWithKeywords(detail, term, lang) {
           symbolDesc = 'questa immagine generata';
         }
         
-        if (!confirm(`Vuoi rimuovere ${symbolDesc} per "${word}"?\n\nGli altri simboli disponibili rimarranno.`)) {
+  if (!confirm(translateUI('confirmRemoveSymbol', { symbolDesc: symbolDesc, word: word }))) {
           return;
         }
         
@@ -3063,7 +3836,7 @@ function scoreWithKeywords(detail, term, lang) {
           if (tileImg) {
             setImageForTile(tile, tileImg);
           }
-          setStatus(`Simbolo rimosso per "${word}". Mostro il prossimo simbolo disponibile.`);
+          setStatusKey('symbol_removed_next', { word: word });
         } else {
           // Non ci sono più simboli
           if (tileImg) {
@@ -3073,7 +3846,7 @@ function scoreWithKeywords(detail, term, lang) {
           if (!tile.querySelector('.miss')) {
             const miss = document.createElement('div');
             miss.className = 'miss';
-            miss.textContent = 'Nessun pittogramma trovato';
+            miss.textContent = translateUI('noPictogramFound');
             const wordLabel = tile.querySelector('.word');
             if (wordLabel) {
               tile.insertBefore(miss, wordLabel);
@@ -3081,7 +3854,7 @@ function scoreWithKeywords(detail, term, lang) {
               tile.insertBefore(miss, tile.firstChild);
             }
           }
-          setStatus(`Simbolo rimosso per "${word}". Nessun simbolo rimanente.`);
+          setStatusKey('symbol_removed_none', { word: word });
         }
       });
 
@@ -3122,13 +3895,14 @@ function scoreWithKeywords(detail, term, lang) {
       webSearchBtn.style.fontFamily = 'serif';
       webSearchBtn.title = 'Cerca immagini su Wikipedia';
       actionButtonsContainer.appendChild(webSearchBtn);
-      webSearchBtn.addEventListener('click', async (e) => {
+  webSearchBtn.addEventListener('click', safeAsync(async (e) => {
         e.stopPropagation();
-        const searchTerm = prompt(`Cerca un'immagine su Wikipedia per "${word}".\n\nInserisci il termine di ricerca (lascia vuoto per usare "${word}"):`, word);
+        const promptMsg = translateUI('wikiPromptEnterTerm', { word: word });
+        const searchTerm = prompt(promptMsg, word);
         if (searchTerm === null) return; // Annullato
         const finalTerm = searchTerm.trim() || word;
         await searchWebImages(tile, finalTerm);
-      });
+      }));
       
       // Pulsante per ricerca Google Custom Search
       const googleSearchBtn = document.createElement('button');
@@ -3139,13 +3913,14 @@ function scoreWithKeywords(detail, term, lang) {
       googleSearchBtn.style.fontFamily = 'serif';
       googleSearchBtn.title = 'Cerca immagini su Google (100/giorno)';
       actionButtonsContainer.appendChild(googleSearchBtn);
-      googleSearchBtn.addEventListener('click', async (e) => {
+  googleSearchBtn.addEventListener('click', safeAsync(async (e) => {
         e.stopPropagation();
-        const searchTerm = prompt(`Cerca un'immagine su Google per "${word}".\n\nInserisci il termine di ricerca (lascia vuoto per usare "${word}"):`, word);
+        const promptMsg = translateUI('googlePromptEnterTerm', { word: word });
+        const searchTerm = prompt(promptMsg, word);
         if (searchTerm === null) return; // Annullato
         const finalTerm = searchTerm.trim() || word;
         await searchGoogleImages(tile, finalTerm);
-      });
+      }));
 
       // Pulsante per ricerca personalizzata
       const searchBtn = document.createElement('button');
@@ -3154,9 +3929,10 @@ function scoreWithKeywords(detail, term, lang) {
       searchBtn.innerHTML = '🔎';
       searchBtn.title = 'Cerca simbolo con termine alternativo';
       actionButtonsContainer.appendChild(searchBtn);
-      searchBtn.addEventListener('click', async (e) => {
+  searchBtn.addEventListener('click', safeAsync(async (e) => {
         e.stopPropagation();
-        const searchTerm = prompt(`Cerca un simbolo alternativo per "${word}".\n\nInserisci il termine di ricerca (es: "cuore" per "amore"):`);
+        const altPrompt = translateUI('altSymbolPrompt', { word: word });
+        const searchTerm = prompt(altPrompt, '');
         if (!searchTerm || !searchTerm.trim()) return;
         
         searchBtn.disabled = true;
@@ -3170,18 +3946,18 @@ function scoreWithKeywords(detail, term, lang) {
           if (ids && ids.length > 0) {
             // Mostra una galleria per scegliere il simbolo
             showSymbolGallery(ids, searchTerm, tile, word);
-            setStatus(`Trovati ${ids.length} simboli per "${searchTerm}"`);
+            setStatusKey('search_found_for_term', { n: ids.length, term: searchTerm });
           } else {
-            alert(`Nessun simbolo trovato per "${searchTerm}"`);
+            alert(translateUI('altSymbolNotFoundAlert', { term: searchTerm }));
           }
         } catch (err) {
           console.error('[Custom Search] Error:', err);
-          alert('Errore nella ricerca: ' + (err.message || err));
+          alert(translateUI('searchError', { msg: (err.message || String(err)) }));
         }
         
         searchBtn.disabled = false;
         searchBtn.innerHTML = '🔎';
-      });
+      }));
       
       const gptBtn = document.createElement('button');
       gptBtn.className = 'gpt-symbol-btn';
@@ -3190,7 +3966,7 @@ function scoreWithKeywords(detail, term, lang) {
       gptBtn.title = 'Genera simbolo con IA';
       actionButtonsContainer.appendChild(gptBtn);
       tile.appendChild(actionButtonsContainer);
-      gptBtn.addEventListener('click', async (e) => {
+  gptBtn.addEventListener('click', safeAsync(async (e) => {
         e.stopPropagation();
         
         // Controlla se la cartella è selezionata
@@ -3198,15 +3974,15 @@ function scoreWithKeywords(detail, term, lang) {
           return;
         }
         
-        const promptText = prompt('Descrivi il simbolo da generare in stile ARASAAC:');
-        if (!promptText) return;
+  const promptText = prompt(translateUI('gptDescribePrompt'), '');
+  if (!promptText) return;
         gptBtn.disabled = true;
         gptBtn.textContent = '⏳';
         let images = [];
         try {
           images = await generateArasaacStyleImages(promptText, 1);
         } catch (err) {
-          alert('Errore generazione immagini: ' + (err.message || err));
+          alert(translateUI('gptImageError', { msg: (err.message || String(err)) }));
           console.error('[GPT Image] Error:', err);
         }
         gptBtn.disabled = false;
@@ -3236,24 +4012,24 @@ function scoreWithKeywords(detail, term, lang) {
           previewImg.style.cssText = 'max-width: 400px; max-height: 400px; border-radius: 8px; margin-bottom: 16px;';
           
           const message = document.createElement('p');
-          message.textContent = `Vuoi usare questa immagine per "${word}"?`;
+          message.textContent = translateUI('useImageForWord', { word: word });
           message.style.cssText = 'font-size: 1.1rem; margin-bottom: 16px;';
           
           const btnContainer = document.createElement('div');
           btnContainer.style.cssText = 'display: flex; gap: 12px; justify-content: center;';
           
           const cropBtn = document.createElement('button');
-          cropBtn.textContent = '✂️ Ritaglia';
+          cropBtn.textContent = translateUI('cropShort');
           cropBtn.className = 'button';
           cropBtn.style.cssText = 'padding: 10px 20px; background: #f59e0b;';
           
           const acceptBtn = document.createElement('button');
-          acceptBtn.textContent = 'Usa questa immagine';
+          acceptBtn.textContent = translateUI('useImage');
           acceptBtn.className = 'button';
           acceptBtn.style.cssText = 'padding: 10px 20px;';
           
           const rejectBtn = document.createElement('button');
-          rejectBtn.textContent = 'Annulla';
+          rejectBtn.textContent = translateUI('cancel');
           rejectBtn.className = 'button ghost';
           rejectBtn.style.cssText = 'padding: 10px 20px;';
           
@@ -3277,7 +4053,7 @@ function scoreWithKeywords(detail, term, lang) {
           
           acceptBtn.onclick = async () => {
             acceptBtn.disabled = true;
-            acceptBtn.textContent = 'Salvataggio...';
+            acceptBtn.textContent = translateUI('saving');
             
             try {
               // Salva l'immagine nella cartella locale
@@ -3361,9 +4137,9 @@ function scoreWithKeywords(detail, term, lang) {
               
             } catch (error) {
               console.error('[GPT Image] Failed to save:', error);
-              alert(error.message || 'Errore nel salvataggio dell\'immagine');
+              alert(error.message || translateUI('imageSaveError'));
               acceptBtn.disabled = false;
-              acceptBtn.textContent = 'Usa questa immagine';
+              acceptBtn.textContent = translateUI('useImage');
             }
           };
           
@@ -3384,7 +4160,7 @@ function scoreWithKeywords(detail, term, lang) {
           document.body.appendChild(overlay);
           document.body.appendChild(dialog);
         }
-      });
+      }));
 
 // Funzione per aprire l'editor di ritaglio immagine
 function openCropEditor(imageDataUrl, word, tile) {
@@ -3405,11 +4181,11 @@ function openCropEditor(imageDataUrl, word, tile) {
   `;
 
   const title = document.createElement('h2');
-  title.textContent = '✂️ Ritaglia l\'immagine';
+  title.textContent = translateUI('cropEditorTitle');
   title.style.cssText = 'color: white; margin-bottom: 20px; font-size: 1.5rem;';
 
   const instruction = document.createElement('p');
-  instruction.textContent = 'Trascina per selezionare l\'area da mantenere';
+  instruction.textContent = translateUI('cropInstruction');
   instruction.style.cssText = 'color: #ccc; margin-bottom: 10px;';
 
   const canvasContainer = document.createElement('div');
@@ -3479,23 +4255,23 @@ function openCropEditor(imageDataUrl, word, tile) {
   btnContainer.style.cssText = 'display: flex; gap: 12px;';
 
   const cropBtn = document.createElement('button');
-  cropBtn.textContent = '✓ Ritaglia e Salva';
+  cropBtn.textContent = translateUI('cropAndSave');
   cropBtn.className = 'button';
   cropBtn.style.cssText = 'padding: 12px 24px; font-size: 1.1rem;';
   
   const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = '✕ Annulla';
+  cancelBtn.textContent = translateUI('cancel');
   cancelBtn.className = 'button ghost';
   cancelBtn.style.cssText = 'padding: 12px 24px; font-size: 1.1rem; color: white; border-color: white;';
 
   cropBtn.onclick = async () => {
     if (!currentX || !currentY) {
-      alert('Seleziona un\'area da ritagliare trascinando il mouse sull\'immagine');
+      alert(translateUI('selectCropArea'));
       return;
     }
 
     cropBtn.disabled = true;
-    cropBtn.textContent = 'Ritaglio in corso...';
+    cropBtn.textContent = translateUI('croppingInProgress');
 
     const x = Math.min(startX, currentX);
     const y = Math.min(startY, currentY);
@@ -3503,9 +4279,9 @@ function openCropEditor(imageDataUrl, word, tile) {
     const h = Math.abs(currentY - startY);
 
     if (w < 10 || h < 10) {
-      alert('L\'area selezionata è troppo piccola');
+  alert(translateUI('cropAreaTooSmall'));
       cropBtn.disabled = false;
-      cropBtn.textContent = '✓ Ritaglia e Salva';
+      cropBtn.textContent = translateUI('cropAndSave');
       return;
     }
 
@@ -3571,9 +4347,9 @@ function openCropEditor(imageDataUrl, word, tile) {
       
     } catch (error) {
       console.error('[Crop] Failed to save:', error);
-      alert(error.message || 'Errore nel salvataggio dell\'immagine');
+  alert(error.message || translateUI('imageSaveError'));
       cropBtn.disabled = false;
-      cropBtn.textContent = '✓ Ritaglia e Salva';
+      cropBtn.textContent = translateUI('cropAndSave');
     }
   };
 
@@ -3791,16 +4567,16 @@ function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
       const miss = targetTile.querySelector('.miss');
       if (miss) miss.remove();
       
-      // Chiudi la galleria
-      document.body.removeChild(overlay);
-      setStatus(`Simbolo selezionato e salvato per "${targetWord}"`);
+  // Chiudi la galleria
+  document.body.removeChild(overlay);
+  setStatusKey('symbol_selected_saved', { word: targetWord });
     };
 
     gallery.appendChild(card);
   });
 
   const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = 'Annulla';
+  cancelBtn.textContent = translateUI('cancel');
   cancelBtn.className = 'button ghost';
   cancelBtn.style.cssText = 'width: 100%; padding: 12px;';
   cancelBtn.onclick = () => {
@@ -3820,9 +4596,11 @@ function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
 async function searchWebImages(tile, word) {
   console.log('[Web Search] Searching images for:', word);
   
-  // Usa Wikipedia/Wikimedia Commons API italiana (completamente gratuita)
+  // Usa Wikipedia/Wikimedia Commons API (lingua basata sulla selezione corrente)
+  const lang = (document.getElementById('lang') || { value: 'it' }).value || localStorage.getItem('appLang') || 'it';
+  const domain = (lang === 'es') ? 'es' : (lang === 'en') ? 'en' : 'it';
   const searchQuery = encodeURIComponent(word);
-  const wikiUrl = `https://it.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${searchQuery}&gsrlimit=20&prop=pageimages|images&piprop=thumbnail&pithumbsize=300&pilimit=20`;
+  const wikiUrl = `https://${domain}.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${searchQuery}&gsrlimit=20&prop=pageimages|images&piprop=thumbnail&pithumbsize=300&pilimit=20`;
   
   try {
     const response = await fetch(wikiUrl);
@@ -3834,7 +4612,7 @@ async function searchWebImages(tile, word) {
     const data = await response.json();
     
     if (!data.query || !data.query.pages) {
-      alert('Nessuna immagine trovata per: ' + word + '\n\nProva a usare il bottone ✨ per generare un simbolo con AI, o il bottone + per caricare un\'immagine dal tuo computer.');
+      alert(translateUI('wikiNoImagesFoundAlert', { word: word }));
       return;
     }
     
@@ -3851,7 +4629,7 @@ async function searchWebImages(tile, word) {
     });
     
     if (images.length === 0) {
-      alert('Nessuna immagine trovata per: ' + word + '\n\nProva a usare il bottone ✨ per generare un simbolo con AI, o il bottone + per caricare un\'immagine dal tuo computer.');
+      alert(translateUI('wikiNoImagesFoundAlert', { word: word }));
       return;
     }
     
@@ -3937,8 +4715,8 @@ async function searchWebImages(tile, word) {
     
     modal.appendChild(grid);
     
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Chiudi';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = translateUI('close');
     closeBtn.className = 'button ghost';
     closeBtn.style.cssText = 'margin-top: 16px; width: 100%;';
     closeBtn.addEventListener('click', () => {
@@ -3953,7 +4731,7 @@ async function searchWebImages(tile, word) {
     
   } catch (error) {
     console.error('[Web Search] Error:', error);
-    alert('Errore durante la ricerca: ' + error.message);
+  alert(translateUI('searchError', { msg: error.message }));
   }
 }
 
@@ -3963,7 +4741,7 @@ async function searchGoogleImages(tile, word) {
   
   // Verifica credenziali
   if (!googleApiKey || !googleCx) {
-    alert('⚠️ Credenziali Google mancanti!\n\nPer usare la ricerca Google:\n\n1. Vai su https://developers.google.com/custom-search/v1/overview\n2. Crea un progetto e ottieni API Key e Search Engine ID (cx)\n3. Inseriscili nelle Impostazioni (⚙️)\n\nLimite gratuito: 100 ricerche/giorno');
+    alert(translateUI('googleCredsMissingAlert'));
     return;
   }
   
@@ -3977,7 +4755,7 @@ async function searchGoogleImages(tile, word) {
     if (!response.ok) {
       const errorData = await response.json();
       if (response.status === 429) {
-        throw new Error('Limite giornaliero raggiunto (100 ricerche/giorno). Riprova domani.');
+        throw new Error(translateUI('googleDailyLimitError'));
       }
       throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
     }
@@ -3985,7 +4763,7 @@ async function searchGoogleImages(tile, word) {
     const data = await response.json();
     
     if (!data.items || data.items.length === 0) {
-      alert('Nessuna immagine trovata per: ' + word + '\n\nProva con Wikipedia (W) o genera con AI (✨).');
+      alert(translateUI('googleNoImagesFoundAlert', { word: word }));
       return;
     }
     
@@ -4070,7 +4848,7 @@ async function searchGoogleImages(tile, word) {
           document.body.removeChild(modal);
         } catch (err) {
           console.error('[Google Search] Error saving image:', err);
-          alert('Errore nel salvare l\'immagine: ' + err.message);
+          alert(translateUI('genericSaveErrorWithMsg', { msg: err.message }));
         }
       });
       
@@ -4079,8 +4857,8 @@ async function searchGoogleImages(tile, word) {
     
     modal.appendChild(grid);
     
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Chiudi';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = translateUI('close');
     closeBtn.className = 'button ghost';
     closeBtn.style.cssText = 'margin-top: 16px; width: 100%;';
     closeBtn.onclick = () => {
@@ -4095,7 +4873,7 @@ async function searchGoogleImages(tile, word) {
     
   } catch (error) {
     console.error('[Google Search] Error:', error);
-    alert('Errore durante la ricerca Google:\n\n' + error.message);
+  alert(translateUI('searchError', { msg: error.message }));
   }
 }
 
@@ -4284,12 +5062,12 @@ async function saveWebImageToTile(tile, word, imageUrl) {
       
     } catch (err) {
       console.error('[Web Image] Could not save to local folder:', err);
-      alert('Errore nel salvataggio: ' + err.message);
+  alert(translateUI('genericSaveErrorWithMsg', { msg: err.message }));
     }
     
   } catch (error) {
     console.error('[Web Image] Error saving:', error);
-    alert('Errore nel salvataggio: ' + error.message);
+  alert(translateUI('genericSaveErrorWithMsg', { msg: error.message }));
   }
 }
 
@@ -4418,7 +5196,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
       const lang = els.lang.value;
       const skipStop = els.skipStop.checked;
       els.res.innerHTML = '';
-      if(!text){ setStatus('Inserisci una frase.'); els.input.focus(); return; }
+  if(!text){ setStatusKey('enter_phrase_prompt'); els.input.focus(); return; }
       if(aborter) aborter.abort();
       aborter = new AbortController();
 
@@ -4529,7 +5307,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
       // Apply heuristic before building tiles
       adjustAmbiguousPronounForEssere(groups);
 
-      setStatus('Ricerca in corso…');
+  setStatusKey('search_in_progress');
       let found = 0, missing = 0;
 
       // Ciclo principale che tenta di formare locuzioni tramite ricerche API
@@ -4726,12 +5504,12 @@ Style should be like a simple, happy illustration from a children's storybook.`;
           missing++;
           await addTile([], displayOriginal, false, null, badges, highlightInsert);
         }
-        // Messaggio per ogni parola/locuzione: quanti simboli trovati per fonte
-        setStatus(`ARASAAC: ${arasaacCount} | OpenSymbols: ${openSymbolsCount}`, false);
+  // Messaggio per ogni parola/locuzione: quanti simboli trovati per fonte
+  setStatusKey('search_counts', { arasaac: arasaacCount, opensymbols: openSymbolsCount }, false);
         // Salta gli indici coperti dalla locuzione
         idx = end;
       }
-      setStatus(`Completato. Trovati ${found}, mancanti ${missing}${skipStop ? ' (parole funzionali escluse)' : ''}.`);
+  if (skipStop) setStatusKey('search_complete_skipstop', { found, missing }); else setStatusKey('search_complete', { found, missing });
   // Messaggio finale: somma totale simboli trovati per fonte
   // (opzionale: puoi accumulare i totali in variabili e mostrarli qui)
     }
@@ -4767,8 +5545,8 @@ Style should be like a simple, happy illustration from a children's storybook.`;
     }
     
     function speakText(){
-      const text = els.input.value.trim(); if(!text){ setStatus('Nulla da leggere.'); return; }
-      const u = new SpeechSynthesisUtterance(text); u.lang='it-IT'; const v = getItalianVoice(); if(v) u.voice=v; u.rate=1; u.pitch=1; u.onstart=()=>setStatus('Riproduzione avviata…'); u.onend=()=>setStatus('Riproduzione terminata.'); u.onerror=()=>setStatus('Errore nella sintesi vocale.');
+      const text = els.input.value.trim(); if(!text){ setStatusKey('nothing_to_read'); return; }
+      const u = new SpeechSynthesisUtterance(text); u.lang='it-IT'; const v = getItalianVoice(); if(v) u.voice=v; u.rate=1; u.pitch=1; u.onstart=()=>setStatusKey('speech_started'); u.onend=()=>setStatusKey('speech_ended'); u.onerror=()=>setStatusKey('speech_error', null, true);
       window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
     }
     
@@ -4789,7 +5567,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
     }
     els.showGrammarBadges.addEventListener('change', () => {
       localStorage.setItem('showGrammarBadges', els.showGrammarBadges.checked);
-      setStatus('✅ Preferenza badge grammaticali salvata');
+      setStatusKey('grammar_badges_saved');
     });
 
     // ========== FUNZIONALITÀ UNIONE SIMBOLI ==========
@@ -4817,7 +5595,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
     // Funzione per unire i simboli selezionati
     async function mergeSelectedTiles() {
       if (selectedTiles.size < 2) {
-        alert('Seleziona almeno 2 simboli da unire!');
+  alert(translateUI('selectTwoSymbols'));
         return;
       }
 
@@ -4857,19 +5635,19 @@ Style should be like a simple, happy illustration from a children's storybook.`;
         const idsObj = await queryIds(lang, mergedPhrase, null);
         const ids = [...(idsObj.arasaacIds || []), ...(idsObj.openSymbols || [])];
         
-        if (ids && ids.length > 0) {
-          console.log('[Merge] Simbolo trovato per:', mergedPhrase);
-          await addTile(ids, mergedPhrase, false, null, [], false, insertPosition);
-          setStatus(`Simbolo trovato per: "${mergedPhrase}"`);
-        } else {
-          console.log('[Merge] Nessun simbolo trovato per:', mergedPhrase);
-          await addTile([], mergedPhrase, false, null, [], false, insertPosition);
-          setStatus(`Nessun simbolo trovato per: "${mergedPhrase}". Usa W per cercare su Wikipedia o ✨ per generare con AI.`);
-        }
+          if (ids && ids.length > 0) {
+            console.log('[Merge] Simbolo trovato per:', mergedPhrase);
+            await addTile(ids, mergedPhrase, false, null, [], false, insertPosition);
+            setStatusKey('merged_symbol_found', { phrase: mergedPhrase });
+          } else {
+            console.log('[Merge] Nessun simbolo trovato per:', mergedPhrase);
+            await addTile([], mergedPhrase, false, null, [], false, insertPosition);
+            setStatusKey('merged_symbol_not_found', { phrase: mergedPhrase });
+          }
       } catch (err) {
         console.error('[Merge] Errore:', err);
         await addTile([], mergedPhrase, false, null, [], false, insertPosition);
-        setStatus(`Errore nella ricerca per: "${mergedPhrase}"`);
+        setStatusKey('merged_search_error', { phrase: mergedPhrase }, true);
       }
     }
 
@@ -4887,7 +5665,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
       // Mostra un reminder per la cartella locale all'avvio se non è già impostata
       setTimeout(() => {
         if (!localImageFolderHandle) {
-          setStatus('💡 Ricorda: clicca su "📁 Seleziona Cartella Immagini" per salvare immagini personalizzate (AI, web, ecc.)');
+          setStatusKey('remind_select_folder');
         }
       }, 1000); // Mostra dopo 1 secondo
     });
@@ -4900,8 +5678,8 @@ Style should be like a simple, happy illustration from a children's storybook.`;
       });
     }
 
-    window.addEventListener('error', (e)=>{ setStatus('Errore JS: ' + (e.message||'sconosciuto')); });
-    window.addEventListener('unhandledrejection', (e)=>{ setStatus('Errore: ' + (e.reason && e.reason.message ? e.reason.message : 'richiesta annullata')); });
+  window.addEventListener('error', (e)=>{ setStatusKey('js_error', { msg: (e.message||'sconosciuto') }, true); });
+  window.addEventListener('unhandledrejection', (e)=>{ setStatusKey('unhandled_rejection', { msg: (e.reason && e.reason.message ? e.reason.message : 'richiesta annullata') }, true); });
   </script>
 </body>
 </html>

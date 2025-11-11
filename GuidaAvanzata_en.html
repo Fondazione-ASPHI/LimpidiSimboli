@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional User Manual: Limpidi Simboli</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #212529;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h1, h2, h3 {
+            color: #343a40;
+            line-height: 1.3;
+        }
+        h1 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 2.5em;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+        }
+        h3 {
+            margin-top: 2em;
+            color: #495057;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #dee2e6;
+            margin: 2.5em 0;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f1f3f5;
+            font-weight: 600;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+        blockquote {
+            border-left: 4px solid #007bff;
+            margin: 1.5em 0;
+            padding: 10px 20px;
+            background-color: #f1f3f5;
+            color: #495057;
+        }
+        blockquote p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📚 Professional User Manual: Limpidi Simboli</h1>
+    <p>This manual is a comprehensive guide designed for professionals in Augmentative and Alternative Communication (AAC) — speech therapists, therapists, educators, and specialists in the field. Through this guide, you will learn to leverage every aspect of the software, from basic operations to the most advanced integrations.</p>
+
+    <hr>
+
+    <h2>1.0 Introduction to Limpidi Simboli: A Strategic Tool for AAC</h2>
+    <p>In the field of Augmentative and Alternative Communication, having flexible, powerful, and accessible tools is essential to effectively support learning and autonomy. <strong>Limpidi Simboli</strong>, the web app developed by <strong>Fondazione ASPHI Onlus</strong>, integrates the tradition of symbol sets with the potential of artificial intelligence and the web.</p>
+    <ul>
+        <li><strong>Completely free:</strong> The absence of costs for all basic functionalities makes the tool immediately available without requiring initial investment.</li>
+        <li><strong>Customizable:</strong> The ability to upload, generate, search for, and save custom symbols allows for the creation of materials that reflect the specific life experiences of individuals (photos of family, familiar places, personal items), increasing engagement and communicative effectiveness.</li>
+        <li><strong>Intelligent:</strong> Unlike older tools based on simple word-to-symbol matching, Limpidi Simboli integrates advanced grammatical recognition. It can analyze tenses, gender, and number, providing a richer and more accurate visual representation of the sentence.</li>
+    </ul>
+    <p>To unlock the full potential of this tool, it is essential to start with the correct initial setup. This first step is the foundation for an efficient workflow and for ensuring that every customization is saved permanently and securely.</p>
+
+    <hr>
+
+    <h2>2.0 Initial Setup: Preparing the Work Environment</h2>
+    <h3>Quick Setup Guide</h3>
+    <p>Follow these steps to prepare your work environment optimally.</p>
+    <ul>
+        <li><strong>Step 1: First Launch and Accessibility</strong>
+            <p>Launch the application in a modern web browser. For a full and unrestricted experience, the use of <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, or <strong>Opera</strong> is recommended. Currently, browsers like Firefox and Safari do not support the <em>File System API</em>, a crucial technology for saving images to disk, limiting some advanced customization features.</p>
+        </li>
+        <li><strong>Step 2: Configure the Image Folder (Crucial)</strong>
+            <p>This is the most important step to ensure the persistence of your work. Click the <strong>"📂 Select Image Folder"</strong> button. You will be asked to create or select a folder on your computer (e.g., in <code>Documents/AAC_Materials/Limpidi_Simboli</code>).<br>
+            <strong>Why it's crucial:</strong> Without this link, every custom image (uploaded from your PC or generated with AI) is saved temporarily in the browser's memory (<code>localStorage</code>), which has space limits and can be cleared. By configuring the folder, images are saved <strong>permanently</strong> to your local disk, avoiding browser memory saturation and ensuring your custom symbols are always available.</p>
+        </li>
+        <li><strong>Step 3: Set up Text-to-Speech</strong>
+            <p>For clear and natural audio output, go to settings (<strong>⚙️ Settings</strong>) and, in the text-to-speech dropdown menu, select the <strong>"Google"</strong> voice for your language (e.g., "Google UK English Male"). This voice, generally integrated into the browser, offers significantly higher quality than default system voices.</p>
+        </li>
+        <li><strong>Step 4: Configure APIs (Optional but Powerful)</strong>
+            <p>This step is optional but unlocks the application's most advanced and intelligent features. In the <strong>"⚙️ Settings"</strong> panel, you can enter the following API keys:</p>
+            <ul>
+                <li><strong>OpenAI API Key:</strong> Enables enhanced grammatical analysis via <strong>GPT</strong> (for recognizing implicit pronouns and greater accuracy) and custom image generation with <strong>DALL-E</strong>.</li>
+                <li><strong>OpenSymbols Token:</strong> Allows access to alternative and complementary symbol libraries to ARASAAC, such as <strong>TAWASOL</strong> or <strong>Bliss</strong>, enriching your visual toolbox.</li>
+                <li><strong>Google API Key and CX:</strong> Unlocks image search directly from Google, with the benefit of active SafeSearch and a generous daily limit of free searches.</li>
+            </ul>
+        </li>
+    </ul>
+    <blockquote>
+        <p><strong>Privacy Guaranteed:</strong> All API keys and settings are saved exclusively locally in your browser. No sensitive information is sent or stored on external servers.</p>
+    </blockquote>
+
+    <hr>
+
+    <h2>3.0 Essential Functionality: Daily Free Operation</h2>
+
+    <h3>3.1 Text-to-ARASAAC-Symbol Translation</h3>
+    <ul>
+        <li><strong>What it does:</strong> Converts a written sentence into a sequence of pictograms from the ARASAAC set.</li>
+        <li><strong>How to use:</strong> Enter the desired text in the field, select the language (Italian, Spanish, or English), and press the <strong>"🗣️ Translate"</strong> button. You can activate a filter to automatically hide articles and prepositions, resulting in a cleaner visual strip focused on key concepts.</li>
+    </ul>
+
+    <h3>3.2. Basic Grammatical Analysis</h3>
+    <ul>
+        <li><strong>What it does:</strong> Adds visual badges above symbols to indicate essential grammatical information.</li>
+        <li><strong>How to use:</strong> The function is automatic. Once the sentence is translated, badges appear on verbs and nouns, indicating: ‹ Past, ▶️ Present, › Future, 1️⃣ Singular, + Plural.</li>
+    </ul>
+
+    <h3>3.3 Management and Customization of Individual Symbols</h3>
+    <p>These direct actions on each symbol allow for granular control over the final visual representation.</p>
+    <ul>
+        <li><strong>See Alternatives:</strong> A word often has multiple symbolic representations. By clicking repeatedly on a symbol, you can browse all available alternatives in the ARASAAC database and choose the one most relevant to the context.</li>
+        <li><strong>Text-Only Mode ("abc"):</strong> This function hides the image and displays only the written word in large print. It is a valuable tool for facilitating the transition from symbol to written word for users developing literacy skills.</li>
+        <li><strong>Upload a Personal Image ("+"):</strong> By clicking the <strong>+</strong> button, you can upload an image or photo directly from your computer (e.g., a photo of your dog, your school). If the local folder has been configured, the image is saved permanently and associated with that word for future use.</li>
+    </ul>
+
+    <h3>3.2.4. Creation of Complex Concepts ("🔗 Merge")</h3>
+    <ul>
+        <li><strong>What it does:</strong> Allows you to merge two or more symbols into a single composite pictogram.</li>
+        <li><strong>How to use:</strong> While holding down the <strong>CTRL</strong> key (or <strong>Cmd</strong> on Mac), select the symbols to merge. The <strong>"🔗 Merge"</strong> button will appear. Clicking it will create a new symbol representing the complex concept.</li>
+        <li>This is an essential function for representing abstract concepts, complex actions, or compound nouns that do not have a dedicated symbol (e.g., "camera" + "bed" → "bedroom"; "go" + "away" → "go away").</li>
+    </ul>
+
+    <h3>3.2.5. Using Text-to-Speech ("🔊 Listen")</h3>
+    <ul>
+        <li><strong>What it does:</strong> Reads the entered sentence aloud.</li>
+        <li><strong>How to use:</strong> By clicking the <strong>"🔊 Listen"</strong> button, the browser's integrated text-to-speech is activated.</li>
+        <li>It reinforces the association between the symbol, written text, and sound. It is a fundamental tool for auditory feedback, linguistic modeling, and for users with reading difficulties.</li>
+    </ul>
+
+    <hr>
+
+    <h2>4.0 Advanced Features: Customization and Artificial Intelligence (with API)</h2>
+
+    <h3>4.2.1. Enhanced Semantic Analysis with GPT (OpenAI)</h3>
+    <p>Goes beyond simple word-symbol matching to understand the context of the sentence.</p>
+    <ul>
+        <li><strong>Requirements:</strong> OpenAI API Key (Indicative cost: ~$0.15 per 1 million input tokens, equivalent to about 500,000 short sentences).</li>
+        <li><strong>Strategic impact:</strong>
+            <ul>
+                <li><strong>Recognition of implicit pronouns:</strong> In languages like Italian or Spanish, sentences like "Mangio una mela" (I eat an apple) are common. GPT can infer the implied subject, translating the sentence as "Io mangio una mela" (I eat an apple) (🧍‍♂️ 🍽️ 🍎), providing a complete and correct sentence model.</li>
+                <li><strong>More accurate grammatical analysis:</strong> Handles complex tenses, irregular verbs, and agreement with greater precision, applying grammatical badges more reliably.</li>
+                <li><strong>Synonym search:</strong> If a word has no corresponding symbol in ARASAAC, GPT automatically searches for synonyms or related concepts to find the most relevant visual alternative, overcoming gaps in the database.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>4.2.2. Custom Symbol Generation with DALL-E (OpenAI)</h3>
+    <p>This is one of the most powerful features for customization, allowing you to create an image for any concept.</p>
+    <ul>
+        <li><strong>Requirements:</strong> OpenAI API Key (Indicative cost: $0.04 per generated image).</li>
+        <li><strong>How it works:</strong> By clicking the <strong>"✨"</strong> button under a symbol, a field opens where you can describe the desired image (e.g., "a black cat sleeping on a red sofa"). The AI then generates a unique image that can be <strong>cropped</strong> directly in the interface and saved to your local library, ready for reuse.</li>
+        <li><strong>Strategic impact:</strong> Ideal for creating symbols for:
+            <ul>
+                <li><strong>Modern or specific concepts:</strong> "youtuber", "tablet", "video game".</li>
+                <li><strong>Customized situations:</strong> "grandma cooking", "my dog playing in the garden".</li>
+                <li><strong>Unique elements</strong> not present in any standard symbol set.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>4.2.3. Expanding Libraries with OpenSymbols</h3>
+    <ul>
+        <li><strong>Requirements:</strong> OpenSymbols Token (free upon registration at opensymbols.org).</li>
+        <li><strong>How it works:</strong> By entering the token in the settings, you enable symbol search in alternative databases, such as <strong>TAWASOL</strong>, known for its use in multicultural contexts.</li>
+        <li><strong>Strategic impact:</strong> Enriches the range of available symbols, offering different graphic styles and pictograms specific to other cultures, increasing the inclusivity of materials.</li>
+    </ul>
+
+    <h3>4.2.4. Image Search from the Web</h3>
+    <p>This feature provides almost unlimited access to real images to contextualize concepts.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Search Option</th>
+                <th>Advantages and Strategic Use</th>
+                <th>Requirements and Limits</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Wikipedia ("W")</strong></td>
+                <td>Ideal choice for encyclopedic concepts, places, animals, famous people, and scientific concepts. Offers high-quality, verified, and cost-free images.</td>
+                <td>Completely free and unlimited. Less suitable for representing daily actions, verbs, or abstract concepts.</td>
+            </tr>
+            <tr>
+                <td><strong>Google ("G")</strong></td>
+                <td>Extremely versatile solution for finding almost any type of image (objects, actions, situations). <em>SafeSearch</em> is enabled by default.</td>
+                <td>Requires a Google API Key + CX. Offers <strong>100 free searches per day</strong>; exceeding this incurs a cost.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>5.0 Managing Your Custom Symbol Library</h2>
+    <p>Orderly and conscious management of custom symbols is strategically important. Over time, your library becomes a valuable professional asset that reflects your working method and the specific needs of your clients.</p>
+    <p>By accessing the <strong>"Custom Symbols"</strong> panel within the settings (<strong>⚙️ Settings</strong>), you will have the following functionalities available:</p>
+    <ol>
+        <li><strong>View and Control:</strong> You can access a complete list of all the symbols you have saved. For each word, the interface shows a preview of the associated images.</li>
+        <li><strong>Selective Deletion:</strong> The system offers three levels of control:
+            <ul>
+                <li><strong>Delete a single symbol:</strong> Clicking the "x" next to an image removes that specific association.</li>
+                <li><strong>Delete all symbols for a word:</strong> Removes all custom images associated with a term, restoring the default ARASAAC behavior for that word.</li>
+                <li><strong>Total deletion:</strong> Drastic option that, upon confirmation, deletes the entire library of custom symbols.</li>
+            </ul>
+        </li>
+        <li><strong>Backup and Sharing (Export):</strong> The <strong>"💾 Export"</strong> function generates a JSON file containing all associations. This file, combined with your local image folder, constitutes a <strong>complete backup</strong> of your library.</li>
+    </ol>
+    <blockquote>
+        <p><strong>Important Note: The Symbol Hierarchy</strong><br>
+        Always remember this fundamental rule: the symbols you have customized (uploaded, AI-generated, chosen from the web, or selected as favorites) will <strong>always take precedence</strong> over those proposed by default by ARASAAC.</p>
+    </blockquote>
+
+    <hr>
+
+    <h2>6.0 Common Troubleshooting</h2>
+    <p>This section is a practical guide to quickly diagnose and resolve the most common issues.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Problem</th>
+                <th>Probable Cause</th>
+                <th>Step-by-Step Solution</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>"Image folder not selected" when uploading/generating.</strong></td>
+                <td>The application does not have permission to write to the local disk.</td>
+                <td>1. Click the <strong>"📂 Select Image Folder"</strong> button. <br> 2. Create or select the dedicated folder. <br> 3. Try the operation again.</td>
+            </tr>
+            <tr>
+                <td><strong>ARASAAC symbols are not displaying.</strong></td>
+                <td>Internet connectivity issues or, in rare cases, temporary unavailability of the ARASAAC server.</td>
+                <td>Check that the computer is connected to the Internet. If the connection is active, wait a few minutes and try translating again.</td>
+            </tr>
+            <tr>
+                <td><strong>Advanced features (GPT, DALL-E) are not working.</strong></td>
+                <td>The OpenAI API key is incorrect, has been deactivated, or the credit on the OpenAI account has run out.</td>
+                <td>1. Check the correctness of the API key entered in Settings. <br> 2. Log in to your account on <code>platform.openai.com</code> to check the key status and remaining credit.</td>
+            </tr>
+            <tr>
+                <td><strong>"Quota Exceeded" error or the browser is very slow.</strong></td>
+                <td>The browser's local storage (<code>localStorage</code>) is full from saving too many custom images without configuring the on-disk folder.</td>
+                <td>1. <strong>Immediately</strong> configure the image folder. <br> 2. To free up space, consider clearing the symbol cache via the management panel in Settings.</td>
+            </tr>
+            <tr>
+                <td><strong>Custom images are not visible after restarting the browser.</strong></td>
+                <td>For security reasons, the browser may have revoked access permission to the local folder after a restart.</td>
+                <td>Click the <strong>"📂 Select Image Folder"</strong> button again and re-select the exact same folder used before.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>7.0 Frequently Asked Questions (FAQ)</h2>
+    <ul>
+        <li><strong>How much does it cost to use Limpidi Simboli?</strong>
+            <p>The application and all its basic features are <strong>completely free</strong>. Costs are associated exclusively with the optional use of external API services:</p>
+            <ul>
+                <li><strong>OpenAI (GPT & DALL-E):</strong> Pay-as-you-go costs (text analysis is very cheap, image generation is $0.04/image).</li>
+                <li><strong>Google Search:</strong> Offers 100 free image searches per day.</li>
+                <li><strong>OpenSymbols:</strong> Access is free, only requires registration on their site for a token.</li>
+            </ul>
+        </li>
+        <li><strong>Is my data secure?</strong>
+            <p><strong>Yes.</strong> Privacy is a priority. All data (API keys, custom images, preferences) are saved <strong>exclusively on the user's computer</strong> (in browser storage or the designated local folder) and are never sent to external servers.<br>
+            <em>Disclaimer: When using OpenAI APIs, the sentences sent for analysis or image generation are subject to their privacy policy.</em></p>
+        </li>
+        <li><strong>Can I use the application in a school context?</strong>
+            <p><strong>Absolutely.</strong> It is an ideal tool for inclusive education.</p>
+        </li>
+        <li><strong>What are the limitations on commercial use?</strong>
+            <p>Clinical, therapeutic, and educational use to create materials for one's own patients or students is <strong>fully permitted</strong>. However, it is important to note that ARASAAC symbols are released under a CC BY-NC-SA license. This means that materials created using these symbols <strong>cannot be sold</strong>.</p>
+        </li>
+        <li><strong>Which browsers are fully supported?</strong>
+            <p>To ensure access to all features, including file management on disk, the use of <strong>Google Chrome</strong> and <strong>Microsoft Edge</strong> is recommended. Browsers like Firefox and Safari currently do not support the <em>File System API</em>.</p>
+        </li>
+    </ul>
+
+    <hr>
+
+    <h2>Appendices</h2>
+
+    <h3>A. Feature Summary Table</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Function</th>
+                <th>Free</th>
+                <th>Requires API</th>
+                <th>API Cost</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Base ARASAAC Translation</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Always available</td>
+            </tr>
+            <tr>
+                <td>Cycle alternative symbols</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Automatic</td>
+            </tr>
+            <tr>
+                <td>Base grammatical badges</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Morphological recognition</td>
+            </tr>
+            <tr>
+                <td>Text-to-speech</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Uses browser</td>
+            </tr>
+            <tr>
+                <td>Upload images from PC</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Needs local folder</td>
+            </tr>
+            <tr>
+                <td>Text-only mode</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Always available</td>
+            </tr>
+            <tr>
+                <td>Merge symbols</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Always available</td>
+            </tr>
+            <tr>
+                <td>Wikipedia Search</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Free</td>
+                <td>Unlimited</td>
+            </tr>
+            <tr>
+                <td>Advanced GPT Analysis</td>
+                <td>❌</td>
+                <td>✅ OpenAI</td>
+                <td>~$0.15/500k sntcs</td>
+                <td>Pronouns, synonyms</td>
+            </tr>
+            <tr>
+                <td>AI Symbol Generation</td>
+                <td>❌</td>
+                <td>✅ OpenAI</td>
+                <td>$0.04/image</td>
+                <td>DALL-E 3</td>
+            </tr>
+            <tr>
+                <td>OpenSymbols</td>
+                <td>❌</td>
+                <td>✅ OpenSymbols</td>
+                <td>Free</td>
+                <td>Registration needed</td>
+            </tr>
+            <tr>
+                <td>Google Search</td>
+                <td>❌</td>
+                <td>✅ Google</td>
+                <td>100/day free</td>
+                <td>Then $5/1000 searches</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>B. Glossary of Technical Terms</h3>
+    <ul>
+        <li><strong>AAC (Augmentative and Alternative Communication):</strong> A set of strategies, tools, and techniques used to support communication for people with complex communication needs.</li>
+        <li><strong>ARASAAC:</strong> A vast database of free pictographic symbols, created by the Government of Aragon (Spain).</li>
+        <li><strong>API (Application Programming Interface):</strong> A computing "bridge" that allows two different pieces of software to communicate.</li>
+        <li><strong>localStorage:</strong> A small storage area within the web browser, used to save data (like settings or symbols) directly on the user's computer. It has space limits.</li>
+        <li><strong>File System API:</strong> An advanced web technology that allows a web application, with user permission, to read and write files directly in a specific folder on the computer.</li>
+        <li><strong>GPT (Generative Pre-trained Transformer):</strong> An AI model developed by OpenAI, specializing in understanding and generating natural language.</li>
+        <li><strong>DALL-E:</strong> An AI model by OpenAI capable of creating realistic and artistic images from a text description.</li>
+        <li><strong>Token:</strong> The unit of measurement used by OpenAI to calculate the consumption and cost of its APIs. A sentence is composed of multiple tokens.</li>
+    </ul>
+
+    <h3>C. Licenses, Credits, and Contacts</h3>
+    <ul>
+        <li><strong>ARASAAC Symbols:</strong> Created by Sergio Palao for the Gobierno de Aragón. License: CC BY-NC-SA 4.0 (Free for non-commercial use with attribution).</li>
+        <li><strong>OpenSymbols:</strong> Collection of symbol sets (TAWASOL, Mulberry, Bliss, etc.) with variable licenses.</li>
+        <li><strong>Limpidi Simboli App:</strong> Developed by Fondazione ASPHI Onlus.</li>
+    </ul>
+
+</body>
+</html>

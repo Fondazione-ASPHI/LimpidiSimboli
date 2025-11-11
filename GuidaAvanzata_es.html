@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario Profesional: Limpidi Simboli</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #212529;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h1, h2, h3 {
+            color: #343a40;
+            line-height: 1.3;
+        }
+        h1 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 2.5em;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+        }
+        h3 {
+            margin-top: 2em;
+            color: #495057;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #dee2e6;
+            margin: 2.5em 0;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f1f3f5;
+            font-weight: 600;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+        blockquote {
+            border-left: 4px solid #007bff;
+            margin: 1.5em 0;
+            padding: 10px 20px;
+            background-color: #f1f3f5;
+            color: #495057;
+        }
+        blockquote p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📚 Manual de Usuario Profesional: Limpidi Simboli</h1>
+    <p>Este manual es una guía completa diseñada para profesionales de la Comunicación Aumentativa y Alternativa (CAA) — logopedas, terapeutas, educadores y especialistas del sector. A través de esta guía, aprenderán a aprovechar cada aspecto del software, desde las operaciones básicas hasta las integraciones más avanzadas.</p>
+
+    <hr>
+
+    <h2>1.0 Introducción a Limpidi Simboli: Una Herramienta Estratégica para la CAA</h2>
+    <p>En el campo de la Comunicación Aumentativa y Alternativa, disponer de herramientas flexibles, potentes y accesibles es fundamental para apoyar eficazmente los procesos de aprendizaje y autonomía. <strong>Limpidi Simboli</strong>, la aplicación web desarrollada por la <strong>Fondazione ASPHI Onlus</strong>, integra la tradición de los conjuntos de símbolos con el potencial de la inteligencia artificial y la web.</p>
+    <ul>
+        <li><strong>Completamente gratuita:</strong> La ausencia de costos para todas las funcionalidades básicas hace que la herramienta esté inmediatamente disponible sin requerir inversiones iniciales.</li>
+        <li><strong>Personalizable:</strong> La capacidad de cargar, generar, buscar y guardar símbolos personalizados permite crear materiales que reflejen la experiencia específica de las personas (fotos de familiares, lugares familiares, objetos personales), aumentando la implicación y la eficacia comunicativa.</li>
+        <li><strong>Inteligente:</strong> A diferencia de herramientas más antiguas basadas en una simple asociación palabra-símbolo, Limpidi Simboli integra un reconocimiento gramatical avanzado. Es capaz de analizar tiempos verbales, género y número, proporcionando una representación visual de la frase más rica y precisa.</li>
+    </ul>
+    <p>Para desbloquear todo el potencial de esta herramienta, es esencial comenzar con una correcta configuración inicial. Este primer paso es la base para un flujo de trabajo eficiente y para garantizar que cada personalización se guarde de forma permanente y segura.</p>
+
+    <hr>
+
+    <h2>2.0 Configuración Inicial: Preparar el Entorno de Trabajo</h2>
+    <h3>Guía de Configuración Rápida</h3>
+    <p>Siga estos pasos para preparar su entorno de trabajo de manera óptima.</p>
+    <ul>
+        <li><strong>Paso 1: Primer Inicio y Accesibilidad</strong>
+            <p>Inicie la aplicación en un navegador web moderno. Para una experiencia completa y sin limitaciones, se recomienda el uso de <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong> u <strong>Opera</strong>. Actualmente, navegadores como Firefox y Safari no son compatibles con la <em>File System API</em>, una tecnología crucial para guardar imágenes en el disco, lo que limita algunas funcionalidades de personalización avanzada.</p>
+        </li>
+        <li><strong>Paso 2: Configuración de la Carpeta de Imágenes (Fundamental)</strong>
+            <p>Este es el paso más importante para garantizar la persistencia de su trabajo. Haga clic en el botón <strong>"📂 Seleccionar Carpeta de Imágenes"</strong>. Se le pedirá que cree o seleccione una carpeta en su ordenador (por ejemplo, en <code>Documentos/Materiales_CAA/Limpidi_Simboli</code>).<br>
+            <strong>Por qué es crucial:</strong> Sin este enlace, cada imagen personalizada (cargada desde el PC o generada con IA) se guarda temporalmente en la memoria del navegador (<code>localStorage</code>), que tiene límites de espacio y puede borrarse. Al configurar la carpeta, las imágenes se guardan de forma <strong>permanente</strong> en su disco local, evitando saturar la memoria del navegador y garantizando que sus símbolos personalizados estén siempre disponibles.</p>
+        </li>
+        <li><strong>Paso 3: Configuración de la Síntesis de Voz</strong>
+            <p>Para una reproducción de audio clara y natural, acceda a la configuración (<strong>⚙️ Settings</strong>) y, en el menú desplegable de síntesis de voz, seleccione la voz <strong>"Google Español"</strong> (o la voz de Google de alta calidad disponible en su idioma). Esta voz, generalmente integrada en el navegador, ofrece una calidad notablemente superior a las voces predeterminadas del sistema.</p>
+        </li>
+        <li><strong>Paso 4: Configuración de las API (Opcional pero Potente)</strong>
+            <p>Este paso es opcional pero desbloquea las funcionalidades más avanzadas e inteligentes de la aplicación. En el panel <strong>"⚙️ Settings"</strong>, puede introducir las siguientes claves API:</p>
+            <ul>
+                <li><strong>Clave API OpenAI:</strong> Habilita el análisis gramatical mejorado mediante <strong>GPT</strong> (para el reconocimiento de pronombres implícitos y mayor precisión) y la generación de imágenes personalizadas con <strong>DALL-E</strong>.</li>
+                <li><strong>Token OpenSymbols:</strong> Permite acceder a librerías de símbolos alternativas y complementarias a ARASAAC, como <strong>TAWASOL</strong> o <strong>Bliss</strong>, enriqueciendo su caja de herramientas visual.</li>
+                <li><strong>Clave API Google y CX:</strong> Desbloquea la búsqueda de imágenes directamente desde Google, con la ventaja del filtro SafeSearch activo y un generoso límite de búsquedas gratuitas diarias.</li>
+            </ul>
+        </li>
+    </ul>
+    <blockquote>
+        <p><strong>Privacidad Garantizada:</strong> Todas las claves API y configuraciones se guardan exclusivamente de forma local en su navegador. Ninguna información sensible se envía o almacena en servidores externos.</p>
+    </blockquote>
+
+    <hr>
+
+    <h2>3.0 Funcionalidades Esenciales: Operativa Diaria Gratuita</h2>
+
+    <h3>3.1 Traducción de Texto a Símbolos ARASAAC</h3>
+    <ul>
+        <li><strong>Qué hace:</strong> Convierte una frase escrita en una secuencia de pictogramas del conjunto ARASAAC.</li>
+        <li><strong>Cómo se usa:</strong> Introduzca el texto deseado en el campo correspondiente, seleccione el idioma (italiano, español o inglés) y presione el botón <strong>"🗣️ Traducir"</strong>. Es posible activar un filtro para ocultar automáticamente artículos y preposiciones, obteniendo una tira visual más limpia y centrada en los conceptos clave.</li>
+    </ul>
+
+    <h3>3.2. Análisis Gramatical Básico</h3>
+    <ul>
+        <li><strong>Qué hace:</strong> Añade distintivos visuales sobre los símbolos para indicar información gramatical esencial.</li>
+        <li><strong>Cómo se usa:</strong> La función es automática. Una vez traducida la frase, los distintivos aparecen sobre verbos y nombres, indicando: ‹ Pasado, ▶️ Presente, › Futuro, 1️⃣ Singular, + Plural.</li>
+    </ul>
+
+    <h3>3.3 Gestión y Personalización de Símbolos Individuales</h3>
+    <p>Estas acciones directas sobre cada símbolo permiten un control granular sobre la representación visual final.</p>
+    <ul>
+        <li><strong>Ver Alternativas:</strong> A menudo, una palabra tiene múltiples representaciones simbólicas. Haciendo clic repetidamente en un símbolo, es posible navegar por todas las alternativas disponibles en la base de datos ARASAAC y elegir la más pertinente al contexto.</li>
+        <li><strong>Modo Solo Texto ("abc"):</strong> Esta función oculta la imagen y muestra únicamente la palabra escrita en grande. Es una herramienta valiosa para facilitar la transición del símbolo a la palabra escrita para usuarios que están desarrollando habilidades de lectoescritura.</li>
+        <li><strong>Cargar una Imagen Personal ("+"):</strong> Haciendo clic en el botón <strong>+</strong>, es posible cargar una imagen o foto directamente desde su ordenador (ej. la foto de su perro, de su escuela). Si la carpeta local ha sido configurada, la imagen se guarda permanentemente y se asocia a esa palabra para usos futuros.</li>
+    </ul>
+
+    <h3>3.2.4. Creación de Conceptos Complejos ("🔗 Unir")</h3>
+    <ul>
+        <li><strong>Qué hace:</strong> Permite fusionar dos o más símbolos en un único pictograma compuesto.</li>
+        <li><strong>Cómo se usa:</strong> Manteniendo presionada la tecla <strong>CTRL</strong> (o <strong>Cmd</strong> en Mac), seleccione los símbolos a unir. Aparecerá el botón <strong>"🔗 Unir"</strong>, que creará un nuevo símbolo que representa el concepto complejo.</li>
+        <li>Es una función esencial para representar conceptos abstractos, acciones complejas o nombres compuestos que no tienen un símbolo dedicado (ej. "cámara" + "cama" → "dormitorio"; "ir" + "fuera" → "irse").</li>
+    </ul>
+
+    <h3>3.2.5. Uso de la Síntesis de Voz ("🔊 Escuchar")</h3>
+    <ul>
+        <li><strong>Qué hace:</strong> Lee en voz alta la frase introducida.</li>
+        <li><strong>Cómo se usa:</strong> Haciendo clic en el botón <strong>"🔊 Escuchar"</strong>, se activa la síntesis de voz integrada en el navegador.</li>
+        <li>Refuerza la asociación entre símbolo, texto escrito y sonido. Es una herramienta fundamental para el feedback auditivo, el modelado lingüístico y para usuarios con dificultades de lectura.</li>
+    </ul>
+
+    <hr>
+
+    <h2>4.0 Funcionalidades Avanzadas: Personalización e Inteligencia Artificial (con API)</h2>
+
+    <h3>4.2.1. Análisis Semántico Mejorado con GPT (OpenAI)</h3>
+    <p>Va más allá de la simple asociación palabra-símbolo para comprender el contexto de la frase.</p>
+    <ul>
+        <li><strong>Requisitos:</strong> Clave API OpenAI (Costo indicativo: ~$0.15 por 1 millón de tokens de entrada, equivalentes a unas 500,000 frases cortas).</li>
+        <li><strong>Impacto estratégico:</strong>
+            <ul>
+                <li><strong>Reconocimiento de pronombres implícitos:</strong> En español, frases como "Como una manzana" son comunes. GPT puede inferir el sujeto omitido, traduciendo la frase como "Yo como una manzana" (🧍‍♂️ 🍽️ 🍎), proporcionando un modelo de frase completo y correcto.</li>
+                <li><strong>Análisis gramatical más preciso:</strong> Maneja con mayor precisión tiempos verbales complejos, verbos irregulares y concordancias, aplicando los distintivos gramaticales de forma más fiable.</li>
+                <li><strong>Búsqueda de sinónimos:</strong> Si una palabra no tiene un símbolo correspondiente en ARASAAC, GPT busca automáticamente sinónimos o conceptos relacionados para encontrar la alternativa visual más pertinente, superando las lagunas de la base de datos.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>4.2.2. Generación de Símbolos a Medida con DALL-E (OpenAI)</h3>
+    <p>Esta es una de las funciones más potentes para la personalización, permitiendo crear una imagen para cualquier concepto.</p>
+    <ul>
+        <li><strong>Requisitos:</strong> Clave API OpenAI (Costo indicativo: $0.04 por imagen generada).</li>
+        <li><strong>Cómo funciona:</strong> Haciendo clic en el botón <strong>"✨"</strong> debajo de un símbolo, se abre un campo donde describir la imagen deseada (ej. "un gato negro durmiendo en un sofá rojo"). La inteligencia artificial genera entonces una imagen única que puede ser <strong>recortada</strong> directamente en la interfaz y guardada en su librería local, lista para ser reutilizada.</li>
+        <li><strong>Impacto estratégico:</strong> Ideal para crear símbolos para:
+            <ul>
+                <li><strong>Conceptos modernos o específicos:</strong> "youtuber", "tablet", "videojuego".</li>
+                <li><strong>Situaciones personalizadas:</strong> "la abuela cocinando", "mi perro jugando en el jardín".</li>
+                <li><strong>Elementos únicos</strong> no presentes en ningún conjunto de símbolos estándar.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>4.2.3. Expansión de Librerías con OpenSymbols</h3>
+    <ul>
+        <li><strong>Requisitos:</strong> Token OpenSymbols (gratuito previo registro en opensymbols.org).</li>
+        <li><strong>Cómo funciona:</strong> Introduciendo el token en la configuración, se habilita la búsqueda de símbolos en bases de datos alternativas, como <strong>TAWASOL</strong>, conocido por su uso en contextos multiculturales.</li>
+        <li><strong>Impacto estratégico:</strong> Enriquece la gama de símbolos disponibles, ofreciendo estilos gráficos diferentes y pictogramas específicos para otras culturas, aumentando la inclusividad de los materiales.</li>
+    </ul>
+
+    <h3>4.2.4. Búsqueda de Imágenes desde la Web</h3>
+    <p>Esta función ofrece un acceso casi ilimitado a imágenes reales para contextualizar los conceptos.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Opción de Búsqueda</th>
+                <th>Ventajas y Uso Estratégico</th>
+                <th>Requisitos y Límites</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Wikipedia ("W")</strong></td>
+                <td>Elección ideal para conceptos enciclopédicos, lugares, animales, personajes famosos y conceptos científicos. Ofrece imágenes de alta calidad, verificadas y sin costo.</td>
+                <td>Completamente gratuito e ilimitado. Menos adecuado para representar acciones cotidianas, verbos o conceptos abstractos.</td>
+            </tr>
+            <tr>
+                <td><strong>Google ("G")</strong></td>
+                <td>Solución extremadamente versátil para encontrar casi cualquier tipo de imagen (objetos, acciones, situaciones). La búsqueda segura (<em>SafeSearch</em>) está activada por defecto.</td>
+                <td>Requiere una Google API Key + CX. Ofrece <strong>100 búsquedas gratuitas al día</strong>; el excedente tiene un costo.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>5.0 Gestión de la Librería de Símbolos Personalizados</h2>
+    <p>Una gestión ordenada y consciente de los símbolos personalizados es de importancia estratégica. Su librería se convierte, con el tiempo, en un valioso activo profesional que refleja su método de trabajo y las necesidades específicas de sus asistidos.</p>
+    <p>Accediendo al panel <strong>"Símbolos Personalizados"</strong> dentro de la configuración (<strong>⚙️ Settings</strong>), tendrá a su disposición las siguientes funcionalidades:</p>
+    <ol>
+        <li><strong>Visualización y Control:</strong> Puede acceder a un listado completo de todos los símbolos que ha guardado. Para cada palabra, la interfaz muestra una vista previa de las imágenes asociadas.</li>
+        <li><strong>Eliminación Selectiva:</strong> El sistema ofrece tres niveles de control:
+            <ul>
+                <li><strong>Eliminar un solo símbolo:</strong> Haciendo clic en la "x" junto a una imagen, se elimina esa asociación específica.</li>
+                <li><strong>Eliminar todos los símbolos para una palabra:</strong> Elimina todas las imágenes personalizadas asociadas a un término, restaurando el comportamiento predeterminado de ARASAAC.</li>
+                <li><strong>Eliminación total:</strong> Elimina toda la librería de símbolos personalizados.</li>
+            </ul>
+        </li>
+        <li><strong>Copia de Seguridad y Compartir (Exportación):</strong> La función <strong>"💾 Exportar"</strong> genera un archivo en formato JSON que contiene todas las asociaciones. Este archivo, junto con su carpeta de imágenes locales, constituye una <strong>copia de seguridad completa</strong> de su librería.</li>
+    </ol>
+    <blockquote>
+        <p><strong>Nota Importante: La Jerarquía de los Símbolos</strong><br>
+        Recuerde siempre esta regla fundamental: los símbolos que ha personalizado (cargados, generados con IA, elegidos de la web o seleccionados como preferidos) tendrán <strong>siempre prioridad</strong> sobre los propuestos por defecto por ARASAAC.</p>
+    </blockquote>
+
+    <hr>
+
+    <h2>6.0 Solución de Problemas Comunes (Troubleshooting)</h2>
+    <p>Esta sección es una guía práctica para diagnosticar y resolver rápidamente los problemas más comunes.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Problema</th>
+                <th>Causa Probable</th>
+                <th>Solución Paso a Paso</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>"Carpeta de imágenes no seleccionada" al cargar/generar.</strong></td>
+                <td>La aplicación no tiene permiso para escribir en el disco local.</td>
+                <td>1. Haga clic en el botón <strong>"📂 Seleccionar Carpeta de Imágenes"</strong>. <br> 2. Cree o seleccione la carpeta dedicada. <br> 3. Vuelva a intentarlo.</td>
+            </tr>
+            <tr>
+                <td><strong>No se visualizan los símbolos ARASAAC.</strong></td>
+                <td>Problemas de conectividad a Internet o indisponibilidad temporal del servidor ARASAAC.</td>
+                <td>Verifique la conexión a Internet. Si está activa, espere unos minutos y vuelva a intentarlo.</td>
+            </tr>
+            <tr>
+                <td><strong>Las funciones avanzadas (GPT, DALL-E) no funcionan.</strong></td>
+                <td>Clave API de OpenAI incorrecta, desactivada, o crédito agotado.</td>
+                <td>1. Compruebe la corrección de la clave API en Configuración. <br> 2. Acceda a su cuenta en <code>platform.openai.com</code> para verificar el estado y el crédito.</td>
+            </tr>
+            <tr>
+                <td><strong>Error "Quota Exceeded" o el navegador va muy lento.</strong></td>
+                <td>La memoria local del navegador (<code>localStorage</code>) está llena por guardar demasiadas imágenes sin configurar la carpeta en disco.</td>
+                <td>1. Configure <strong>inmediatamente</strong> la carpeta de imágenes. <br> 2. Considere borrar la caché de símbolos desde el panel de gestión.</td>
+            </tr>
+            <tr>
+                <td><strong>Las imágenes personalizadas no son visibles después de reiniciar el navegador.</strong></td>
+                <td>El navegador ha revocado el permiso de acceso a la carpeta local.</td>
+                <td>Haga clic nuevamente en <strong>"📂 Seleccionar Carpeta de Imágenes"</strong> y vuelva a seleccionar la misma carpeta.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>7.0 Preguntas Frecuentes (FAQ)</h2>
+    <ul>
+        <li><strong>¿Cuánto cuesta usar Limpidi Simboli?</strong>
+            <p>La aplicación y sus funciones básicas son <strong>completamente gratuitas</strong>. Los costos están asociados exclusivamente al uso opcional de servicios API externos:</p>
+            <ul>
+                <li><strong>OpenAI (GPT & DALL-E):</strong> Costos por consumo (análisis de texto muy económico, generación de imágenes $0.04/cada una).</li>
+                <li><strong>Google Search:</strong> 100 búsquedas/día gratuitas.</li>
+                <li><strong>OpenSymbols:</strong> Gratuito, requiere registro.</li>
+            </ul>
+        </li>
+        <li><strong>¿Están seguros mis datos?</strong>
+            <p><strong>Sí.</strong> La privacidad es una prioridad. Todos los datos (claves API, imágenes) se guardan <strong>exclusivamente en el ordenador del usuario</strong> (memoria del navegador o carpeta local) y nunca se envían a servidores externos.<br>
+            <em>Descargo de responsabilidad: El uso de las API de OpenAI está sujeto a su política de privacidad.</em></p>
+        </li>
+        <li><strong>¿Puedo usar la aplicación en un entorno escolar?</strong>
+            <p><strong>Absolutamente sí.</strong> Es una herramienta ideal para la didáctica inclusiva.</p>
+        </li>
+        <li><strong>¿Cuáles son las limitaciones de uso comercial?</strong>
+            <p>El uso clínico, terapéutico y didáctico está <strong>totalmente permitido</strong>. Sin embargo, los símbolos ARASAAC tienen licencia CC BY-NC-SA. Esto significa que los materiales creados <strong>no pueden venderse</strong>.</p>
+        </li>
+        <li><strong>¿Qué navegadores son totalmente compatibles?</strong>
+            <p>Para todas las funciones (incluida la gestión de archivos en disco), se recomienda <strong>Google Chrome</strong> y <strong>Microsoft Edge</strong>. Firefox y Safari actualmente tienen limitaciones con la <em>File System API</em>.</p>
+        </li>
+    </ul>
+
+    <hr>
+
+    <h2>Apéndices</h2>
+
+    <h3>A. Tabla Resumen de Funcionalidades</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Función</th>
+                <th>Gratis</th>
+                <th>Requiere API</th>
+                <th>Costo API</th>
+                <th>Notas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Traducción base ARASAAC</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Siempre disponible</td>
+            </tr>
+            <tr>
+                <td>Ciclo de símbolos alternativos</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Automático</td>
+            </tr>
+            <tr>
+                <td>Distintivos gramaticales base</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Reconocimiento morfológico</td>
+            </tr>
+            <tr>
+                <td>Síntesis de voz</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Usa navegador</td>
+            </tr>
+            <tr>
+                <td>Cargar imágenes de PC</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Requiere carpeta local</td>
+            </tr>
+            <tr>
+                <td>Modo solo texto</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Siempre disponible</td>
+            </tr>
+            <tr>
+                <td>Unir símbolos</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Siempre disponible</td>
+            </tr>
+            <tr>
+                <td>Búsqueda Wikipedia</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>Gratis</td>
+                <td>Ilimitada</td>
+            </tr>
+            <tr>
+                <td>Análisis GPT avanzado</td>
+                <td>❌</td>
+                <td>✅ OpenAI</td>
+                <td>~$0.15/500k frases</td>
+                <td>Pronombres, sinónimos</td>
+            </tr>
+            <tr>
+                <td>Generación de símbolos IA</td>
+                <td>❌</td>
+                <td>✅ OpenAI</td>
+                <td>$0.04/imagen</td>
+                <td>DALL-E 3</td>
+            </tr>
+            <tr>
+                <td>Símbolos OpenSymbols</td>
+                <td>❌</td>
+                <td>✅ OpenSymbols</td>
+                <td>Gratis</td>
+                <td>Requiere registro</td>
+            </tr>
+            <tr>
+                <td>Búsqueda Google</td>
+                <td>❌</td>
+                <td>✅ Google</td>
+                <td>100/día gratis</td>
+                <td>Luego $5/1000 búsquedas</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>B. Glosario de Términos Técnicos</h3>
+    <ul>
+        <li><strong>CAA (Comunicación Aumentativa y Alternativa):</strong> Conjunto de estrategias, herramientas y técnicas para apoyar la comunicación.</li>
+        <li><strong>ARASAAC:</strong> Una vasta base de datos de símbolos pictográficos gratuitos, creada por el Gobierno de Aragón (España).</li>
+        <li><strong>API (Application Programming Interface):</strong> Un "puente" informático que permite que dos software diferentes se comuniquen.</li>
+        <li><strong>localStorage:</strong> Una pequeña área de memoria dentro del navegador web para guardar datos localmente. Tiene límites de espacio.</li>
+        <li><strong>File System API:</strong> Tecnología web que permite a una app web leer y escribir archivos en una carpeta específica del ordenador.</li>
+        <li><strong>GPT (Generative Pre-trained Transformer):</strong> Modelo de IA de OpenAI para la comprensión del lenguaje.</li>
+        <li><strong>DALL-E:</strong> Modelo de IA de OpenAI para crear imágenes a partir de texto.</li>
+        <li><strong>Token:</strong> La unidad de medida usada por OpenAI para calcular el consumo y el costo.</li>
+    </ul>
+
+    <h3>C. Licencias, Créditos y Contactos</h3>
+    <ul>
+        <li><strong>Símbolos ARASAAC:</strong> Creados por Sergio Palao para el Gobierno de Aragón. Licencia: CC BY-NC-SA 4.0.</li>
+        <li><strong>Símbolos OpenSymbols:</strong> Colección de conjuntos de símbolos con licencias variables.</li>
+        <li><strong>App Limpidi Simboli:</strong> Desarrollada por Fondazione ASPHI Onlus.</li>
+    </ul>
+
+</body>
+</html>
