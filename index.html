@@ -494,6 +494,7 @@
     </div>
     <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
       <button id="selectLocalFolderButton" class="button ghost" aria-label="Seleziona cartella con immagini personali">📁 Seleziona Cartella Immagini</button>
+      <button id="reconnectLocalFolderButton" class="button ghost" aria-label="Ricollega cartella">🔌 Ricollega Cartella</button>
       <span id="localFolderStatus" style="color: #64748b; font-size: 0.9rem;"></span>
     </div>
     <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px; flex-wrap: wrap;">
@@ -1098,6 +1099,48 @@ function depluralizeItalian(word) {
 }
 
     function qs(id){ return document.getElementById(id); }
+    // Persistenza dei FileSystemHandle in IndexedDB (usa structured clone)
+    async function persistHandleToIDB(key, handle) {
+      if (!window.indexedDB) return false;
+      return new Promise((resolve) => {
+        try {
+          const req = indexedDB.open('ls-handles', 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result; if (!db.objectStoreNames.contains('handles')) db.createObjectStore('handles');
+          };
+          req.onsuccess = (e) => {
+            const db = e.target.result;
+            try {
+              const tx = db.transaction('handles', 'readwrite');
+              tx.objectStore('handles').put(handle, key);
+              tx.oncomplete = () => { db.close(); resolve(true); };
+              tx.onerror = () => { db.close(); resolve(false); };
+            } catch (er) { try { db.close(); } catch(_){}; resolve(false); }
+          };
+          req.onerror = () => resolve(false);
+        } catch (e) { console.warn('[IDB] persist error', e); resolve(false); }
+      });
+    }
+
+    async function readHandleFromIDB(key) {
+      if (!window.indexedDB) return null;
+      return new Promise((resolve) => {
+        try {
+          const req = indexedDB.open('ls-handles', 1);
+          req.onupgradeneeded = (e) => { const db = e.target.result; if (!db.objectStoreNames.contains('handles')) db.createObjectStore('handles'); };
+          req.onsuccess = (e) => {
+            const db = e.target.result;
+            try {
+              const tx = db.transaction('handles', 'readonly');
+              const r = tx.objectStore('handles').get(key);
+              r.onsuccess = (ev) => { db.close(); resolve(ev.target.result); };
+              r.onerror = () => { db.close(); resolve(null); };
+            } catch (er) { try { db.close(); } catch(_){}; resolve(null); }
+          };
+          req.onerror = () => resolve(null);
+        } catch (e) { console.warn('[IDB] read error', e); resolve(null); }
+      });
+    }
     const els = {
   openSymbolsTokenInput: qs('openSymbolsTokenInput'),
   saveOpenSymbolsToken: qs('saveOpenSymbolsTokenButton'),
@@ -1105,6 +1148,7 @@ function depluralizeItalian(word) {
   googleCxInput: qs('googleCxInput'),
   saveGoogleCreds: qs('saveGoogleCredsButton'),
   selectLocalFolder: qs('selectLocalFolderButton'),
+    reconnectLocalFolder: qs('reconnectLocalFolderButton'),
   localFolderStatus: qs('localFolderStatus'),
   settingsButton: qs('settingsButton'),
   settingsModal: qs('settingsModal'),
@@ -1942,11 +1986,106 @@ function depluralizeItalian(word) {
     
     // Carica handle salvato se esiste (File System Access API supporta la persistenza)
     (async function loadSavedFolderHandle() {
+      // IndexedDB helper per salvare/recuperare FileSystemHandle (structured clone)
+      function openDb() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open('ls-handles', 1);
+          req.onupgradeneeded = (e) => {
+            try {
+              const db = e.target.result;
+              if (!db.objectStoreNames.contains('handles')) db.createObjectStore('handles');
+            } catch (err) { console.warn('[IDB] upgrade error', err); }
+          };
+          req.onsuccess = (e) => resolve(e.target.result);
+          req.onerror = (e) => reject(e.target.error || e);
+        });
+      }
+
+      async function saveHandle(name, handle) {
+        try {
+          const db = await openDb();
+          return new Promise((resolve) => {
+            try {
+              const tx = db.transaction('handles', 'readwrite');
+              tx.objectStore('handles').put(handle, name);
+              tx.oncomplete = () => { db.close(); resolve(true); };
+              tx.onerror = () => { db.close(); resolve(false); };
+            } catch (e) { try { db.close(); } catch(_){}; resolve(false); }
+          });
+        } catch (e) { console.warn('[IDB] saveHandle error', e); return false; }
+      }
+
+      async function getHandle(name) {
+        try {
+          const db = await openDb();
+          return new Promise((resolve) => {
+            try {
+              const tx = db.transaction('handles', 'readonly');
+              const req = tx.objectStore('handles').get(name);
+              req.onsuccess = (ev) => { db.close(); resolve(ev.target.result); };
+              req.onerror = () => { db.close(); resolve(null); };
+            } catch (e) { try { db.close(); } catch(_){}; resolve(null); }
+          });
+        } catch (e) { console.warn('[IDB] getHandle error', e); return null; }
+      }
+
       try {
+        // Mostra nome salvato (compatibilità con versione precedente)
         const savedHandleName = localStorage.getItem('localImageFolderName');
-        if (savedHandleName) {
-          els.localFolderStatus.textContent = `📁 ${savedHandleName} (premi il bottone per riconnettere)`;
+        if (savedHandleName) els.localFolderStatus.textContent = `📁 ${savedHandleName} (premi il bottone per riconnettere)`;
+
+        // Proviamo a recuperare il handle salvato in IndexedDB
+        if (!window.indexedDB || !window.showDirectoryPicker) return;
+        const saved = await getHandle('localImageFolder');
+        if (!saved) return;
+
+        // Controlla i permessi sul handle
+        try {
+          const perm = await saved.queryPermission({ mode: 'read' });
+          if (perm !== 'granted') {
+            // Prova a richiedere il permesso
+            const req = await saved.requestPermission({ mode: 'read' });
+            if (req !== 'granted') {
+              // Non possiamo accedere; mostra messaggio e lascia il bottone per riconnettere
+              els.localFolderStatus.textContent = `📁 ${savedHandleName || '(cartella salvata)'} — permesso non concesso (premi il bottone per riconnettere)`;
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('[Local Folder] Permission query/request failed', e);
+          // In alcuni browser/mode la queryPermission può fallire: richiediamo comunque il permesso
+          try { await saved.requestPermission({ mode: 'read' }); } catch(_){}
         }
+
+        // Se arriviamo qui, abbiamo un handle con permesso: ricolleghiamo
+        localImageFolderHandle = saved;
+        localImageFiles = {};
+        let totalFiles = 0;
+        try {
+          for await (const entry of saved.values()) {
+            if (entry.kind === 'file') {
+              try {
+                const file = await entry.getFile();
+                if (file.type && file.type.startsWith('image/')) {
+                  totalFiles++;
+                  const nameNoExt = entry.name.replace(/\.[^/.]+$/, '').toLowerCase();
+                  const words = nameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
+                  for (const word of words) {
+                    if (!localImageFiles[word]) localImageFiles[word] = [];
+                    localImageFiles[word].push(entry);
+                  }
+                }
+              } catch (e) { /* ignore individual file errors */ }
+            }
+          }
+        } catch (e) {
+          console.warn('[Local Folder] Error scanning saved folder', e);
+        }
+
+        const uniqueWords = Object.keys(localImageFiles).length;
+        els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
+        setStatusKey('local_folder_connected', { dir: savedHandleName || '(cartella salvata)', files: totalFiles, words: uniqueWords });
+        console.log('[Local Folder] Reconnected to saved folder:', savedHandleName, localImageFiles);
       } catch (e) {
         console.warn('[Local Folder] Could not load saved handle:', e);
       }
@@ -1989,7 +2128,18 @@ function depluralizeItalian(word) {
               }
             }
 
-            localStorage.setItem('localImageFolderName', dirHandle.name);
+            try {
+              // Prova a salvare il handle in IndexedDB per ricollegare la cartella in seguito
+              const saved = await persistHandleToIDB('localImageFolder', dirHandle);
+              if (saved) {
+                localStorage.setItem('localImageFolderName', dirHandle.name);
+              } else {
+                // Se non possiamo salvare il handle, salviamo comunque il nome per compatibilità
+                localStorage.setItem('localImageFolderName', dirHandle.name);
+              }
+            } catch (e) {
+              try { localStorage.setItem('localImageFolderName', dirHandle.name); } catch(_){}
+            }
             const uniqueWords = Object.keys(localImageFiles).length;
             els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
             console.log('[Local Folder] Loaded files for', uniqueWords, 'words:', localImageFiles);
@@ -2081,6 +2231,77 @@ function depluralizeItalian(word) {
             console.error('[Local Folder] Error:', e);
             alert(translateUI('localFolderSelectError', { msg: e.message }));
           }
+        }
+      }));
+    }
+
+    // Ricollega la cartella salvata (se presente in IndexedDB)
+    if (els.reconnectLocalFolder) {
+      els.reconnectLocalFolder.addEventListener('click', safeAsync(async () => {
+        try {
+          if (!window.showDirectoryPicker || !window.indexedDB) {
+            alert(translateUI('browserNoFolderSupport'));
+            return;
+          }
+
+          const saved = await readHandleFromIDB('localImageFolder');
+          if (!saved) {
+            setStatusKey('selectFolderNotConnected');
+            // Offri all'utente di selezionare ora
+            if (confirm(translateUI('selectFolderReminder', { actionName: 'ricollegare la cartella' }))) {
+              if (els.selectLocalFolder) els.selectLocalFolder.click();
+            }
+            return;
+          }
+
+          // Verifica permessi
+          try {
+            const perm = await saved.queryPermission({ mode: 'read' });
+            if (perm !== 'granted') {
+              const req = await saved.requestPermission({ mode: 'read' });
+              if (req !== 'granted') {
+                els.localFolderStatus.textContent = '⚠️ Permesso non concesso';
+                setStatusKey('opensymbols_network_error', null, true);
+                return;
+              }
+            }
+          } catch (e) {
+            // Alcuni browser possono non implementare queryPermission: proviamo comunque a request
+            try { await saved.requestPermission({ mode: 'read' }); } catch(_){}
+          }
+
+          // Scansiona la cartella e ripopola la cache locale
+          localImageFolderHandle = saved;
+          localImageFiles = {};
+          let totalFiles = 0;
+          try {
+            for await (const entry of saved.values()) {
+              if (entry.kind === 'file') {
+                try {
+                  const file = await entry.getFile();
+                  if (file.type && file.type.startsWith('image/')) {
+                    totalFiles++;
+                    const nameNoExt = entry.name.replace(/\.[^/.]+$/, '').toLowerCase();
+                    const words = nameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
+                    for (const word of words) {
+                      if (!localImageFiles[word]) localImageFiles[word] = [];
+                      localImageFiles[word].push(entry);
+                    }
+                  }
+                } catch (e) { /* ignore individual file errors */ }
+              }
+            }
+          } catch (e) {
+            console.warn('[Reconnect] Error scanning folder', e);
+          }
+
+          const uniqueWords = Object.keys(localImageFiles).length;
+          els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
+          setStatusKey('local_folder_connected', { dir: localStorage.getItem('localImageFolderName') || '(cartella salvata)', files: totalFiles, words: uniqueWords });
+          console.log('[Reconnect] Reconnected to saved folder:', localImageFiles);
+        } catch (e) {
+          console.error('[Reconnect] Error', e);
+          setStatusKey('js_error', { msg: e && e.message ? e.message : String(e) }, true);
         }
       }));
     }
