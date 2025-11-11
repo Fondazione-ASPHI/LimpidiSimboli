@@ -1955,67 +1955,125 @@ function depluralizeItalian(word) {
     if (els.selectLocalFolder) {
       els.selectLocalFolder.addEventListener('click', safeAsync(async () => {
         try {
-          // Verifica supporto File System Access API
-          if (!window.showDirectoryPicker) {
-            alert(translateUI('browserNoFolderSupport'));
+          // Preferiamo usare File System Access API se disponibile
+          if (window.showDirectoryPicker) {
+            // Chiedi all'utente di selezionare una cartella
+            const dirHandle = await window.showDirectoryPicker({ mode: 'read', startIn: 'pictures' });
+
+            localImageFolderHandle = dirHandle;
+
+            // Scansiona tutti i file nella cartella
+            console.log('[Local Folder] Scanning folder:', dirHandle.name);
+            localImageFiles = {}; // Struttura: { "parola": [FileHandle/File, ...] }
+            let totalFiles = 0;
+            const fileList = [];
+
+            for await (const entry of dirHandle.values()) {
+              if (entry.kind === 'file') {
+                const file = await entry.getFile();
+                if (file.type.startsWith('image/')) {
+                  fileList.push({ handle: entry, name: entry.name });
+                  totalFiles++;
+                }
+              }
+            }
+
+            for (const fileInfo of fileList) {
+              const fileNameNoExt = fileInfo.name.replace(/\.[^/.]+$/, '').toLowerCase();
+              const words = fileNameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
+              for (const word of words) {
+                if (!localImageFiles[word]) localImageFiles[word] = [];
+                if (!localImageFiles[word].some(h => h.name === fileInfo.handle.name)) {
+                  localImageFiles[word].push(fileInfo.handle);
+                }
+              }
+            }
+
+            localStorage.setItem('localImageFolderName', dirHandle.name);
+            const uniqueWords = Object.keys(localImageFiles).length;
+            els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
+            console.log('[Local Folder] Loaded files for', uniqueWords, 'words:', localImageFiles);
+            setStatusKey('local_folder_connected', { dir: dirHandle.name, files: totalFiles, words: uniqueWords });
+
             return;
           }
-          
-          // Chiedi all'utente di selezionare una cartella
-          const dirHandle = await window.showDirectoryPicker({
-            mode: 'read',
-            startIn: 'pictures'
-          });
-          
-          localImageFolderHandle = dirHandle;
-          
-          // Scansiona tutti i file nella cartella
-          console.log('[Local Folder] Scanning folder:', dirHandle.name);
-          localImageFiles = {}; // Struttura: { "parola": [FileHandle1, FileHandle2, ...] }
-          let totalFiles = 0;
-          const fileList = []; // Array temporaneo per analisi
-          
-          for await (const entry of dirHandle.values()) {
-            if (entry.kind === 'file') {
-              // Verifica che sia un'immagine
-              const file = await entry.getFile();
-              if (file.type.startsWith('image/')) {
-                fileList.push({ handle: entry, name: entry.name });
+
+          // Fallback: alcuni browser (es. iOS Safari) non supportano showDirectoryPicker.
+          // Proviamo webkitdirectory (non standard ma funzionante su molti Chromium/Android)
+          const tempInput = document.createElement('input');
+          tempInput.type = 'file';
+          tempInput.accept = 'image/*';
+
+          if ('webkitdirectory' in tempInput) {
+            tempInput.webkitdirectory = true;
+            tempInput.multiple = true;
+            tempInput.style.display = 'none';
+            tempInput.addEventListener('change', (e) => {
+              const files = Array.from(e.target.files || []);
+              if (!files.length) return;
+              localImageFolderHandle = null; // non abbiamo un handle, memorizziamo file
+              localImageFiles = {};
+              let totalFiles = 0;
+              for (const file of files) {
+                if (!file.type.startsWith('image/')) continue;
                 totalFiles++;
+                const nameNoExt = file.name.replace(/\.[^/.]+$/, '').toLowerCase();
+                const words = nameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
+                for (const word of words) {
+                  if (!localImageFiles[word]) localImageFiles[word] = [];
+                  localImageFiles[word].push(file);
+                }
+              }
+              try { localStorage.setItem('localImageFolderName', '(selezione file)'); } catch(_){}
+              const uniqueWords = Object.keys(localImageFiles).length;
+              els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
+              setStatusKey('local_folder_connected', { dir: '(selezione)', files: totalFiles, words: uniqueWords });
+            });
+            document.body.appendChild(tempInput);
+            tempInput.click();
+            // Rimuovi l'elemento dopo un po' per tenere pulito il DOM
+            setTimeout(() => { try { tempInput.remove(); } catch(e){} }, 3000);
+            return;
+          }
+
+          // Ultimo fallback: input multiplo per selezionare immagini singole
+          tempInput.multiple = true;
+          tempInput.style.display = 'none';
+          tempInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files || []);
+            if (!files.length) {
+              // Suggerimento UX: su iOS la selezione di cartelle non è possibile
+              const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+              if (isiOS) {
+                // Mostra suggerimento nella status bar
+                els.localFolderStatus.textContent = '⚠️ Su iPhone/iPad non è possibile selezionare cartelle: seleziona più immagini o carica un file .zip della cartella.';
+              } else {
+                alert(translateUI('browserNoFolderSupport'));
+              }
+              return;
+            }
+            localImageFolderHandle = null;
+            localImageFiles = {};
+            let totalFiles = 0;
+            for (const file of files) {
+              if (!file.type.startsWith('image/')) continue;
+              totalFiles++;
+              const nameNoExt = file.name.replace(/\.[^/.]+$/, '').toLowerCase();
+              const words = nameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
+              for (const word of words) {
+                if (!localImageFiles[word]) localImageFiles[word] = [];
+                localImageFiles[word].push(file);
               }
             }
-          }
-          
-          // Ora analizza i nomi dei file per estrarre le parole chiave
-          // Ogni file può essere associato a TUTTE le parole che contiene nel nome
-          for (const fileInfo of fileList) {
-            // Rimuovi l'estensione e converti in lowercase
-            const fileNameNoExt = fileInfo.name.replace(/\.[^/.]+$/, '').toLowerCase();
-            
-            // Dividi il nome in parole (separatori: spazio, underscore, trattino)
-            const words = fileNameNoExt.split(/[\s_\-]+/).filter(w => w.length > 0);
-            
-            // Ogni parola diventa una chiave nel dizionario
-            for (const word of words) {
-              if (!localImageFiles[word]) {
-                localImageFiles[word] = [];
-              }
-              // Aggiungi il file a questa parola (evita duplicati)
-              if (!localImageFiles[word].some(h => h.name === fileInfo.handle.name)) {
-                localImageFiles[word].push(fileInfo.handle);
-              }
-            }
-          }
-          
-          // Salva il nome della cartella
-          localStorage.setItem('localImageFolderName', dirHandle.name);
-          
-          const uniqueWords = Object.keys(localImageFiles).length;
-          els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
-          
-          console.log('[Local Folder] Loaded files for', uniqueWords, 'words:', localImageFiles);
-          setStatusKey('local_folder_connected', { dir: dirHandle.name, files: totalFiles, words: uniqueWords });
-          
+            try { localStorage.setItem('localImageFolderName', '(selezione file)'); } catch(_){}
+            const uniqueWords = Object.keys(localImageFiles).length;
+            els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
+            setStatusKey('local_folder_connected', { dir: '(selezione)', files: totalFiles, words: uniqueWords });
+          });
+          document.body.appendChild(tempInput);
+          tempInput.click();
+          setTimeout(() => { try { tempInput.remove(); } catch(e){} }, 3000);
+
         } catch (e) {
           if (e.name === 'AbortError') {
             console.log('[Local Folder] User cancelled folder selection');
