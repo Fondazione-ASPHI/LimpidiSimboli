@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EULA – Limpidi Simboli – Fondazione ASPHI ETS</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* ---- EULA Page Layout ---- */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg, #f7f7f9);
+      color: var(--text, #222);
+      line-height: 1.65;
+    }
+
+    .eula-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+
+    /* ---- Skip link ---- */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 0;
+      background: var(--btn-blue, #0D5891);
+      color: #fff;
+      padding: 12px 16px;
+      z-index: 100000;
+      font-weight: 700;
+      border-radius: 0 0 8px 0;
+      text-decoration: none;
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ---- Header ---- */
+    .eula-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .eula-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 0 0 4px;
+      color: var(--text, #222);
+    }
+    .eula-header .sub {
+      color: var(--muted, #6b7280);
+      font-size: 1rem;
+      margin: 0 0 20px;
+    }
+
+    /* ---- Language Switcher ---- */
+    .lang-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .lang-switcher .lang-flag {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 56px;
+      min-height: 44px;
+      box-sizing: border-box;
+      transition: background-color 150ms ease, border-color 150ms ease;
+    }
+    .lang-switcher .lang-flag .lang-abbr {
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: inline-block;
+    }
+    .lang-switcher .lang-flag svg {
+      width: 22px;
+      height: 14px;
+      vertical-align: middle;
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+    .lang-switcher .lang-flag:hover { background: #f3f4f6; }
+    .lang-switcher .lang-flag.active {
+      border-color: var(--brand, #2a9df4);
+      box-shadow: 0 0 0 4px var(--ring, rgba(42,157,244,0.35));
+    }
+
+    /* ---- EULA Content ---- */
+    .eula-content {
+      background: var(--card, #fff);
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 36px 32px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      margin-bottom: 32px;
+    }
+    .eula-content h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin: 32px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e5e7eb;
+      color: var(--text, #222);
+    }
+    .eula-content h2:first-child { margin-top: 0; }
+    .eula-content h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 20px 0 8px;
+      color: #374151;
+    }
+    .eula-content p {
+      margin: 8px 0 12px;
+    }
+    .eula-content ul, .eula-content ol {
+      margin: 8px 0 16px 20px;
+      padding: 0;
+    }
+    .eula-content li {
+      margin-bottom: 6px;
+    }
+    .eula-content a {
+      color: var(--brand, #2a9df4);
+      text-decoration: underline;
+    }
+    .eula-content a:hover {
+      color: var(--brand-600, #1e7ec8);
+    }
+    .eula-content strong {
+      color: #111827;
+    }
+    .eula-content .critical {
+      background: #fef9c3;
+      border-left: 4px solid #f59e0b;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+    .eula-content .service-block {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 10px 0;
+    }
+    .eula-content .service-block h4 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text, #222);
+    }
+    .eula-content .service-block p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+    }
+    .eula-content .last-updated {
+      font-size: 0.9rem;
+      color: var(--muted, #6b7280);
+      text-align: right;
+      font-style: italic;
+    }
+
+    /* ---- Buttons ---- */
+    .eula-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-accept {
+      appearance: none;
+      border: 0;
+      background: #16a34a;
+      color: #fff;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      min-height: 48px;
+      transition: background-color 150ms ease;
+    }
+    .btn-accept:hover { background: #15803d; }
+    .btn-accept:focus-visible {
+      outline: 3px solid #16a34a;
+      outline-offset: 2px;
+    }
+    .btn-decline {
+      appearance: none;
+      border: 2px solid #b91c1c;
+      background: transparent;
+      color: #b91c1c;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      min-height: 48px;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+    .btn-decline:hover { background: #fef2f2; }
+    .btn-decline:focus-visible {
+      outline: 3px solid #b91c1c;
+      outline-offset: 2px;
+    }
+
+    /* Decline message */
+    .decline-msg {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      color: #991b1b;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+    .decline-msg.visible { display: block; }
+
+    /* Hidden language blocks */
+    .eula-lang { display: none; }
+    .eula-lang.active { display: block; }
+
+    /* ---- Print ---- */
+    @media print {
+      body { background: #fff; }
+      .skip-link, .lang-switcher, .eula-actions, .decline-msg { display: none !important; }
+      .eula-wrapper { padding: 0; max-width: 100%; }
+      .eula-content { box-shadow: none; border: none; padding: 0; }
+      .eula-lang { display: block !important; page-break-before: always; }
+      .eula-lang:first-of-type { page-break-before: auto; }
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 600px) {
+      .eula-wrapper { padding: 16px 12px 32px; }
+      .eula-content { padding: 20px 16px; }
+      .eula-header h1 { font-size: 1.5rem; }
+    }
+
+    /* ---- High contrast / forced colors ---- */
+    @media (forced-colors: active) {
+      .lang-flag.active { outline: 3px solid Highlight; }
+      .btn-accept, .btn-decline { border: 2px solid ButtonText; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Skip navigation -->
+<a href="#main-content" class="skip-link" id="skipLink">Vai al contenuto principale</a>
+
+<div class="eula-wrapper">
+
+  <!-- Header -->
+  <header class="eula-header">
+    <h1>Limpidi Simboli</h1>
+    <p class="sub">Fondazione ASPHI ETS</p>
+  </header>
+
+  <!-- Language Switcher -->
+  <nav class="lang-switcher" role="navigation" aria-label="Selezione lingua">
+    <button class="lang-flag active" data-lang="it" title="Italiano" aria-pressed="true" aria-label="Italiano">
+      <svg viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="1" height="2" x="0" y="0" fill="#008C45"/><rect width="1" height="2" x="1" y="0" fill="#F4F5F0"/><rect width="1" height="2" x="2" y="0" fill="#CD212A"/></svg>
+      <span class="lang-abbr">ITA</span>
+    </button>
+    <button class="lang-flag" data-lang="es" title="Español" aria-pressed="false" aria-label="Español">
+      <svg viewBox="0 0 5 3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="5" height="3" fill="#C60B1E"/><rect width="5" height="1" y="1" fill="#FFC400"/></svg>
+      <span class="lang-abbr">ESP</span>
+    </button>
+    <button class="lang-flag" data-lang="en" title="English" aria-pressed="false" aria-label="English">
+      <svg viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="60" height="30" fill="#012169"/><path d="M0 0 L60 30 M60 0 L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0 L60 30 M60 0 L0 30" stroke="#C8102E" stroke-width="4"/><rect x="25" width="10" height="30" fill="#fff"/><rect y="10" width="60" height="10" fill="#fff"/><rect x="27" width="6" height="30" fill="#C8102E"/><rect y="12" width="60" height="6" fill="#C8102E"/></svg>
+      <span class="lang-abbr">GB</span>
+    </button>
+  </nav>
+
+  <!-- Main content -->
+  <main id="main-content">
+    <div class="eula-content">
+
+      <!-- ======================== ITALIAN ======================== -->
+      <div class="eula-lang active" id="eula-it" lang="it">
+        <p class="last-updated">Ultimo aggiornamento: giugno 2025 — Versione 1.0</p>
+
+        <h2>1. Introduzione</h2>
+        <p>Il presente Contratto di Licenza con l'Utente Finale (EULA) disciplina l'utilizzo dell'applicazione web <strong>Limpidi Simboli</strong>, sviluppata e pubblicata da <strong>Fondazione ASPHI ETS</strong> (<a href="https://www.asphi.it" target="_blank" rel="noopener noreferrer">www.asphi.it</a>).</p>
+        <p><strong>Limpidi Simboli</strong> è uno strumento di <strong>Comunicazione Aumentativa e Alternativa (CAA)</strong> progettato per supportare la comunicazione attraverso simboli, pittogrammi e immagini. L'applicazione è distribuita come software open source sotto licenza <strong>MIT</strong>.</p>
+
+        <h2>2. Accettazione dei Termini</h2>
+        <p>Facendo clic sul pulsante "<strong>Accetto</strong>" in fondo a questa pagina, l'utente dichiara di aver letto, compreso e accettato integralmente i presenti termini e condizioni d'uso.</p>
+        <p>L'utente dichiara inoltre di avere almeno <strong>16 anni di età</strong>. Se l'utente ha un'età inferiore ai 16 anni, l'utilizzo dell'applicazione è consentito esclusivamente con il consenso e sotto la supervisione di un genitore o tutore legale, il quale accetta i presenti termini per conto del minore.</p>
+
+        <h2>3. Licenza d'Uso</h2>
+        <p>Il software <strong>Limpidi Simboli</strong> è rilasciato sotto licenza <strong>MIT</strong>. In base a tale licenza:</p>
+        <ul>
+          <li>L'utente è libero di utilizzare, copiare, modificare, unire, pubblicare, distribuire, concedere in sublicenza e/o vendere copie del software.</li>
+          <li>L'avviso di copyright e l'avviso di autorizzazione devono essere inclusi in tutte le copie o porzioni sostanziali del software.</li>
+          <li>Il software è fornito <strong>"così com'è" (AS IS)</strong>, senza garanzie di alcun tipo, esplicite o implicite, incluse, a titolo esemplificativo, le garanzie di commerciabilità, idoneità per un particolare scopo e non violazione dei diritti.</li>
+        </ul>
+
+        <h2>4. Informativa sulla Privacy</h2>
+        <div class="critical">
+          <p><strong>Fondazione ASPHI ETS NON raccoglie alcun dato personale dell'utente.</strong></p>
+        </div>
+        <p>L'applicazione <strong>Limpidi Simboli</strong> funziona interamente nel browser dell'utente. Non esistono server di back-end gestiti da Fondazione ASPHI ETS che raccolgano, memorizzino o elaborino dati dell'utente.</p>
+        <ul>
+          <li><strong>Dati locali:</strong> le impostazioni, le personalizzazioni e i simboli creati dall'utente sono memorizzati nel browser dell'utente tramite <em>localStorage</em> e <em>IndexedDB</em>. Questi dati rimangono esclusivamente sul dispositivo dell'utente.</li>
+          <li><strong>Chiavi API:</strong> qualsiasi chiave API inserita dall'utente (ad esempio per OpenAI o Google) è memorizzata unicamente nel <em>localStorage</em> del browser dell'utente e non viene mai trasmessa a Fondazione ASPHI ETS.</li>
+          <li><strong>Nessun tracciamento:</strong> l'applicazione non utilizza cookie di tracciamento, strumenti di analisi (analytics), pixel di tracciamento né alcun altro meccanismo di monitoraggio del comportamento dell'utente.</li>
+        </ul>
+
+        <h2>5. Servizi di Terze Parti</h2>
+        <div class="critical">
+          <p><strong>Importante:</strong> durante il normale funzionamento, l'applicazione può inviare dati a servizi di terze parti elencati di seguito. L'utente è tenuto a leggere e accettare le rispettive informative sulla privacy prima di utilizzare tali funzionalità. Fondazione ASPHI ETS non ha alcun controllo sul trattamento dei dati da parte di questi servizi esterni.</p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.1 ARASAAC (Centro Aragonés de Comunicación Aumentativa y Alternativa)</h4>
+          <p><strong>Scopo:</strong> ricerca di pittogrammi e simboli.</p>
+          <p><strong>Dati inviati:</strong> i termini di ricerca (parole derivanti dalle frasi inserite dall'utente).</p>
+          <p><strong>Informativa privacy:</strong> <a href="https://arasaac.org/privacy-policy" target="_blank" rel="noopener noreferrer">https://arasaac.org/privacy-policy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.2 OpenAI API (GPT-4o, GPT-4o-mini, DALL-E 3)</h4>
+          <p><strong>Scopo:</strong> analisi delle frasi, spiegazioni grammaticali, generazione di immagini.</p>
+          <p><strong>Dati inviati:</strong> le frasi inserite dall'utente e la chiave API personale dell'utente.</p>
+          <p>L'utente fornisce la propria chiave API; l'utilizzo è regolato dai termini di servizio di OpenAI.</p>
+          <p><strong>Informativa privacy:</strong> <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer">https://openai.com/policies/privacy-policy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.3 OpenSymbols (opensymbols.org)</h4>
+          <p><strong>Scopo:</strong> ricerca aggiuntiva di simboli (TAWASOL, Bliss e altri set).</p>
+          <p><strong>Dati inviati:</strong> i termini di ricerca.</p>
+          <p><strong>Informativa privacy:</strong> <a href="https://www.opensymbols.org/terms" target="_blank" rel="noopener noreferrer">https://www.opensymbols.org/terms</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.4 Google Custom Search API</h4>
+          <p><strong>Scopo:</strong> ricerca di immagini sul web per la visualizzazione di simboli.</p>
+          <p><strong>Dati inviati:</strong> le query di ricerca e la chiave API personale dell'utente.</p>
+          <p><strong>Informativa privacy:</strong> <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">https://policies.google.com/privacy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.5 LibreTranslate</h4>
+          <p><strong>Scopo:</strong> traduzione automatica del testo.</p>
+          <p><strong>Dati inviati:</strong> il testo da tradurre.</p>
+          <p><strong>Informativa privacy:</strong> <a href="https://libretranslate.com/" target="_blank" rel="noopener noreferrer">https://libretranslate.com/</a> (le istanze self-hosted possono avere politiche diverse).</p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.6 Wikipedia / Wikimedia Commons</h4>
+          <p><strong>Scopo:</strong> immagini educative e di riferimento.</p>
+          <p><strong>Dati inviati:</strong> i termini di ricerca.</p>
+          <p><strong>Informativa privacy:</strong> <a href="https://foundation.wikimedia.org/wiki/Privacy_policy" target="_blank" rel="noopener noreferrer">https://foundation.wikimedia.org/wiki/Privacy_policy</a></p>
+        </div>
+
+        <h2>6. Esclusione di Responsabilità</h2>
+        <p>L'applicazione <strong>Limpidi Simboli</strong> è fornita a scopo <strong>educativo e comunicativo</strong>. In particolare:</p>
+        <ul>
+          <li>L'applicazione <strong>non è un dispositivo medico</strong> e non è destinata a sostituire una valutazione professionale di CAA né una consulenza medica, terapeutica o educativa.</li>
+          <li>Fondazione ASPHI ETS <strong>non è responsabile</strong> per eventuali danni diretti, indiretti, incidentali, speciali, consequenziali o esemplari derivanti dall'uso o dall'impossibilità di utilizzare l'applicazione.</li>
+          <li>I contenuti generati dall'applicazione (simboli, immagini, testi, analisi grammaticali) <strong>potrebbero non essere sempre accurati</strong>. L'utente è invitato a verificare l'adeguatezza dei contenuti prima dell'uso in contesti critici.</li>
+          <li>In nessun caso gli autori o i titolari del copyright saranno ritenuti responsabili per qualsiasi reclamo, danno o altra responsabilità derivante da o in connessione con il software o il suo utilizzo.</li>
+        </ul>
+
+        <h2>7. Conformità al GDPR</h2>
+        <p>Il presente documento è redatto in conformità al Regolamento (UE) 2016/679 (Regolamento Generale sulla Protezione dei Dati – <strong>GDPR</strong>).</p>
+        <ul>
+          <li>Poiché Fondazione ASPHI ETS <strong>non raccoglie né elabora dati personali</strong> tramite l'applicazione, non è necessaria la nomina di un Responsabile della Protezione dei Dati (DPO) né la stipula di accordi per il trattamento dei dati in relazione a questo specifico servizio.</li>
+          <li>I dati eventualmente inviati a servizi di terze parti (cfr. Sezione 5) sono soggetti alle politiche di conformità al GDPR di ciascun servizio.</li>
+          <li><strong>Diritto alla cancellazione:</strong> l'utente può eliminare tutti i dati locali in qualsiasi momento cancellando i dati del browser (localStorage e IndexedDB) dalle impostazioni del proprio browser.</li>
+          <li><strong>Diritto alla portabilità dei dati:</strong> l'utente può esportare i propri simboli personalizzati e le configurazioni utilizzando le funzionalità di esportazione integrate nell'applicazione.</li>
+        </ul>
+
+        <h2>8. Modifiche ai Termini</h2>
+        <p>Fondazione ASPHI ETS si riserva il diritto di aggiornare o modificare i presenti termini in qualsiasi momento. Le modifiche saranno comunicate agli utenti attraverso l'applicazione. L'uso continuato dell'applicazione dopo la notifica delle modifiche costituisce accettazione dei nuovi termini.</p>
+
+        <h2>9. Contatti</h2>
+        <p>Per domande relative al presente EULA o all'applicazione Limpidi Simboli:</p>
+        <ul>
+          <li><strong>Fondazione ASPHI ETS</strong></li>
+          <li>Sito web: <a href="https://www.asphi.it" target="_blank" rel="noopener noreferrer">https://www.asphi.it</a></li>
+          <li>Per informazioni e richieste si prega di fare riferimento ai contatti disponibili sul sito web.</li>
+        </ul>
+      </div>
+
+      <!-- ======================== SPANISH ======================== -->
+      <div class="eula-lang" id="eula-es" lang="es">
+        <p class="last-updated">Última actualización: junio de 2025 — Versión 1.0</p>
+
+        <h2>1. Introducción</h2>
+        <p>El presente Contrato de Licencia de Usuario Final (EULA) regula el uso de la aplicación web <strong>Limpidi Simboli</strong>, desarrollada y publicada por <strong>Fondazione ASPHI ETS</strong> (<a href="https://www.asphi.it" target="_blank" rel="noopener noreferrer">www.asphi.it</a>).</p>
+        <p><strong>Limpidi Simboli</strong> es una herramienta de <strong>Comunicación Aumentativa y Alternativa (CAA)</strong> diseñada para apoyar la comunicación a través de símbolos, pictogramas e imágenes. La aplicación se distribuye como software de código abierto bajo licencia <strong>MIT</strong>.</p>
+
+        <h2>2. Aceptación de los Términos</h2>
+        <p>Al hacer clic en el botón "<strong>Acepto</strong>" en la parte inferior de esta página, el usuario declara haber leído, comprendido y aceptado íntegramente los presentes términos y condiciones de uso.</p>
+        <p>El usuario declara además tener al menos <strong>16 años de edad</strong>. Si el usuario es menor de 16 años, el uso de la aplicación solo está permitido con el consentimiento y bajo la supervisión de un padre o tutor legal, quien acepta estos términos en nombre del menor.</p>
+
+        <h2>3. Licencia de Uso</h2>
+        <p>El software <strong>Limpidi Simboli</strong> se publica bajo licencia <strong>MIT</strong>. Según esta licencia:</p>
+        <ul>
+          <li>El usuario es libre de usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software.</li>
+          <li>El aviso de copyright y el aviso de autorización deben incluirse en todas las copias o partes sustanciales del software.</li>
+          <li>El software se proporciona <strong>"tal cual" (AS IS)</strong>, sin garantías de ningún tipo, expresas o implícitas, incluidas, entre otras, las garantías de comerciabilidad, idoneidad para un fin particular y no infracción.</li>
+        </ul>
+
+        <h2>4. Política de Privacidad</h2>
+        <div class="critical">
+          <p><strong>Fondazione ASPHI ETS NO recopila ningún dato personal del usuario.</strong></p>
+        </div>
+        <p>La aplicación <strong>Limpidi Simboli</strong> funciona íntegramente en el navegador del usuario. No existen servidores de back-end gestionados por Fondazione ASPHI ETS que recopilen, almacenen o procesen datos del usuario.</p>
+        <ul>
+          <li><strong>Datos locales:</strong> las configuraciones, personalizaciones y símbolos creados por el usuario se almacenan en el navegador del usuario mediante <em>localStorage</em> e <em>IndexedDB</em>. Estos datos permanecen exclusivamente en el dispositivo del usuario.</li>
+          <li><strong>Claves API:</strong> cualquier clave API introducida por el usuario (por ejemplo, para OpenAI o Google) se almacena únicamente en el <em>localStorage</em> del navegador del usuario y nunca se transmite a Fondazione ASPHI ETS.</li>
+          <li><strong>Sin rastreo:</strong> la aplicación no utiliza cookies de rastreo, herramientas de análisis (analytics), píxeles de seguimiento ni ningún otro mecanismo de monitorización del comportamiento del usuario.</li>
+        </ul>
+
+        <h2>5. Servicios de Terceros</h2>
+        <div class="critical">
+          <p><strong>Importante:</strong> durante el funcionamiento normal, la aplicación puede enviar datos a los servicios de terceros enumerados a continuación. El usuario debe leer y aceptar las respectivas políticas de privacidad antes de utilizar dichas funcionalidades. Fondazione ASPHI ETS no tiene ningún control sobre el tratamiento de datos por parte de estos servicios externos.</p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.1 ARASAAC (Centro Aragonés de Comunicación Aumentativa y Alternativa)</h4>
+          <p><strong>Propósito:</strong> búsqueda de pictogramas y símbolos.</p>
+          <p><strong>Datos enviados:</strong> los términos de búsqueda (palabras derivadas de las frases introducidas por el usuario).</p>
+          <p><strong>Política de privacidad:</strong> <a href="https://arasaac.org/privacy-policy" target="_blank" rel="noopener noreferrer">https://arasaac.org/privacy-policy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.2 OpenAI API (GPT-4o, GPT-4o-mini, DALL-E 3)</h4>
+          <p><strong>Propósito:</strong> análisis de frases, explicaciones gramaticales, generación de imágenes.</p>
+          <p><strong>Datos enviados:</strong> las frases introducidas por el usuario y la clave API personal del usuario.</p>
+          <p>El usuario proporciona su propia clave API; el uso se rige por los términos de servicio de OpenAI.</p>
+          <p><strong>Política de privacidad:</strong> <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer">https://openai.com/policies/privacy-policy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.3 OpenSymbols (opensymbols.org)</h4>
+          <p><strong>Propósito:</strong> búsqueda adicional de símbolos (TAWASOL, Bliss y otros conjuntos).</p>
+          <p><strong>Datos enviados:</strong> los términos de búsqueda.</p>
+          <p><strong>Política de privacidad:</strong> <a href="https://www.opensymbols.org/terms" target="_blank" rel="noopener noreferrer">https://www.opensymbols.org/terms</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.4 Google Custom Search API</h4>
+          <p><strong>Propósito:</strong> búsqueda de imágenes en la web para la visualización de símbolos.</p>
+          <p><strong>Datos enviados:</strong> las consultas de búsqueda y la clave API personal del usuario.</p>
+          <p><strong>Política de privacidad:</strong> <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">https://policies.google.com/privacy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.5 LibreTranslate</h4>
+          <p><strong>Propósito:</strong> traducción automática de texto.</p>
+          <p><strong>Datos enviados:</strong> el texto a traducir.</p>
+          <p><strong>Política de privacidad:</strong> <a href="https://libretranslate.com/" target="_blank" rel="noopener noreferrer">https://libretranslate.com/</a> (las instancias auto-alojadas pueden tener políticas diferentes).</p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.6 Wikipedia / Wikimedia Commons</h4>
+          <p><strong>Propósito:</strong> imágenes educativas y de referencia.</p>
+          <p><strong>Datos enviados:</strong> los términos de búsqueda.</p>
+          <p><strong>Política de privacidad:</strong> <a href="https://foundation.wikimedia.org/wiki/Privacy_policy" target="_blank" rel="noopener noreferrer">https://foundation.wikimedia.org/wiki/Privacy_policy</a></p>
+        </div>
+
+        <h2>6. Exención de Responsabilidad</h2>
+        <p>La aplicación <strong>Limpidi Simboli</strong> se proporciona con fines <strong>educativos y comunicativos</strong>. En particular:</p>
+        <ul>
+          <li>La aplicación <strong>no es un dispositivo médico</strong> y no está destinada a sustituir una evaluación profesional de CAA ni una consulta médica, terapéutica o educativa.</li>
+          <li>Fondazione ASPHI ETS <strong>no es responsable</strong> de ningún daño directo, indirecto, incidental, especial, consecuente o ejemplar derivado del uso o la imposibilidad de uso de la aplicación.</li>
+          <li>Los contenidos generados por la aplicación (símbolos, imágenes, textos, análisis gramaticales) <strong>pueden no ser siempre precisos</strong>. Se recomienda al usuario verificar la idoneidad de los contenidos antes de su uso en contextos críticos.</li>
+          <li>En ningún caso los autores o titulares del copyright serán responsables de ninguna reclamación, daño u otra responsabilidad derivada de o en conexión con el software o su uso.</li>
+        </ul>
+
+        <h2>7. Cumplimiento del RGPD</h2>
+        <p>El presente documento se redacta de conformidad con el Reglamento (UE) 2016/679 (Reglamento General de Protección de Datos – <strong>RGPD</strong>).</p>
+        <ul>
+          <li>Dado que Fondazione ASPHI ETS <strong>no recopila ni procesa datos personales</strong> a través de la aplicación, no es necesario el nombramiento de un Delegado de Protección de Datos (DPD) ni la celebración de acuerdos de tratamiento de datos en relación con este servicio específico.</li>
+          <li>Los datos que eventualmente se envíen a servicios de terceros (véase Sección 5) están sujetos a las políticas de cumplimiento del RGPD de cada servicio.</li>
+          <li><strong>Derecho de supresión:</strong> el usuario puede eliminar todos los datos locales en cualquier momento borrando los datos del navegador (localStorage e IndexedDB) desde la configuración de su navegador.</li>
+          <li><strong>Derecho a la portabilidad de los datos:</strong> el usuario puede exportar sus símbolos personalizados y configuraciones utilizando las funcionalidades de exportación integradas en la aplicación.</li>
+        </ul>
+
+        <h2>8. Modificaciones de los Términos</h2>
+        <p>Fondazione ASPHI ETS se reserva el derecho de actualizar o modificar los presentes términos en cualquier momento. Las modificaciones serán comunicadas a los usuarios a través de la aplicación. El uso continuado de la aplicación tras la notificación de las modificaciones constituye la aceptación de los nuevos términos.</p>
+
+        <h2>9. Contacto</h2>
+        <p>Para preguntas relacionadas con el presente EULA o con la aplicación Limpidi Simboli:</p>
+        <ul>
+          <li><strong>Fondazione ASPHI ETS</strong></li>
+          <li>Sitio web: <a href="https://www.asphi.it" target="_blank" rel="noopener noreferrer">https://www.asphi.it</a></li>
+          <li>Para información y solicitudes, consulte los contactos disponibles en el sitio web.</li>
+        </ul>
+      </div>
+
+      <!-- ======================== ENGLISH ======================== -->
+      <div class="eula-lang" id="eula-en" lang="en">
+        <p class="last-updated">Last updated: June 2025 — Version 1.0</p>
+
+        <h2>1. Introduction</h2>
+        <p>This End User License Agreement (EULA) governs the use of the web application <strong>Limpidi Simboli</strong>, developed and published by <strong>Fondazione ASPHI ETS</strong> (<a href="https://www.asphi.it" target="_blank" rel="noopener noreferrer">www.asphi.it</a>).</p>
+        <p><strong>Limpidi Simboli</strong> is an <strong>Augmentative and Alternative Communication (AAC)</strong> tool designed to support communication through symbols, pictograms, and images. The application is distributed as open-source software under the <strong>MIT License</strong>.</p>
+
+        <h2>2. Acceptance of Terms</h2>
+        <p>By clicking the "<strong>I Accept</strong>" button at the bottom of this page, the user declares that they have read, understood, and fully accepted these terms and conditions of use.</p>
+        <p>The user further declares that they are at least <strong>16 years of age</strong>. If the user is under 16 years of age, use of the application is permitted only with the consent and under the supervision of a parent or legal guardian, who accepts these terms on behalf of the minor.</p>
+
+        <h2>3. License</h2>
+        <p>The software <strong>Limpidi Simboli</strong> is released under the <strong>MIT License</strong>. Under this license:</p>
+        <ul>
+          <li>The user is free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software.</li>
+          <li>The copyright notice and permission notice shall be included in all copies or substantial portions of the software.</li>
+          <li>The software is provided <strong>"as is"</strong>, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement.</li>
+        </ul>
+
+        <h2>4. Privacy Policy</h2>
+        <div class="critical">
+          <p><strong>Fondazione ASPHI ETS does NOT collect any user personal data.</strong></p>
+        </div>
+        <p>The application <strong>Limpidi Simboli</strong> runs entirely in the user's browser. There are no back-end servers operated by Fondazione ASPHI ETS that collect, store, or process user data.</p>
+        <ul>
+          <li><strong>Local data:</strong> settings, customisations, and symbols created by the user are stored in the user's browser via <em>localStorage</em> and <em>IndexedDB</em>. This data remains exclusively on the user's device.</li>
+          <li><strong>API keys:</strong> any API keys entered by the user (e.g., for OpenAI or Google) are stored solely in the user's browser <em>localStorage</em> and are never transmitted to Fondazione ASPHI ETS.</li>
+          <li><strong>No tracking:</strong> the application does not use tracking cookies, analytics tools, tracking pixels, or any other mechanism to monitor user behaviour.</li>
+        </ul>
+
+        <h2>5. Third-Party Services</h2>
+        <div class="critical">
+          <p><strong>Important:</strong> during normal operation, the application may send data to the third-party services listed below. The user is required to read and accept their respective privacy policies before using such features. Fondazione ASPHI ETS has no control over how these external services process data.</p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.1 ARASAAC (Centro Aragonés de Comunicación Aumentativa y Alternativa)</h4>
+          <p><strong>Purpose:</strong> pictogram and symbol search.</p>
+          <p><strong>Data sent:</strong> search terms (words derived from sentences entered by the user).</p>
+          <p><strong>Privacy policy:</strong> <a href="https://arasaac.org/privacy-policy" target="_blank" rel="noopener noreferrer">https://arasaac.org/privacy-policy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.2 OpenAI API (GPT-4o, GPT-4o-mini, DALL-E 3)</h4>
+          <p><strong>Purpose:</strong> sentence analysis, grammatical explanations, image generation.</p>
+          <p><strong>Data sent:</strong> sentences entered by the user and the user's personal API key.</p>
+          <p>The user provides their own API key; usage is governed by OpenAI's terms of service.</p>
+          <p><strong>Privacy policy:</strong> <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer">https://openai.com/policies/privacy-policy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.3 OpenSymbols (opensymbols.org)</h4>
+          <p><strong>Purpose:</strong> additional symbol search (TAWASOL, Bliss, and other symbol sets).</p>
+          <p><strong>Data sent:</strong> search terms.</p>
+          <p><strong>Privacy policy:</strong> <a href="https://www.opensymbols.org/terms" target="_blank" rel="noopener noreferrer">https://www.opensymbols.org/terms</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.4 Google Custom Search API</h4>
+          <p><strong>Purpose:</strong> web image search for symbol visualisation.</p>
+          <p><strong>Data sent:</strong> search queries and the user's personal API key.</p>
+          <p><strong>Privacy policy:</strong> <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">https://policies.google.com/privacy</a></p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.5 LibreTranslate</h4>
+          <p><strong>Purpose:</strong> automatic text translation.</p>
+          <p><strong>Data sent:</strong> text to be translated.</p>
+          <p><strong>Privacy policy:</strong> <a href="https://libretranslate.com/" target="_blank" rel="noopener noreferrer">https://libretranslate.com/</a> (self-hosted instances may have different policies).</p>
+        </div>
+
+        <div class="service-block">
+          <h4>5.6 Wikipedia / Wikimedia Commons</h4>
+          <p><strong>Purpose:</strong> educational and reference images.</p>
+          <p><strong>Data sent:</strong> search terms.</p>
+          <p><strong>Privacy policy:</strong> <a href="https://foundation.wikimedia.org/wiki/Privacy_policy" target="_blank" rel="noopener noreferrer">https://foundation.wikimedia.org/wiki/Privacy_policy</a></p>
+        </div>
+
+        <h2>6. Disclaimer of Liability</h2>
+        <p>The application <strong>Limpidi Simboli</strong> is provided for <strong>educational and communication purposes</strong>. In particular:</p>
+        <ul>
+          <li>The application <strong>is not a medical device</strong> and is not intended to replace a professional AAC assessment or medical, therapeutic, or educational consultation.</li>
+          <li>Fondazione ASPHI ETS <strong>shall not be liable</strong> for any direct, indirect, incidental, special, consequential, or exemplary damages arising from the use of or inability to use the application.</li>
+          <li>Content generated by the application (symbols, images, text, grammatical analysis) <strong>may not always be accurate</strong>. Users are advised to verify the suitability of content before using it in critical contexts.</li>
+          <li>In no event shall the authors or copyright holders be liable for any claim, damages, or other liability arising from or in connection with the software or its use.</li>
+        </ul>
+
+        <h2>7. GDPR Compliance</h2>
+        <p>This document is drafted in compliance with Regulation (EU) 2016/679 (General Data Protection Regulation – <strong>GDPR</strong>).</p>
+        <ul>
+          <li>Since Fondazione ASPHI ETS <strong>does not collect or process personal data</strong> through the application, no Data Protection Officer (DPO) appointment or data processing agreement is required in relation to this specific service.</li>
+          <li>Data that may be sent to third-party services (see Section 5) is subject to those services' own GDPR compliance policies.</li>
+          <li><strong>Right to erasure:</strong> the user can delete all local data at any time by clearing their browser data (localStorage and IndexedDB) from their browser settings.</li>
+          <li><strong>Right to data portability:</strong> the user can export their custom symbols and configurations using the export features built into the application.</li>
+        </ul>
+
+        <h2>8. Changes to Terms</h2>
+        <p>Fondazione ASPHI ETS reserves the right to update or modify these terms at any time. Changes will be communicated to users through the application. Continued use of the application after notification of changes constitutes acceptance of the new terms.</p>
+
+        <h2>9. Contact</h2>
+        <p>For questions regarding this EULA or the Limpidi Simboli application:</p>
+        <ul>
+          <li><strong>Fondazione ASPHI ETS</strong></li>
+          <li>Website: <a href="https://www.asphi.it" target="_blank" rel="noopener noreferrer">https://www.asphi.it</a></li>
+          <li>For information and enquiries, please refer to the contacts available on the website.</li>
+        </ul>
+      </div>
+
+    </div><!-- /.eula-content -->
+
+    <!-- Action buttons -->
+    <div class="eula-actions" id="eulaActions">
+      <button class="btn-accept" id="btnAccept" aria-label="Accetto i termini">Accetto</button>
+      <button class="btn-decline" id="btnDecline" aria-label="Rifiuto i termini">Rifiuto</button>
+    </div>
+
+    <!-- Decline message -->
+    <div class="decline-msg" id="declineMsg" role="alert">
+      <p id="declineMsgText">Non è possibile utilizzare l'applicazione senza accettare i termini e le condizioni d'uso.</p>
+    </div>
+
+  </main>
+
+</div><!-- /.eula-wrapper -->
+
+<script>
+(function () {
+  'use strict';
+
+  // ---- Auto-redirect if already accepted ----
+  if (localStorage.getItem('eulaAccepted') === 'true') {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // ---- Elements ----
+  const langButtons = document.querySelectorAll('.lang-switcher .lang-flag');
+  const eulaBlocks  = document.querySelectorAll('.eula-lang');
+  const btnAccept   = document.getElementById('btnAccept');
+  const btnDecline  = document.getElementById('btnDecline');
+  const declineMsg  = document.getElementById('declineMsg');
+  const declineText = document.getElementById('declineMsgText');
+  const skipLink    = document.getElementById('skipLink');
+  const htmlEl      = document.documentElement;
+
+  // ---- Translations ----
+  const translations = {
+    it: {
+      accept: 'Accetto',
+      decline: 'Rifiuto',
+      acceptLabel: 'Accetto i termini',
+      declineLabel: 'Rifiuto i termini',
+      declineMsg: 'Non è possibile utilizzare l\'applicazione senza accettare i termini e le condizioni d\'uso.',
+      skipLink: 'Vai al contenuto principale',
+      langNav: 'Selezione lingua'
+    },
+    es: {
+      accept: 'Acepto',
+      decline: 'Rechazo',
+      acceptLabel: 'Acepto los términos',
+      declineLabel: 'Rechazo los términos',
+      declineMsg: 'No es posible utilizar la aplicación sin aceptar los términos y condiciones de uso.',
+      skipLink: 'Ir al contenido principal',
+      langNav: 'Selección de idioma'
+    },
+    en: {
+      accept: 'I Accept',
+      decline: 'Decline',
+      acceptLabel: 'I accept the terms',
+      declineLabel: 'Decline the terms',
+      declineMsg: 'You cannot use the application without accepting the terms and conditions of use.',
+      skipLink: 'Skip to main content',
+      langNav: 'Language selection'
+    }
+  };
+
+  // ---- Language switching ----
+  function switchLanguage(lang) {
+    // Update html lang attribute
+    htmlEl.setAttribute('lang', lang);
+
+    // Update flag buttons
+    langButtons.forEach(function (btn) {
+      var isActive = btn.getAttribute('data-lang') === lang;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    // Show/hide EULA blocks
+    eulaBlocks.forEach(function (block) {
+      var blockLang = block.id.replace('eula-', '');
+      block.classList.toggle('active', blockLang === lang);
+    });
+
+    // Update button text
+    var t = translations[lang] || translations.it;
+    btnAccept.textContent = t.accept;
+    btnAccept.setAttribute('aria-label', t.acceptLabel);
+    btnDecline.textContent = t.decline;
+    btnDecline.setAttribute('aria-label', t.declineLabel);
+    declineText.textContent = t.declineMsg;
+    skipLink.textContent = t.skipLink;
+
+    // Update nav aria-label
+    var langNav = document.querySelector('.lang-switcher');
+    if (langNav) langNav.setAttribute('aria-label', t.langNav);
+
+    // Hide decline message on language switch
+    declineMsg.classList.remove('visible');
+
+    // Move focus to the EULA content heading for screen readers
+    var activeBlock = document.getElementById('eula-' + lang);
+    if (activeBlock) {
+      var firstHeading = activeBlock.querySelector('h2');
+      if (firstHeading) {
+        firstHeading.setAttribute('tabindex', '-1');
+        firstHeading.focus();
+      }
+    }
+  }
+
+  // Attach click handlers to flag buttons
+  langButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var lang = btn.getAttribute('data-lang');
+      switchLanguage(lang);
+    });
+  });
+
+  // ---- Accept button ----
+  btnAccept.addEventListener('click', function () {
+    localStorage.setItem('eulaAccepted', 'true');
+    localStorage.setItem('eulaVersion', '1.0');
+    window.location.href = 'index.html';
+  });
+
+  // ---- Decline button ----
+  btnDecline.addEventListener('click', function () {
+    declineMsg.classList.add('visible');
+    declineMsg.focus();
+  });
+
+  // Make decline message focusable for screen readers
+  declineMsg.setAttribute('tabindex', '-1');
+
+})();
+</script>
+
+</body>
+</html>
