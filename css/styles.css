@@ -206,7 +206,30 @@ h1 { text-align: center; margin: 0 0 8px; font-weight: 800; }
   max-width: 1100px;
   margin: 0 auto;
 }
-.sentence-box { grid-column: 1 / -1; }
+.sentence-box {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 15px;
+  padding-right: 75px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  width: 100%;
+  min-height: 120px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.sentence-box-even {
+  background-color: #e3f2fd;
+  border: 2px solid #2196f3;
+}
+.sentence-box-odd {
+  background-color: #fff3e0;
+  border: 2px solid #ff9800;
+}
 
 /* ---------- Tiles ---------- */
 .tile {
@@ -951,6 +974,50 @@ body:not(.show-tile-actions) .remove-symbol-btn {
   #symbolsLegend, #symbolsLegend > div { font-size: 0.9rem !important; }
 }
 
+/* ---------- Sentence Actions ---------- */
+.sentence-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.sentence-action-btn {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  min-width: unset;
+}
+.sentence-action-btn-delete {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  min-width: unset;
+  background: #fee;
+  color: #c00;
+}
+.sentence-action-btn-explain {
+  padding: 6px 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  min-width: unset;
+}
+
+/* ---------- Repo Badge (OpenSymbols) ---------- */
+.repo-badge {
+  background: #e0e7ef;
+  color: #1e293b;
+  font-size: .75rem;
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin-left: 8px;
+}
+
 /* ---------- WCAG: Reduced motion preference ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -965,4 +1032,53 @@ body:not(.show-tile-actions) .remove-symbol-btn {
   .tile { border: 2px solid ButtonText; }
   .button, .button.ghost { border: 2px solid ButtonText !important; }
   .lang-flag.active { outline: 3px solid Highlight; }
+}
+
+/* ---------- Crop Editor ---------- */
+.crop-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.crop-title {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+.crop-instruction {
+  color: #ccc;
+  margin-bottom: 10px;
+}
+.crop-canvas-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+.crop-canvas {
+  max-width: 90vw;
+  max-height: 60vh;
+  cursor: crosshair;
+  border: 2px solid white;
+}
+.crop-btn-container {
+  display: flex;
+  gap: 12px;
+}
+.crop-confirm-btn {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+}
+.crop-cancel-btn {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  color: white;
+  border-color: white;
 }

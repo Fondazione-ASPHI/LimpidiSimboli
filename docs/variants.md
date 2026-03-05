@@ -1,6 +1,6 @@
 # js/variants.js — Generatori di varianti morfologiche
 
-**Righe:** ~175 | **Dipendenze:** `utils.js` (usa `IRREGULAR_PRESENT_LEMMA_MAP`)
+**Righe:** ~225 | **Dipendenze:** `utils.js` (usa `IRREGULAR_PRESENT_LEMMA_MAP`)
 
 ## Responsabilità
 

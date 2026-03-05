@@ -84,9 +84,8 @@
     return out;
   }
 
-  // MCQ distractors: use other words in the sentence plus simple common words
-  // Extended list of common simple distractors (ordered roughly by frequency/utility)
-  const COMMON_DISTRACTORS = ['cane','gatto','casa','scuola','libro','mela','pane','acqua','latte','auto','bambino','donna','uomo','sedia','tavolo','porta','finestra','sole','luna','fiore'];
+  // MCQ distractors: use the global COMMON_DISTRACTORS from utils.js
+  // (Do not duplicate here — the canonical list lives in utils.js)
 
   function generateExercisesFromText(text, options={type:'gap', count:3, level:'A1', skipStop:true}){
     const words = wordsFromText(text, options.skipStop);

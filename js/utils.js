@@ -1,8 +1,38 @@
 /* js/utils.js – Constants & utility helpers for Limpidi Simboli */
 
+// ── Debug flag ────────────────────────────────────────────────────────────────
+// Set localStorage.debug = 'true' to enable verbose logging in the console.
+const DEBUG = (function () {
+  try { return localStorage.getItem('debug') === 'true'; } catch (e) { return false; }
+})();
+function dbg() { if (DEBUG) console.log.apply(console, arguments); }
+
+// ── localStorage key constants ────────────────────────────────────────────────
+const STORAGE_KEYS = {
+  EULA_ACCEPTED:       'eulaAccepted',
+  EULA_VERSION:        'eulaVersion',
+  APP_LANG:            'appLang',
+  OPENAI_KEY:          'openaiApiKey',
+  OPENSYMBOLS_TOKEN:   'openSymbolsToken',
+  GOOGLE_API_KEY:      'googleApiKey',
+  GOOGLE_CX:           'googleCx',
+  KARAOKE_SPEED:       'karaokeSpeed',
+  SELECTED_VOICE:      'selectedVoice',
+  SHOW_TILE_ACTIONS:   'showTileActions',
+  SHOW_GRAMMAR_BADGES: 'showGrammarBadges',
+  LOCAL_FOLDER_NAME:   'localImageFolderName',
+  CUSTOM_SYMBOL_IMAGES:'customSymbolImages',
+  PERSONAL_SYMBOLS:    'personalSymbols'
+};
+
 // ── API endpoints ─────────────────────────────────────────────────────────────
 const API_ROOT = 'https://api.arasaac.org/api/pictograms';
 const STATIC_ROOT = 'https://static.arasaac.org/pictograms';
+
+// ── SVG placeholder images ────────────────────────────────────────────────────
+const SVG_ERROR = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+const SVG_NOT_FOUND = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">Non trovato</text></svg>';
+const SVG_UNKNOWN = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">?</text></svg>';
 
 // ── Stop-word sets ────────────────────────────────────────────────────────────
 // Parole funzionali da ignorare quando skipStop è attivo. Oltre agli articoli,

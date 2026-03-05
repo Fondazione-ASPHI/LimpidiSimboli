@@ -1,13 +1,14 @@
 # js/tiles.js — Creazione e gestione tile
 
-**Righe:** ~1900 | **Dipendenze:** `utils.js`, `i18n.js`, `api.js`, `storage.js`
+**Righe:** ~1588 | **Dipendenze:** `utils.js`, `i18n.js`, `api.js`, `storage.js`, `cropEditor.js`
 
 ## Responsabilità
 
 - Creazione di tile (schede simbolo) con immagine, etichetta e pulsanti d'azione.
-- Gestione galleria di alternative (ARASAAC, OpenSymbols, Wikipedia, Google).
-- Editor di ritaglio (crop) per immagini.
+- Gestione galleria di alternative (ARASAAC, OpenSymbols, Wikipedia, Google) tramite modal unificato.
 - Operazione merge (unione) di tile selezionate.
+
+> **Nota:** l'editor di ritaglio (crop) è stato spostato in `cropEditor.js`. La funzione `openCropEditor()` è chiamata dai pulsanti d'azione ma definita in quel file.
 
 ## Struttura di una tile
 
@@ -94,10 +95,18 @@ Apre il selettore file per caricare un'immagine personalizzata:
 ### Creazione tile
 
 #### `addTile(container, word, original, ids, sentenceIdx, gptData)` ★
-**Funzione principale** (~400 righe). Crea una tile completa:
+**Funzione principale** (~150 righe, semplificata dal refactoring). Crea una tile completa:
 
 1. **Immagine**: cerca prima nella `personalLibrary`, poi tra gli `ids`.
-2. **Pulsanti d'azione** (visibili con toggle):
+2. **Badge grammaticali**: delega a `createTileBadges()`.
+3. **Pulsanti d'azione**: delega a `createTileActionButtons()`.
+4. **Click sull'immagine**: `cycleTileImage()`.
+
+#### `createTileBadges(tile, tense, badges)`
+Helper estratto da `addTile()`. Crea i badge grammaticali (tempo verbale, genere, numero) e li appende alla tile.
+
+#### `createTileActionButtons(tile, word)`
+Helper estratto da `addTile()`. Crea tutti i pulsanti d'azione della tile:
    - ➕ **Aggiungi immagine**: `openFileChooserForWord()`
    - ➖ **Rimuovi immagine**: elimina l'immagine corrente
    - 🔤 **Solo testo**: `showTextOnly()`
@@ -106,20 +115,22 @@ Apre il selettore file per caricare un'immagine personalizzata:
    - 📖 **Wikipedia**: `searchWebImages()`
    - 🌐 **Google**: `searchGoogleImages()`
    - 🤖 **GPT/DALL-E**: `generateArasaacStyleImages()`
-   - ✂️ **Ritaglia**: `openCropEditor()`
+   - ✂️ **Ritaglia**: `openCropEditor()` (da `cropEditor.js`)
    - 🔗 **Unisci**: `toggleTileSelection()`
    - ℹ️ **Spiega**: `explainTerm()`
-3. **Badge grammaticali**: tempo verbale, genere, numero.
-4. **Click sull'immagine**: `cycleTileImage()`.
 
-### Editor di ritaglio
+### Modal di ricerca unificato
 
-#### `openCropEditor(tile)`
-Overlay fullscreen per ritagliare un'immagine:
-- Canvas con selezione rettangolare trascinabile.
-- Handle di ridimensionamento ai bordi.
-- Pulsanti Conferma/Annulla.
-- Salva l'immagine ritagliata come data-URL nella tile.
+#### `openSearchModal(options)`
+Modal generico a griglia per la ricerca di immagini alternative. Sostituisce il codice duplicato che era presente in `showSymbolGallery`, `searchWebImages` e `searchGoogleImages`.
+
+| Opzione | Tipo | Descrizione |
+|---------|------|-------------|
+| `title` | string | Titolo del modal |
+| `items` | Array | Immagini da mostrare |
+| `onSelect` | Function | Callback alla selezione di un'immagine |
+| `tile` | Element | Tile di destinazione |
+| `word` | string | Parola associata |
 
 ### Gallerie di ricerca
 
@@ -158,7 +169,9 @@ Unisce 2+ tile selezionate:
 
 ## Note per le modifiche
 
-- `addTile()` è la funzione più lunga e complessa (~400 righe). Per modificarla, leggere attentamente le sezioni dei pulsanti d'azione.
+- `addTile()` è stata semplificata a ~150 righe; la logica dei badge e dei pulsanti è nei nuovi helper `createTileBadges()` e `createTileActionButtons()`.
+- L'editor di ritaglio è in `cropEditor.js` (funzione globale `openCropEditor`).
+- Le gallerie di ricerca usano il modal unificato `openSearchModal(options)` per evitare duplicazione.
 - I pulsanti d'azione sono nascosti di default e mostrati con la classe CSS `.show-tile-actions` sul container `#result`.
 - La lista dei CORS proxy in `saveWebImageToTile()` potrebbe necessitare aggiornamenti se i proxy smettono di funzionare.
 - Le immagini personalizzate vengono sempre salvate anche nella `personalLibrary` per persistenza cross-sessione.

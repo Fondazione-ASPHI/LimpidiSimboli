@@ -91,26 +91,12 @@ function openVideoTutorial() {
 function createSentenceActionButtons(sentenceBox, text) {
   const actionsContainer = document.createElement('div');
   actionsContainer.className = 'sentence-actions';
-  actionsContainer.style.cssText = `
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    z-index: 10;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 6px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  `;
 
   // Bottone Ascolta
   const speakBtn = document.createElement('button');
-  speakBtn.className = 'button ghost';
+  speakBtn.className = 'button ghost sentence-action-btn';
   speakBtn.innerHTML = '🔊';
   speakBtn.title = 'Ascolta';
-  speakBtn.style.cssText = 'padding: 6px 10px; font-size: 0.9rem; min-width: unset;';
   speakBtn.onclick = (e) => {
     e.stopPropagation();
     speakSentence(text, false);
@@ -118,10 +104,9 @@ function createSentenceActionButtons(sentenceBox, text) {
 
   // Bottone Karaoke (con evidenziazione tile completa)
   const karaokeBtn = document.createElement('button');
-  karaokeBtn.className = 'button ghost';
+  karaokeBtn.className = 'button ghost sentence-action-btn';
   karaokeBtn.innerHTML = '🐢';
   karaokeBtn.title = 'Karaoke (lento)';
-  karaokeBtn.style.cssText = 'padding: 6px 10px; font-size: 0.9rem; min-width: unset;';
   karaokeBtn.onclick = (e) => {
     e.stopPropagation();
     // Usa la funzione karaoke completa con evidenziazione dei tile
@@ -270,10 +255,9 @@ function createSentenceActionButtons(sentenceBox, text) {
 
   // Bottone Esercizi
   const exercisesBtn = document.createElement('button');
-  exercisesBtn.className = 'button ghost';
+  exercisesBtn.className = 'button ghost sentence-action-btn';
   exercisesBtn.innerHTML = '📝';
   exercisesBtn.title = 'Genera esercizi per questa frase';
-  exercisesBtn.style.cssText = 'padding: 6px 10px; font-size: 0.9rem; min-width: unset;';
   exercisesBtn.onclick = (e) => {
     e.stopPropagation();
     generateExercisesForSentence(text, sentenceBox);
@@ -281,10 +265,9 @@ function createSentenceActionButtons(sentenceBox, text) {
 
   // Bottone Elimina
   const deleteBtn = document.createElement('button');
-  deleteBtn.className = 'button ghost';
+  deleteBtn.className = 'button ghost sentence-action-btn-delete';
   deleteBtn.innerHTML = '❌';
   deleteBtn.title = 'Elimina questa frase';
-  deleteBtn.style.cssText = 'padding: 6px 10px; font-size: 0.9rem; min-width: unset; background: #fee; color: #c00;';
   deleteBtn.onclick = (e) => {
     e.stopPropagation();
     if (confirm('Eliminare questa frase?')) {
@@ -298,10 +281,9 @@ function createSentenceActionButtons(sentenceBox, text) {
 
   // Bottone Spiega
   const explainBtn = document.createElement('button');
-  explainBtn.className = 'button ghost';
+  explainBtn.className = 'button ghost sentence-action-btn-explain';
   explainBtn.innerHTML = '?';
   explainBtn.title = 'Spiega questa frase con parole semplici';
-  explainBtn.style.cssText = 'padding: 6px 10px; font-size: 1.1rem; font-weight: bold; min-width: unset;';
   explainBtn.onclick = safeAsync(async (e) => {
     e.stopPropagation();
 
@@ -528,7 +510,7 @@ async function translate(keepExisting = false){
   const textWithBreaks = fullText.replace(/\.\s*/g, '.\n').replace(/;\s*/g, ';\n');
   const sentences = textWithBreaks.split('\n').map(s => s.trim()).filter(s => s.length > 0);
 
-  console.log('[translate] Processing', sentences.length, 'sentence(s)');
+  dbg('[translate] Processing', sentences.length, 'sentence(s)');
 
   // Calcola l'indice di partenza per i colori alternati
   let startIndex = 0;
@@ -536,7 +518,7 @@ async function translate(keepExisting = false){
     // Conta quante sentence-box esistono già
     const existingBoxes = els.res.querySelectorAll('.sentence-box');
     startIndex = existingBoxes.length;
-    console.log('[translate] Keeping existing content, starting from index', startIndex);
+    dbg('[translate] Keeping existing content, starting from index', startIndex);
   } else {
     els.res.innerHTML = '';
   }
@@ -547,31 +529,11 @@ async function translate(keepExisting = false){
     if (!text) continue;
 
     const sentenceIndex = startIndex + i; // Indice globale per colori alternati
-    console.log(`[translate] Processing sentence ${i + 1}/${sentences.length}:`, text);
+    dbg(`[translate] Processing sentence ${i + 1}/${sentences.length}:`, text);
 
     // Crea il sentence-box container
     const sentenceBox = document.createElement('div');
-    sentenceBox.className = 'sentence-box';
-    const boxColor = sentenceIndex % 2 === 0 ? '#e3f2fd' : '#fff3e0';
-    const borderColor = sentenceIndex % 2 === 0 ? '#2196f3' : '#ff9800';
-    sentenceBox.style.cssText = `
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 15px;
-      padding-right: 75px;
-      margin-bottom: 10px;
-      background-color: ${boxColor};
-      border: 2px solid ${borderColor};
-      border-radius: 8px;
-      width: 100%;
-      min-height: 120px;
-      box-sizing: border-box;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      position: relative;
-      grid-column: 1 / -1;
-    `;
+    sentenceBox.className = 'sentence-box ' + (sentenceIndex % 2 === 0 ? 'sentence-box-even' : 'sentence-box-odd');
     sentenceBox.dataset.sentenceIndex = sentenceIndex;
     sentenceBox.dataset.sentenceText = text;
 
@@ -595,15 +557,15 @@ async function translate(keepExisting = false){
 
     els.res.appendChild(sentenceBox);
 
-    console.log('🟢 [translate] Sentence box appended, calling translateSingleSentence...');
+    dbg('🟢 [translate] Sentence box appended, calling translateSingleSentence...');
 
     // Ora processa questa frase e aggiungi i tiles al sentence-box
     await translateSingleSentence(text, sentenceBox);
 
-    console.log('🟢 [translate] translateSingleSentence completed for sentence', sentenceIndex + 1);
+    dbg('🟢 [translate] translateSingleSentence completed for sentence', sentenceIndex + 1);
   }
 
-  console.log('🟢 [translate] ALL sentences processed');
+  dbg('🟢 [translate] ALL sentences processed');
   setStatusKey('custom', { msg: 'Conversione completata' });
 }
 
@@ -611,8 +573,8 @@ async function translate(keepExisting = false){
 // translateSingleSentence(text, container)
 // ═══════════════════════════════════════════════════════════════════════════════
 async function translateSingleSentence(text, container) {
-  console.log('🔵 [translateSingleSentence] START - text:', text);
-  console.log('🔵 [translateSingleSentence] container:', container);
+  dbg('🔵 [translateSingleSentence] START - text:', text);
+  dbg('🔵 [translateSingleSentence] container:', container);
 
   const lang = els.lang.value;
   const skipStop = els.skipStop.checked;
@@ -656,7 +618,7 @@ async function translateSingleSentence(text, container) {
             // Pulisci il lemma da eventuale punteggiatura
             analysis.lemma = sanitizeWord(analysis.lemma);
             if (originalLemma !== analysis.lemma) {
-                console.log('[Lemma Sanitize] Original:', originalLemma, '→ Cleaned:', analysis.lemma);
+                dbg('[Lemma Sanitize] Original:', originalLemma, '→ Cleaned:', analysis.lemma);
             }
             // Se dopo la pulizia è vuoto, usa la parola raw
             if (!analysis.lemma) {
@@ -733,13 +695,13 @@ async function translateSingleSentence(text, container) {
       const analysis = segmentAnalyses[0];
       // Pulisci il lemma da punteggiatura prima di controllare se è stopword
       let lemmaForStop = (analysis.lemma && analysis.lemma !== 'null') ? analysis.lemma : rawWords[start];
-      console.log('[StopWord Check] Original word:', displayOriginal, 'analysis.lemma:', analysis.lemma, 'rawWords[start]:', rawWords[start]);
+      dbg('[StopWord Check] Original word:', displayOriginal, 'analysis.lemma:', analysis.lemma, 'rawWords[start]:', rawWords[start]);
       lemmaForStop = sanitizeWord(lemmaForStop);
-      console.log('[StopWord Check] After sanitize, lemmaForStop:', lemmaForStop, 'is in STOP_IT:', STOP_IT.has(lemmaForStop), 'analysis.pronome:', analysis.pronome);
+      dbg('[StopWord Check] After sanitize, lemmaForStop:', lemmaForStop, 'is in STOP_IT:', STOP_IT.has(lemmaForStop), 'analysis.pronome:', analysis.pronome);
       // Una parola è stopword SOLO se è nello STOP_IT e non è un pronome
       // Non saltiamo parole solo perché GPT non conosce il lemma (null)
       const isStop = STOP_IT.has(lemmaForStop) && !analysis.pronome;
-      console.log('[StopWord Check] Final isStop:', isStop);
+      dbg('[StopWord Check] Final isStop:', isStop);
       if (isStop) {
         await addTile([], displayOriginal, true, null, [], false, null, container);
         continue;
@@ -824,11 +786,11 @@ async function translateSingleSentence(text, container) {
       }
     } else {
       try {
-        console.log('[translate] About to call queryIds with searchKey:', searchKey);
+        dbg('[translate] About to call queryIds with searchKey:', searchKey);
         const idsObj = await queryIds(lang, searchKey, aborter.signal);
-        console.log('[translate] queryIds result for "' + searchKey + '":', idsObj);
+        dbg('[translate] queryIds result for "' + searchKey + '":', idsObj);
         ids = [...(idsObj.arasaacIds || []), ...(idsObj.openSymbols || [])];
-        console.log('[translate] merged ids array:', ids);
+        dbg('[translate] merged ids array:', ids);
         arasaacCount = (idsObj.arasaacIds || []).length;
         openSymbolsCount = (idsObj.openSymbols || []).length;
       } catch {
@@ -861,7 +823,7 @@ async function translateSingleSentence(text, container) {
     }
     if (ids && ids.length > 0) {
       found++;
-      console.log('[translate] calling addTile with ids:', ids, 'word:', displayOriginal);
+      dbg('[translate] calling addTile with ids:', ids, 'word:', displayOriginal);
       await addTile(ids, displayOriginal, false, tense, badges, highlightInsert, null, container);
       // I simboli OpenSymbols sono ora integrati nel tile come alternative ciclabili
     } else {
@@ -1230,8 +1192,6 @@ function initApp() {
             // Translate each sentence and group in colored boxes
             for (let i = 0; i < sentences.length; i++) {
               const sentence = sentences[i];
-              const boxColor = i % 2 === 0 ? '#e3f2fd' : '#fff3e0'; // Alternate blue and orange
-              const borderColor = i % 2 === 0 ? '#2196f3' : '#ff9800';
 
               // Set input to current sentence
               els.input.value = sentence;
@@ -1250,24 +1210,7 @@ function initApp() {
               if (newTiles.length > 0) {
                 // Create a wrapper div for this sentence's tiles
                 const sentenceBox = document.createElement('div');
-                sentenceBox.className = 'sentence-box';
-                sentenceBox.style.cssText = `
-                  display: flex;
-                  flex-wrap: wrap;
-                  gap: 10px;
-                  padding: 15px;
-                  padding-right: 75px;
-                  margin-bottom: 10px;
-                  background-color: ${boxColor};
-                  border: 2px solid ${borderColor};
-                  border-radius: 8px;
-                  width: 100%;
-                  min-height: 120px;
-                  box-sizing: border-box;
-                  cursor: pointer;
-                  transition: transform 0.2s, box-shadow 0.2s;
-                  position: relative;
-                `;
+                sentenceBox.className = 'sentence-box ' + (i % 2 === 0 ? 'sentence-box-even' : 'sentence-box-odd');
                 sentenceBox.dataset.sentenceIndex = i;
                 sentenceBox.dataset.sentenceText = sentence;
 
@@ -1337,135 +1280,7 @@ function initApp() {
   if (printPdfBtn) {
     printPdfBtn.addEventListener('click', async () => {
       try {
-        const resultDiv = document.getElementById('result');
-        const tiles = resultDiv.querySelectorAll('.tile');
-
-        if (tiles.length === 0) {
-          alert(translateUI('pdf_print_no_tiles') || 'Nessun simbolo da stampare. Traduci prima una frase.');
-          return;
-        }
-
-        setStatusKey('custom', { msg: translateUI('pdf_print_generating') || 'Generazione PDF in corso...' });
-
-        // Temporarily hide action buttons and badges for print
-        document.body.classList.add('printing-mode');
-        const style = document.createElement('style');
-        style.id = 'print-mode-style';
-        style.textContent = `
-          .printing-mode .action-buttons-container,
-          .printing-mode .sentence-actions,
-          .printing-mode .remove-symbol-btn,
-          .printing-mode .tile .badge,
-          .printing-mode .abc-btn,
-          .printing-mode .add-symbol-btn,
-          .printing-mode .gpt-symbol-btn {
-            display: none !important;
-          }
-          .printing-mode .sentence-box {
-            page-break-inside: avoid;
-          }
-        `;
-        document.head.appendChild(style);
-
-        // Wait a moment for styles to apply
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        // Ensure resultDiv has content and is visible
-        console.log('Result div dimensions:', resultDiv.offsetWidth, 'x', resultDiv.offsetHeight);
-        console.log('Result div scroll dimensions:', resultDiv.scrollWidth, 'x', resultDiv.scrollHeight);
-        console.log('Tiles count:', tiles.length);
-        console.log('Sentence boxes count:', resultDiv.querySelectorAll('.sentence-box').length);
-
-        if (resultDiv.offsetHeight === 0 || resultDiv.offsetWidth === 0) {
-          console.error('Result div has zero dimensions');
-          document.body.classList.remove('printing-mode');
-          document.getElementById('print-mode-style')?.remove();
-          alert('Errore: il contenuto da stampare non è visibile');
-          return;
-        }
-
-        // Generate PDF by capturing each sentence-box separately to avoid canvas size limits
-        console.log('[PDF] Starting sentence-by-sentence PDF generation...');
-
-        // Seleziona solo le sentence-box (non tile orphan)
-        const sentenceBoxes = Array.from(resultDiv.children).filter(child => child.classList.contains('sentence-box'));
-        console.log('[PDF] Found', sentenceBoxes.length, 'sentence boxes');
-
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = 210; // A4 width in mm
-        const pdfHeight = 297; // A4 height in mm
-        const margin = 10; // mm
-        let currentY = margin; // Current Y position on page
-        let isFirstBox = true;
-
-        if (sentenceBoxes.length === 0) {
-          // Fallback: no sentence boxes, capture entire div
-          console.log('[PDF] No sentence boxes found, capturing entire div as fallback');
-          const canvas = await html2canvas(resultDiv, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            logging: false
-          });
-          const imgWidth = pdfWidth;
-          const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-          const imgData = canvas.toDataURL('image/png');
-          pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        } else {
-          // Process each sentence box sequentially
-          for (let i = 0; i < sentenceBoxes.length; i++) {
-            const box = sentenceBoxes[i];
-            console.log(`[PDF] Processing sentence box ${i + 1}/${sentenceBoxes.length}`);
-
-            try {
-              const canvas = await html2canvas(box, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: window.getComputedStyle(box).backgroundColor || '#ffffff',
-                logging: false
-              });
-
-              // Calculate dimensions for PDF
-              const boxImgWidth = pdfWidth - (2 * margin);
-              const boxImgHeight = (canvas.height * boxImgWidth) / canvas.width;
-
-              console.log(`[PDF] Box ${i + 1}: canvas=${canvas.width}x${canvas.height}, pdf=${boxImgWidth.toFixed(2)}x${boxImgHeight.toFixed(2)}mm, currentY=${currentY.toFixed(2)}mm`);
-
-              // Check if we need a new page
-              if (!isFirstBox && (currentY + boxImgHeight) > (pdfHeight - margin)) {
-                console.log(`[PDF] Adding new page (would exceed ${pdfHeight}mm)`);
-                pdf.addPage();
-                currentY = margin;
-              }
-
-              // Add image to PDF
-              const imgData = canvas.toDataURL('image/png');
-              pdf.addImage(imgData, 'PNG', margin, currentY, boxImgWidth, boxImgHeight);
-
-              // Update Y position for next box
-              currentY += boxImgHeight + 5; // 5mm spacing between boxes
-              isFirstBox = false;
-
-            } catch (err) {
-              console.error(`[PDF] Error processing sentence box ${i + 1}:`, err);
-              // Continue with next box
-            }
-          }
-        }
-
-        // Download PDF
-        console.log('[PDF] Saving PDF...');
-        pdf.save(`simboli-${new Date().toISOString().slice(0, 10)}.pdf`);
-
-        // Remove print mode
-        document.body.classList.remove('printing-mode');
-        document.getElementById('print-mode-style')?.remove();
-
-        setStatusKey('custom', { msg: translateUI('pdf_print_success') || 'PDF generato con successo' });
-
+        await generateSymbolsPDF();
       } catch (err) {
         console.error('PDF generation error:', err);
         document.body.classList.remove('printing-mode');

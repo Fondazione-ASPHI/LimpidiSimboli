@@ -8,7 +8,7 @@
 
 - **Vanilla JavaScript** — nessun framework, nessun bundler, nessun sistema di build.
 - Tutti i file JS condividono un **unico scope globale** via `<script>` tag; non usare `import`/`export`.
-- **Ordine di caricamento** (rispettare sempre): `utils.js` → `i18n.js` → `storage.js` → `api.js` → `variants.js` → `speech.js` → `tiles.js` → `exercises.js` → `app.js`.
+- **Ordine di caricamento** (rispettare sempre): `utils.js` → `i18n.js` → `storage.js` → `api.js` → `variants.js` → `speech.js` → `cropEditor.js` → `pdfExport.js` → `tiles.js` → `exercises.js` → `app.js`.
 - Ogni file può accedere ai globali dei file caricati prima di esso, ma **mai** a quelli caricati dopo.
 - `app.js` è l'orchestratore finale; è l'unico file che referenzia tutti gli altri.
 
@@ -21,6 +21,8 @@
 - Usare `function` declarations (hoisting) per le funzioni globali, non `const fn = () =>`.
 - Le costanti condivise vanno in `utils.js`. Lo stato mutabile globale (`var`/`let`) va in `utils.js`.
 - **Mai** dichiarare duplicati: verificare sempre se una variabile/funzione esiste già con grep.
+- **Debug logging**: usare `dbg(...)` al posto di `console.log`. Attivazione: `localStorage.debug = 'true'`.
+- **Chiavi localStorage**: usare le costanti in `STORAGE_KEYS` (es. `STORAGE_KEYS.APP_LANG`) anziché stringhe hardcodate.
 
 ### 2. Accessibilità (WCAG 2.1 AA)
 - Ogni elemento interattivo deve avere `aria-label` o testo visibile.
@@ -91,6 +93,8 @@
 | `js/api.js` | [docs/api.md](../docs/api.md) | Chiamate API esterne |
 | `js/variants.js` | [docs/variants.md](../docs/variants.md) | Varianti morfologiche |
 | `js/speech.js` | [docs/speech.md](../docs/speech.md) | TTS e karaoke |
+| `js/cropEditor.js` | [docs/cropEditor.md](../docs/cropEditor.md) | Editor di ritaglio immagine |
+| `js/pdfExport.js` | [docs/pdfExport.md](../docs/pdfExport.md) | Esportazione PDF tavole simboli |
 | `js/tiles.js` | [docs/tiles.md](../docs/tiles.md) | Creazione e gestione tile |
 | `js/exercises.js` | [docs/exercises.md](../docs/exercises.md) | Generatore esercizi |
 | `js/app.js` | [docs/app.md](../docs/app.md) | Init, pipeline traduzione, eventi |

@@ -7,7 +7,7 @@ function saveCustomImages(customImages, currentWord = null) {
     try {
       const jsonStr = JSON.stringify(customImages);
       const sizeKB = (jsonStr.length / 1024).toFixed(2);
-      console.log('[Save] customSymbolImages size:', sizeKB, 'KB');
+      dbg('[Save] customSymbolImages size:', sizeKB, 'KB');
       
       localStorage.setItem('customSymbolImages', jsonStr);
       return { success: true };
@@ -31,7 +31,7 @@ function saveCustomImages(customImages, currentWord = null) {
         
         if (keysToRemove.length > 0) {
           keysToRemove.forEach(k => localStorage.removeItem(k));
-          console.log(`[Save] Cleared ${keysToRemove.length} cache entries to free space`);
+          dbg(`[Save] Cleared ${keysToRemove.length} cache entries to free space`);
           
           // Riprova a salvare
           try {
@@ -65,7 +65,7 @@ function saveCustomImages(customImages, currentWord = null) {
               : 1;
             delete customImages[wordToRemove];
             
-            console.log(`[Save] Removed ${removedCount} image(s) from "${wordToRemove}" to free space`);
+            dbg(`[Save] Removed ${removedCount} image(s) from "${wordToRemove}" to free space`);
             
             // Riprova a salvare
             try {
@@ -104,7 +104,7 @@ async function translateItToEn(text) {
     const cacheKey = 'translation_it_en_' + text.toLowerCase();
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      console.log('[Translation] Using cached translation for "' + text + '":', cached);
+      dbg('[Translation] Using cached translation for "' + text + '":', cached);
       return cached;
     }
     
@@ -119,7 +119,7 @@ async function translateItToEn(text) {
       const translation = data.translatedText || text;
       // Salva in cache
       localStorage.setItem(cacheKey, translation);
-      console.log('[Translation] Translated "' + text + '" to "' + translation + '" (cached)');
+      dbg('[Translation] Translated "' + text + '" to "' + translation + '" (cached)');
       return translation;
     } catch (e) {
       console.warn('[Translation] Error:', e);
@@ -136,7 +136,7 @@ async function getEnglishSynonyms(word) {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached);
-      console.log('[Synonyms EN] Using cached synonyms for "' + word + '":', parsed);
+      dbg('[Synonyms EN] Using cached synonyms for "' + word + '":', parsed);
       return parsed;
     }
     
@@ -164,7 +164,7 @@ async function getEnglishSynonyms(word) {
       const text = data.choices?.[0]?.message?.content?.trim() || '';
       const synonyms = text.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
       const result = [word.toLowerCase(), ...synonyms];
-      console.log('[Synonyms] GPT returned for "' + word + '":', result);
+      dbg('[Synonyms] GPT returned for "' + word + '":', result);
       // Salva in cache
       localStorage.setItem(cacheKey, JSON.stringify(result));
       return result;
@@ -183,7 +183,7 @@ async function getItalianSynonyms(word) {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached);
-      console.log('[Synonyms IT] Using cached synonyms for "' + word + '":', parsed);
+      dbg('[Synonyms IT] Using cached synonyms for "' + word + '":', parsed);
       return parsed;
     }
     
@@ -211,7 +211,7 @@ async function getItalianSynonyms(word) {
       const text = data.choices?.[0]?.message?.content?.trim() || '';
       const synonyms = text.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
       const result = [word.toLowerCase(), ...synonyms];
-      console.log('[Synonyms IT] GPT returned for "' + word + '":', result);
+      dbg('[Synonyms IT] GPT returned for "' + word + '":', result);
       // Salva in cache
       localStorage.setItem(cacheKey, JSON.stringify(result));
       return result;
@@ -233,7 +233,7 @@ async function searchOpenSymbols(term, preTranslatedTerm = null) {
     if (!engTerm) {
       if (!/^[a-zA-Z0-9 ]+$/.test(term)) {
         engTerm = await translateItToEn(term);
-        console.log('[OpenSymbols] Traduzione ITA->ENG:', term, '->', engTerm);
+        dbg('[OpenSymbols] Traduzione ITA->ENG:', term, '->', engTerm);
         if (!engTerm || engTerm.toLowerCase() === term.toLowerCase()) {
           setStatusKey('translate_ita_en_failed', { term: term }, true);
         }
@@ -241,10 +241,10 @@ async function searchOpenSymbols(term, preTranslatedTerm = null) {
         engTerm = term;
       }
     } else {
-      console.log('[OpenSymbols] Using pre-translated term:', engTerm);
+      dbg('[OpenSymbols] Using pre-translated term:', engTerm);
     }
     
-    console.log('[OpenSymbols] Searching for term:', engTerm);
+    dbg('[OpenSymbols] Searching for term:', engTerm);
     // Usa proxy CORS per test: corsproxy.io
     // const apiUrl = `https://www.opensymbols.org/api/v1/symbols/search?q=${encodeURIComponent(engTerm)}&limit=5`;
     // const url = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
@@ -259,13 +259,13 @@ async function searchOpenSymbols(term, preTranslatedTerm = null) {
       if (typeof openSymbolsToken !== 'undefined' && openSymbolsToken) {
         headers['Authorization'] = `Bearer ${openSymbolsToken}`;
       }
-      console.log('[OpenSymbols] URL richiesta:', url);
+      dbg('[OpenSymbols] URL richiesta:', url);
       const res = await fetch(url, { headers });
-      console.log('[OpenSymbols] HTTP status:', res.status);
+      dbg('[OpenSymbols] HTTP status:', res.status);
       let rawText = '';
       try {
         rawText = await res.clone().text();
-        console.log('[OpenSymbols] Risposta grezza:', rawText);
+        dbg('[OpenSymbols] Risposta grezza:', rawText);
       } catch (e) {
         console.warn('[OpenSymbols] Impossibile leggere la risposta grezza:', e);
       }
@@ -287,30 +287,30 @@ async function searchOpenSymbols(term, preTranslatedTerm = null) {
         console.warn('[OpenSymbols] Risposta non valida');
         return [];
       }
-      console.log('[searchOpenSymbols] Parsed JSON data:', data);
+      dbg('[searchOpenSymbols] Parsed JSON data:', data);
       // La risposta API v2 restituisce direttamente un array di simboli, non un oggetto con data.symbols
       const symbols = Array.isArray(data) ? data : (Array.isArray(data.symbols) ? data.symbols : []);
-      console.log('[searchOpenSymbols] Total symbols from API:', symbols.length);
+      dbg('[searchOpenSymbols] Total symbols from API:', symbols.length);
       if (!symbols || symbols.length === 0) {
         // Nessun simbolo trovato - non mostrare errore all'utente
-        console.log('[OpenSymbols] Nessun simbolo trovato per:', engTerm);
+        dbg('[OpenSymbols] Nessun simbolo trovato per:', engTerm);
         window.lastOpenSymbolsResult = [];
         return [];
       }
       // Filtra ARASAAC per evitare duplicati con la ricerca principale ARASAAC
       const notArasaac = symbols.filter(s => s.repo_key && s.repo_key.toLowerCase() !== 'arasaac');
-      console.log('[searchOpenSymbols] After filtering ARASAAC:', notArasaac.length);
+      dbg('[searchOpenSymbols] After filtering ARASAAC:', notArasaac.length);
       // Ottieni sinonimi in inglese usando GPT per filtrare meglio i risultati
       const synonyms = await getEnglishSynonyms(engTerm);
-      console.log('[searchOpenSymbols] Using synonyms:', synonyms);
+      dbg('[searchOpenSymbols] Using synonyms:', synonyms);
       // Filtra falsi positivi: tieni solo simboli dove il termine cercato o un sinonimo appare nel nome
       const relevant = notArasaac.filter(s => {
         const name = (s.name || '').toLowerCase();
         // Accetta se il nome contiene il termine cercato o uno dei suoi sinonimi
         return synonyms.some(syn => name.includes(syn));
       });
-      console.log('[searchOpenSymbols] After relevance filtering:', relevant.length);
-      console.log('[searchOpenSymbols] Relevant symbols:', relevant.map(s => ({ name: s.name, repo: s.repo_key, relevance: s.relevance })));
+      dbg('[searchOpenSymbols] After relevance filtering:', relevant.length);
+      dbg('[searchOpenSymbols] Relevant symbols:', relevant.map(s => ({ name: s.name, repo: s.repo_key, relevance: s.relevance })));
       
       // Rimuovi duplicati basati su image_url (stesso simbolo con ID diversi)
       const uniqueMap = new Map();
@@ -321,7 +321,7 @@ async function searchOpenSymbols(term, preTranslatedTerm = null) {
         }
       });
       const uniqueSymbols = Array.from(uniqueMap.values());
-      console.log('[searchOpenSymbols] After removing duplicates:', uniqueSymbols.length);
+      dbg('[searchOpenSymbols] After removing duplicates:', uniqueSymbols.length);
       
       if (uniqueSymbols.length === 0) {
   setStatusKey('opensymbols_only_arasaac', null, false);
@@ -333,7 +333,7 @@ async function searchOpenSymbols(term, preTranslatedTerm = null) {
       window.lastOpenSymbolsResult = uniqueSymbols.map(s => ({ url: s.svg, label: s.label || engTerm, repo: s.repo_key || '', image_url: s.image_url, name: s.name }));
       
       const searchTime = performance.now() - startTime;
-      console.log('[searchOpenSymbols] Search complete in', searchTime.toFixed(0), 'ms - Returning:', window.lastOpenSymbolsResult.length, 'symbols');
+      dbg('[searchOpenSymbols] Search complete in', searchTime.toFixed(0), 'ms - Returning:', window.lastOpenSymbolsResult.length, 'symbols');
       
       // NON chiamare showOpenSymbolsSection qui - i simboli verranno integrati nel tile principale
       return window.lastOpenSymbolsResult;
@@ -555,10 +555,10 @@ async function searchForIds(lang, term, signal) {
 // 12. queryIds – Main 3-phase parallel search (ARASAAC + synonyms + OpenSymbols)
 // ---------------------------------------------------------------------------
 async function queryIds(lang, term, signal) {
-  console.log('[queryIds] Called with term:', JSON.stringify(term));
+  dbg('[queryIds] Called with term:', JSON.stringify(term));
   // Pulisci il termine da punteggiatura e converti in lowercase
   const t = sanitizeWord(term || '');
-  console.log('[queryIds] After sanitizeWord:', JSON.stringify(t));
+  dbg('[queryIds] After sanitizeWord:', JSON.stringify(t));
   if (!t) return { ids: [], openSymbols: [] }; // Se il termine è vuoto dopo la pulizia, restituisci vuoto
   const startTime = performance.now();
 
@@ -598,7 +598,7 @@ async function queryIds(lang, term, signal) {
     getItalianSynonyms(term)
   ]);
 
-  console.log('[queryIds] Phase 1 complete - Italian base:', italianBaseIds.length, 'English term:', engTerm, 'Italian synonyms:', italianSynonyms);
+  dbg('[queryIds] Phase 1 complete - Italian base:', italianBaseIds.length, 'English term:', engTerm, 'Italian synonyms:', italianSynonyms);
 
   // FASE 2: Ricerche parallele con sinonimi (italiano + inglese)
   const arasaacIds = [...italianBaseIds];
@@ -623,7 +623,7 @@ async function queryIds(lang, term, signal) {
     });
   }
   
-  console.log('[queryIds] Phase 2 - Searching', searches.length, 'synonyms in parallel');
+  dbg('[queryIds] Phase 2 - Searching', searches.length, 'synonyms in parallel');
   
   // Esegui tutte le ricerche in parallelo (max 10 alla volta per evitare rate limit)
   const batchSize = 10;
@@ -645,14 +645,14 @@ async function queryIds(lang, term, signal) {
   }
 
   const arasaacTime = performance.now() - startTime;
-  console.log('[queryIds] ARASAAC search complete:', arasaacIds.length, 'IDs in', arasaacTime.toFixed(0), 'ms');
+  dbg('[queryIds] ARASAAC search complete:', arasaacIds.length, 'IDs in', arasaacTime.toFixed(0), 'ms');
 
   // FASE 3: OpenSymbols (usa la stessa traduzione già ottenuta)
-  console.log('[queryIds] Searching OpenSymbols with pre-translated term:', engTerm);
+  dbg('[queryIds] Searching OpenSymbols with pre-translated term:', engTerm);
   const openSymbols = await searchOpenSymbols(term, engTerm); // Passa traduzione esistente
   
   const totalTime = performance.now() - startTime;
-  console.log('[queryIds] Total search time:', totalTime.toFixed(0), 'ms - ARASAAC:', arasaacIds.length, 'OpenSymbols:', openSymbols.length);
+  dbg('[queryIds] Total search time:', totalTime.toFixed(0), 'ms - ARASAAC:', arasaacIds.length, 'OpenSymbols:', openSymbols.length);
 
   return { arasaacIds, openSymbols };
 }
@@ -693,14 +693,14 @@ async function getCachedExplanation(text, lang, isPhrase) {
               const age = Date.now() - cached.timestamp;
               const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 giorni
               if (age < maxAge) {
-                console.log('[Explain Cache] Hit:', key);
+                dbg('[Explain Cache] Hit:', key);
                 resolve(cached.data);
               } else {
-                console.log('[Explain Cache] Expired:', key);
+                dbg('[Explain Cache] Expired:', key);
                 resolve(null);
               }
             } else {
-              console.log('[Explain Cache] Miss:', key);
+              dbg('[Explain Cache] Miss:', key);
               resolve(null);
             }
           };
@@ -727,7 +727,7 @@ async function cacheExplanation(text, lang, isPhrase, data) {
           timestamp: Date.now()
         }, key);
         
-        console.log('[Explain Cache] Saved:', key);
+        dbg('[Explain Cache] Saved:', key);
       } catch (e) {
         console.warn('[Explain Cache] Error writing:', e);
       }
@@ -984,7 +984,7 @@ async function generateArasaacStyleImages(prompt, count = 1) {
     throw new Error('Chiave API OpenAI non impostata. Salvala usando il campo in alto.');
   }
   
-  console.log('[GPT Image] Generating', count, 'images for prompt:', prompt);
+  dbg('[GPT Image] Generating', count, 'images for prompt:', prompt);
   
   // Prompt per stile illustrazione da libro per bambini
   const fullPrompt = `Create a simple, colorful children's book illustration for: ${prompt}.
@@ -1009,7 +1009,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
   // DALL-E 3 genera 1 sola immagine per chiamata, quindi facciamo N chiamate
   for (let i = 0; i < count; i++) {
     try {
-      console.log(`[GPT Image] Generating image ${i + 1}/${count}...`);
+      dbg(`[GPT Image] Generating image ${i + 1}/${count}...`);
       
       const res = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
@@ -1047,7 +1047,7 @@ Style should be like a simple, happy illustration from a children's storybook.`;
       }
       
       const base64Image = `data:image/png;base64,${b64Data}`;
-      console.log(`[GPT Image] Image ${i + 1}/${count} received (${base64Image.length} chars)`);
+      dbg(`[GPT Image] Image ${i + 1}/${count} received (${base64Image.length} chars)`);
       images.push(base64Image);
       
     } catch (err) {
@@ -1060,6 +1060,6 @@ Style should be like a simple, happy illustration from a children's storybook.`;
     throw new Error('Nessuna immagine generata con successo');
   }
   
-  console.log('[GPT Image] Total images generated:', images.length);
+  dbg('[GPT Image] Total images generated:', images.length);
   return images;
 }

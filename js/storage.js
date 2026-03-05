@@ -113,7 +113,7 @@ async function initLocalFolderFromIDB() {
     const uniqueWords = Object.keys(localImageFiles).length;
     els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
     setStatusKey('local_folder_connected', { dir: savedHandleName || '(cartella salvata)', files: totalFiles, words: uniqueWords });
-    console.log('[Local Folder] Reconnected to saved folder:', savedHandleName, localImageFiles);
+    dbg('[Local Folder] Reconnected to saved folder:', savedHandleName, localImageFiles);
   } catch (e) {
     console.warn('[Local Folder] Could not load saved handle:', e);
   }
@@ -148,7 +148,7 @@ function setupSelectLocalFolder() {
         }
 
         // Scansiona tutti i file nella cartella
-        console.log('[Local Folder] Scanning folder:', dirHandle.name);
+        dbg('[Local Folder] Scanning folder:', dirHandle.name);
         localImageFiles = {}; // Struttura: { "parola": [FileHandle/File, ...] }
         let totalFiles = 0;
         const fileList = [];
@@ -175,19 +175,10 @@ function setupSelectLocalFolder() {
         }
 
         try {
-          // Prova a salvare il handle in IndexedDB per ricollegare la cartella in seguito
+          // Salva il handle in IndexedDB per ricollegare la cartella in seguito
           const saved = await persistHandleToIDB('localImageFolder', dirHandle);
           if (saved) {
-            try {
-              const saved = await persistHandleToIDB('localImageFolder', dirHandle);
-              if (saved) {
-                localStorage.setItem('localImageFolderName', dirHandle.name);
-              } else {
-                localStorage.setItem('localImageFolderName', dirHandle.name);
-              }
-            } catch (e) {
-              try { localStorage.setItem('localImageFolderName', dirHandle.name); } catch (_) {}
-            }
+            localStorage.setItem('localImageFolderName', dirHandle.name);
           } else {
             // Se non possiamo salvare il handle, salviamo comunque il nome per compatibilità
             localStorage.setItem('localImageFolderName', dirHandle.name);
@@ -197,7 +188,7 @@ function setupSelectLocalFolder() {
         }
         const uniqueWords = Object.keys(localImageFiles).length;
         els.localFolderStatus.textContent = `✅ ${totalFiles} immagini trovate per ${uniqueWords} parole`;
-        console.log('[Local Folder] Loaded files for', uniqueWords, 'words:', localImageFiles);
+        dbg('[Local Folder] Loaded files for', uniqueWords, 'words:', localImageFiles);
         setStatusKey('local_folder_connected', { dir: dirHandle.name, files: totalFiles, words: uniqueWords });
 
         return;
@@ -281,7 +272,7 @@ function setupSelectLocalFolder() {
 
     } catch (e) {
       if (e.name === 'AbortError') {
-        console.log('[Local Folder] User cancelled folder selection');
+        dbg('[Local Folder] User cancelled folder selection');
       } else {
         console.error('[Local Folder] Error:', e);
         alert(translateUI('localFolderSelectError', { msg: e.message }));
@@ -372,7 +363,7 @@ async function saveImageToLocalFolder(imageData, word) {
   const timestamp = Date.now();
   const fileName = `${word}_ai_${timestamp}.${extension}`;
 
-  console.log('[Local Folder] Saving image:', fileName, 'Size:', blob.size, 'bytes');
+  dbg('[Local Folder] Saving image:', fileName, 'Size:', blob.size, 'bytes');
 
   // Crea il file nella cartella
   const fileHandle = await localImageFolderHandle.getFileHandle(fileName, { create: true });
@@ -382,7 +373,7 @@ async function saveImageToLocalFolder(imageData, word) {
   await writable.write(blob);
   await writable.close();
 
-  console.log('[Local Folder] Image saved successfully:', fileName);
+  dbg('[Local Folder] Image saved successfully:', fileName);
 
   // Aggiorna la cache localImageFiles
   const wordKey = word.toLowerCase();
@@ -492,17 +483,17 @@ async function loadCustomSymbolsList() {
                 const reader = new FileReader();
                 reader.onload = (e) => { img.src = e.target.result; };
                 reader.onerror = () => {
-                  img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+                  img.src = SVG_ERROR;
                   try { img.alt = translateUI('errorLoading'); } catch (e) {}
                 };
                 reader.readAsDataURL(file);
               } catch (err) {
                 console.error('[Custom Symbols] Error loading file:', err);
-                img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+                img.src = SVG_ERROR;
                 img.title = err.message;
               }
             } else {
-              img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">Non trovato</text></svg>';
+              img.src = SVG_NOT_FOUND;
               img.title = translateUI('fileNotFoundTitle');
             }
           } else if (typeof symbolId === 'string' && symbolId.startsWith('data:')) {
@@ -517,17 +508,17 @@ async function loadCustomSymbolsList() {
                 reader.onload = (e) => { img.src = e.target.result; };
                 reader.readAsDataURL(file);
               } catch (err) {
-                img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+                img.src = SVG_ERROR;
               }
             } else {
-              img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">Non trovato</text></svg>';
+              img.src = SVG_NOT_FOUND;
             }
           } else {
-            img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23999" font-size="12">?</text></svg>';
+            img.src = SVG_UNKNOWN;
           }
         } catch (err) {
           console.error('[Custom Symbols] Error:', err);
-          img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="50%" y="50%" text-anchor="middle" fill="%23c00" font-size="12">Errore</text></svg>';
+          img.src = SVG_ERROR;
         }
       })();
 

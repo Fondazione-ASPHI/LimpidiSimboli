@@ -1,6 +1,6 @@
 # js/speech.js — TTS e Karaoke
 
-**Righe:** ~195 | **Dipendenze:** `utils.js` (usa `els`, `sanitizeWord`), `i18n.js` (usa `translateUI`)
+**Righe:** ~225 | **Dipendenze:** `utils.js` (usa `els`, `sanitizeWord`), `i18n.js` (usa `translateUI`)
 
 ## Responsabilità
 

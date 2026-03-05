@@ -1,6 +1,6 @@
 # js/exercises.js — Modulo esercizi
 
-**Righe:** ~809 | **Dipendenze:** `utils.js`, `i18n.js`, `speech.js`, `variants.js`, `api.js` (pdf.js CDN)
+**Righe:** ~808 | **Dipendenze:** `utils.js`, `i18n.js`, `speech.js`, `variants.js`, `api.js` (pdf.js CDN)
 
 ## Responsabilità
 

@@ -1,6 +1,6 @@
 # css/styles.css — Stili e accessibilità
 
-**Righe:** ~969
+**Righe:** ~1085
 
 ## Responsabilità
 

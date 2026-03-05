@@ -1,6 +1,6 @@
 # js/app.js — Orchestratore principale
 
-**Righe:** ~1984 | **Dipendenze:** tutti gli altri file JS
+**Righe:** ~1799 | **Dipendenze:** tutti gli altri file JS
 
 ## Responsabilità
 
@@ -8,8 +8,9 @@
 - Pipeline di traduzione (frase → analisi GPT → ricerca simboli → tile).
 - Collegamento di tutti gli event listener.
 - Gestione salvataggio/caricamento progetti.
-- Generazione PDF delle tavole di simboli.
 - EULA gate.
+
+> **Nota:** la generazione PDF è stata spostata in `pdfExport.js` (funzione globale `generateSymbolsPDF()`). `app.js` si limita a collegare il click handler di `#printPdfButton` a quella funzione.
 
 ## EULA Gate
 
@@ -103,7 +104,7 @@ Euristica per risolvere l'ambiguità del pronome "sono" in italiano:
 2. **Lingua**: legge/salva preferenza, chiama `applyTranslations()`.
 3. **Chiavi API**: carica da localStorage (OpenAI, Google, OpenSymbols).
 4. **Cartella locale**: `initLocalFolderFromIDB()`.
-5. **Event listener**: traduzione, clear, speak, settings, print PDF, guide, voice, karaoke, badge grammar, tile actions toggle.
+5. **Event listener**: traduzione, clear, speak, settings, print PDF (`generateSymbolsPDF()` da `pdfExport.js`), guide, voice, karaoke, badge grammar, tile actions toggle.
 6. **Upload documenti**: handler per PDF/DOCX via `pdfjsLib`/`mammoth`.
 7. **Modal impostazioni**: slider karaoke, checkbox badge, pannello simboli custom.
 8. **Overlay karaoke**: crea il DOM dell'overlay con controlli play/pause/close.
@@ -122,7 +123,7 @@ Aggiorna il testo del pulsante traduzione: "Converti" se vuoto, "Aggiungi" se ci
 |--------|--------|--------|
 | `click` | `#translateButton` | `translate(textInput.value)` |
 | `click` | `#clearButton` | Svuota `#result` |
-| `click` | `#printPdfButton` | Genera PDF con jspdf + html2canvas |
+| `click` | `#printPdfButton` | `generateSymbolsPDF()` (da `pdfExport.js`) |
 | `click` | `#saveProjectButton` | Esporta progetto come JSON |
 | `click` | `#loadProjectButton` | Importa progetto da JSON |
 | `click` | `#settingsButton` | Apre modal impostazioni |

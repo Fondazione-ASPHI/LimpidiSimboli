@@ -1,6 +1,6 @@
 # js/storage.js — IndexedDB, gestione cartelle e simboli personalizzati
 
-**Righe:** ~627 | **Dipendenze:** `utils.js`, `i18n.js`, `api.js`
+**Righe:** ~618 | **Dipendenze:** `utils.js`, `i18n.js`, `api.js`
 
 ## Responsabilità
 

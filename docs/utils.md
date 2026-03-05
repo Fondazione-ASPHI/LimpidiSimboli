@@ -1,6 +1,6 @@
 # js/utils.js — Costanti, stato globale e utility
 
-**Righe:** ~367 | **Dipendenze:** nessuna (file fondazionale, caricato per primo)
+**Righe:** ~397 | **Dipendenze:** nessuna (file fondazionale, caricato per primo)
 
 ## Responsabilità
 
@@ -9,6 +9,36 @@
 - Fornire funzioni utility generiche usate da tutti gli altri moduli.
 
 ## Costanti
+
+### Debug
+
+| Nome | Tipo | Descrizione |
+|------|------|-------------|
+| `DEBUG` | `const boolean` | Flag di debug, letto da `localStorage.debug === 'true'`. Attivato via IIFE all'avvio. |
+| `dbg()` | `function` | Wrapper di `console.log` condizionale: logga solo se `DEBUG` è `true`. Usare **sempre** al posto di `console.log`. |
+
+### Chiavi localStorage (`STORAGE_KEYS`)
+
+```js
+const STORAGE_KEYS = {
+  EULA_ACCEPTED, EULA_VERSION, APP_LANG,
+  OPENAI_KEY, OPENSYMBOLS_TOKEN,
+  GOOGLE_API_KEY, GOOGLE_CX,
+  KARAOKE_SPEED, SELECTED_VOICE,
+  SHOW_TILE_ACTIONS, SHOW_GRAMMAR_BADGES,
+  LOCAL_FOLDER_NAME, CUSTOM_SYMBOL_IMAGES, PERSONAL_SYMBOLS
+};
+```
+
+Oggetto centralizzato con tutte le chiavi usate per `localStorage.getItem()`/`setItem()`. Usare `STORAGE_KEYS.NOME` anziché stringhe hardcodate.
+
+### SVG Placeholder
+
+| Nome | Descrizione |
+|------|-------------|
+| `SVG_ERROR` | Data-URL SVG con testo "Errore" (rosso). Usato come fallback quando il caricamento di un'immagine fallisce. |
+| `SVG_NOT_FOUND` | Data-URL SVG con testo "Non trovato" (grigio). Usato quando nessun pittogramma corrisponde alla ricerca. |
+| `SVG_UNKNOWN` | Data-URL SVG con testo "?" (grigio). Usato per stati sconosciuti. |
 
 ### Endpoint API
 
@@ -51,17 +81,17 @@
 
 | Nome | Tipo | Iniziale | Descrizione |
 |------|------|----------|-------------|
-| `openaiApiKey` | `let` | `''` | Chiave API OpenAI, caricata da localStorage in `app.js` |
-| `googleApiKey` | `let` | `null` | Chiave API Google CSE |
-| `googleCx` | `let` | `null` | ID motore di ricerca Google |
-| `localImageFolderHandle` | `let` | `null` | `FileSystemDirectoryHandle` della cartella locale |
-| `localImageFiles` | `let` | `[]` | Mappa nomi file nella cartella locale |
-| `localFileHandleMap` | `let` | `Map` | ID unici → `FileSystemFileHandle` |
-| `keywordIndex` | `let` | `null` | Indice keyword ARASAAC italiano (caricato da JSON) |
-| `keywordEntries` | `let` | `[]` | Array flat di voci dell'indice keyword |
-| `keywordIndexReady` | `let` | `false` | Flag di readiness dell'indice |
-| `selectedTiles` | `let` | `[]` | Tile selezionate per operazione merge |
-| `aborter` | `let` | `null` | `AbortController` corrente per richieste cancellabili |
+| `openaiApiKey` | `var` | `''` | Chiave API OpenAI, caricata da localStorage in `app.js` |
+| `googleApiKey` | `var` | `''` | Chiave API Google CSE |
+| `googleCx` | `var` | `''` | ID motore di ricerca Google |
+| `localImageFolderHandle` | `var` | `null` | `FileSystemDirectoryHandle` della cartella locale |
+| `localImageFiles` | `var` | `{}` | Oggetto nomi file nella cartella locale |
+| `localFileHandleMap` | `var` | `new Map()` | Nomi file → `FileSystemFileHandle` |
+| `keywordIndex` | `var` | `new Map()` | Indice keyword ARASAAC italiano (caricato da JSON) |
+| `keywordEntries` | `var` | `new Set()` | Set di voci dell'indice keyword |
+| `keywordIndexReady` | `var` | `false` | Flag di readiness dell'indice |
+| `selectedTiles` | `var` | `new Set()` | Tile selezionate per operazione merge |
+| `aborter` | `var` | `null` | `AbortController` corrente per richieste cancellabili |
 | `openSymbolsToken` | `var` | `''` | Token API OpenSymbols |
 | `els` | `var` | `{}` | Riferimenti DOM, popolato da `initApp()` in `app.js` |
 
@@ -123,3 +153,6 @@ Genera possibili forme singolari di un sostantivo italiano (es. `'gatti' → ['g
 - **Aggiungere stato globale**: dichiarare con `var` o `let` in questo file.
 - **Non duplicare**: verificare sempre con grep che la variabile/funzione non esista già.
 - `els` viene inizializzato **vuoto** qui; i valori sono assegnati in `initApp()` dentro `app.js`.
+- **Logging**: usare `dbg(...)` per log di debug, mai `console.log` (tranne `console.error` per errori critici).
+- **Chiavi localStorage**: aggiungere nuove chiavi a `STORAGE_KEYS` e usare la costante ovunque.
+- **Placeholder SVG**: usare `SVG_ERROR`, `SVG_NOT_FOUND` o `SVG_UNKNOWN` invece di creare nuovi SVG inline.

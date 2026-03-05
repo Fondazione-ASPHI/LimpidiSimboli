@@ -13,7 +13,7 @@ LimpidiSimboli/
 ├── logo.png                # Logo Fondazione ASPHI
 ├── LICENSE.txt             # GNU GPL v3
 ├── css/
-│   └── styles.css          # Foglio di stile unico (969 righe)
+│   └── styles.css          # Foglio di stile unico (~1085 righe)
 ├── js/
 │   ├── utils.js            # Costanti, stato globale, utility
 │   ├── i18n.js             # Traduzioni IT/EN/ES, status messages
@@ -21,6 +21,8 @@ LimpidiSimboli/
 │   ├── api.js              # Tutte le chiamate API esterne
 │   ├── variants.js         # Generatori varianti morfologiche
 │   ├── speech.js           # TTS e karaoke
+│   ├── cropEditor.js       # Editor di ritaglio immagine
+│   ├── pdfExport.js        # Esportazione PDF tavole simboli
 │   ├── tiles.js            # Creazione e gestione tile/simboli
 │   ├── exercises.js        # Modulo esercizi (IIFE)
 │   └── app.js              # Orchestratore, init, pipeline traduzione
@@ -43,13 +45,15 @@ L'ordine è **critico** perché tutti i file condividono lo scope globale (`wind
    └── html2canvas 1.4.1
 
 2. Application scripts (prima di </body>):
-   ├── utils.js        ← fondazione: costanti, stato, helper
+   ├── utils.js        ← fondazione: costanti, stato, helper, DEBUG/dbg()
    ├── i18n.js         ← traduzioni (usa els da utils)
    ├── storage.js      ← persistenza (usa els, localImage* da utils)
    ├── api.js          ← API calls (usa costanti, cache, stato da utils + variants)
    ├── variants.js     ← morfologia (usa IRREGULAR_PRESENT_LEMMA_MAP da utils)
    ├── speech.js       ← TTS (usa els da utils, translateUI da i18n)
-   ├── tiles.js        ← tile (usa utils + api + storage + i18n)
+   ├── cropEditor.js   ← crop immagini (usa utils + i18n + storage)
+   ├── pdfExport.js    ← export PDF (usa i18n + jspdf + html2canvas)
+   ├── tiles.js        ← tile (usa utils + api + storage + i18n + cropEditor)
    ├── exercises.js    ← esercizi (usa utils + i18n + speech + variants)
    └── app.js          ← orchestratore (usa TUTTI gli altri file)
 ```
@@ -65,7 +69,12 @@ utils.js ───────────────────────�
   │                                           │   │     │
   ├──► api.js ◄── variants.js               │   │     │
   │     │                                     │   │     │
-  │     ├──► tiles.js ◄── storage.js, i18n  │   │     │
+  │     ├──► cropEditor.js ◄── i18n, storage │   │     │
+  │     │                                     │   │     │
+  │     ├──► pdfExport.js ◄── i18n (+ CDN)  │   │     │
+  │     │                                     │   │     │
+  │     ├──► tiles.js ◄── storage, i18n,    │   │     │
+  │     │                  cropEditor        │   │     │
   │     │                                     │   │     │
   │     └──► exercises.js ◄── i18n, speech  │   │     │
   │                                           │   │     │
@@ -121,3 +130,5 @@ Non ci sono `import`/`export`. Tutta la comunicazione avviene tramite:
 - **Selezione DOM**: `qs('id')` ≡ `document.getElementById('id')`.
 - **Gestione errori async**: wrappare con `safeAsync()` oppure try/catch con `setStatusKey()`.
 - **Cache**: oggetto `cache` e `pictoDetailCache` in `utils.js`.
+- **Debug logging**: usare `dbg(...)` al posto di `console.log`. Attivazione: `localStorage.debug = 'true'`.
+- **Chiavi localStorage**: usare le costanti in `STORAGE_KEYS` (es. `STORAGE_KEYS.APP_LANG`) anziché stringhe hardcodate.

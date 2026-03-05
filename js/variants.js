@@ -6,11 +6,7 @@ function generateItalianVariants(term) {
   add(term);
   const lower = term.toLowerCase();
 
-  const irregularPresentMap = {
-    'ho': 'avere', 'hai': 'avere', 'ha': 'avere', 'abbiamo': 'avere', 'avete': 'avere', 'hanno': 'avere',
-    'sono': 'essere', 'sei': 'essere', 'è': 'essere', 'siamo': 'essere', 'siete': 'essere'
-  };
-  const irregularInf = irregularPresentMap[lower];
+  const irregularInf = IRREGULAR_PRESENT_LEMMA_MAP[lower];
   if (irregularInf) add(irregularInf);
 
   const irregularFutureMap = {

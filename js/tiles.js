@@ -66,16 +66,16 @@
       const ids = JSON.parse(tile.dataset.ids || '[]');
       const index = parseInt(tile.dataset.index || '0', 10);
       const word = tile.dataset.word || '';
-      console.log('[setImageForTile] ids:', ids, 'index:', index, 'word:', word);
+      dbg('[setImageForTile] ids:', ids, 'index:', index, 'word:', word);
       // Priorità: immagine personalizzata in cache
       // NOTA: customImages rimosso per permettere ciclaggio - immagine custom è nel primo posto di ids
       const id = ids[index];
-      console.log('[setImageForTile] current id:', id, 'typeof:', typeof id);
+      dbg('[setImageForTile] current id:', id, 'typeof:', typeof id);
       if (!id) return;
       
       // Caso: immagine dalla cartella locale
       if (typeof id === 'object' && id.type === 'local-file' && id.id) {
-        console.log('[setImageForTile] Loading local file:', id.fileName);
+        dbg('[setImageForTile] Loading local file:', id.fileName);
         try {
           // Recupera il FileHandle dalla mappa globale
           const fileHandle = localFileHandleMap.get(id.id);
@@ -94,7 +94,7 @@
           img.alt = `Immagine locale: ${id.fileName}`;
         } catch (err) {
           console.error('[setImageForTile] Error loading local file:', err);
-          img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="50%" y="50%" text-anchor="middle" fill="red">Errore</text></svg>';
+          img.src = SVG_ERROR;
           img.alt = translateUI('errorLoading');
         }
         return;
@@ -109,7 +109,7 @@
         const imageUrl = id.image_url.startsWith('http') 
           ? `https://corsproxy.io/?${encodeURIComponent(id.image_url)}`
           : id.image_url;
-        console.log('[setImageForTile] Setting OpenSymbols image via proxy:', imageUrl);
+        dbg('[setImageForTile] Setting OpenSymbols image via proxy:', imageUrl);
         img.src = imageUrl;
         img.alt = `${id.name || id.label || word} (${id.repo || id.repo_key || ''})`;
       } else if (typeof id === 'object' && id.url) {
@@ -117,7 +117,7 @@
         const imageUrl = id.url.startsWith('http') 
           ? `https://corsproxy.io/?${encodeURIComponent(id.url)}`
           : id.url;
-        console.log('[setImageForTile] Setting OpenSymbols SVG via proxy:', imageUrl);
+        dbg('[setImageForTile] Setting OpenSymbols SVG via proxy:', imageUrl);
         img.src = imageUrl;
         img.alt = `${id.label || word}`;
       } else {
@@ -196,7 +196,7 @@
             // Salva l'immagine nella cartella locale (già compressa dalla funzione saveImageToLocalFolder)
             const fileHandle = await saveImageToLocalFolder(file, word);
             
-            console.log('[Upload] Saved custom image for:', word, 'File:', fileHandle.name);
+            dbg('[Upload] Saved custom image for:', word, 'File:', fileHandle.name);
             
             // Genera ID univoco e salva il FileHandle nella mappa
             const uniqueId = `local-file::${fileHandle.name}`;
@@ -236,7 +236,7 @@
             if (!customImages[word].includes(uniqueId)) {
               customImages[word].push(uniqueId);
               localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
-              console.log('[Upload] Saved association:', word, '→', uniqueId);
+              dbg('[Upload] Saved association:', word, '→', uniqueId);
             }
             
             // Aggiorna o crea l'immagine
@@ -264,203 +264,87 @@
       fileInput.click();
     }
 
-    async function addTile(id, word, skipped = false, tense = null, badges = [], highlight = false, insertBefore = null, container = null) {
-  // Crea un nuovo tile che può contenere più ID (pittogrammi ARASAAC, TAWASOL, OpenSymbols, ecc.) e badge multipli.
-  // insertBefore: se specificato, inserisce il tile prima di questo elemento, altrimenti lo aggiunge in fondo
-  // container: se specificato, aggiunge il tile a questo container invece che a els.res
-  // Puoi passare direttamente un array di simboli come id:
-  // Esempio:
-  // addTile([
-  //   {image_url: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/man.png.varianted-skin.png', name: 'uomo', repo: 'arasaac'},
-  //   {image_url: 'https://d18vdu4p71yql0.cloudfront.net/libraries/tawasol/Man_3.png', name: 'Uomo 3', repo: 'tawasol'}
-  // ], 'uomo');
-      console.log('[addTile] called with id:', id, 'word:', word);
-      const tile = document.createElement('div');
-      tile.className = 'tile';
-      if (highlight) {
-        tile.classList.add('inserted');
-      }
-      tile.dataset.word = word;
-      // Se id è una lista (array), utilizzalo, altrimenti trasformalo in array. Quando null o undefined, diventa array vuoto.
-      const ids = Array.isArray(id) ? id : (id ? [id] : []);
-      
-      // Verifica se esistono immagini custom per questa parola e inseriscile all'inizio (in ordine)
-      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
-      if (customImages[word]) {
-        let customUrls = customImages[word];
-        // Supporto retrocompatibilità: converti da stringa a array
-        if (!Array.isArray(customUrls)) {
-          customUrls = [customUrls];
-        }
-        // Rimuovi eventuali copie già presenti nell'array ids
-        customUrls.forEach(customUrl => {
-          const existingIndex = ids.findIndex(idItem => idItem === customUrl);
-          if (existingIndex !== -1) {
-            ids.splice(existingIndex, 1);
-          }
-        });
-        // Inserisci tutte le immagini custom all'inizio (in ordine inverso per mantenere l'ordine)
-        for (let i = customUrls.length - 1; i >= 0; i--) {
-          const customUrl = customUrls[i];
-          // Se è un ID di file locale (local-file::...), convertilo in oggetto
-          if (typeof customUrl === 'string' && customUrl.startsWith('local-file::')) {
-            const fileName = customUrl.replace('local-file::', '');
-            const localImageObj = {
-              type: 'local-file',
-              id: customUrl,
-              fileName: fileName,
-              word: word
-            };
-            ids.unshift(localImageObj);
-          } else {
-            // Immagine data: URL o altro formato
-            ids.unshift(customUrl);
-          }
-        }
-        console.log('[addTile] Added', customUrls.length, 'custom image(s) at beginning for:', word);
-      }
-      
-      // Verifica se ci sono immagini dalla cartella locale per questa parola
-      const wordLower = word.toLowerCase();
-      if (localImageFiles[wordLower] && localImageFiles[wordLower].length > 0) {
-        const localFiles = localImageFiles[wordLower];
-        console.log('[addTile] Found', localFiles.length, 'local image(s) for:', word);
-        
-        // Converti i FileHandle in oggetti con ID univoci (i FileHandle non sono serializzabili)
-        for (const fileHandle of localFiles) {
-          // Genera un ID univoco basato sul nome del file
-          const uniqueId = `local-file::${fileHandle.name}`;
-          
-          // Salva il FileHandle nella mappa globale
-          localFileHandleMap.set(uniqueId, fileHandle);
-          
-          // Crea un oggetto serializzabile
-          const localImageObj = {
-            type: 'local-file',
-            id: uniqueId,
-            fileName: fileHandle.name,
-            word: word
-          };
-          
-          // Inserisci dopo le immagini custom ma prima delle ARASAAC/OpenSymbols
-          const insertPosition = customImages[word] ? (Array.isArray(customImages[word]) ? customImages[word].length : 1) : 0;
-          ids.splice(insertPosition, 0, localImageObj);
-        }
-        console.log('[addTile] Added', localFiles.length, 'local image(s) for:', word);
-      }
-      
-      console.log('[addTile] ids array after processing:', ids);
-      tile.dataset.ids = JSON.stringify(ids);
-      tile.dataset.index = '0';
-      if (ids.length > 0) {
-        // Crea l'elemento immagine e impostalo in base all'id corrente
-        const img = document.createElement('img');
-        img.loading = 'lazy'; img.decoding = 'async'; img.crossOrigin = 'anonymous';
-        setImageForTile(tile, img);
-        tile.appendChild(img);
-        // Label della parola
-        const label = document.createElement('div');
-        label.className = 'word';
-        label.textContent = word;
-        tile.appendChild(label);
-        // Badge della fonte se OpenSymbols (repo presente)
-        if (Array.isArray(id) && id.length === 1 && typeof id[0] === 'object' && id[0].repo) {
-          const repoBadge = document.createElement('span');
-          repoBadge.className = 'repo-badge';
-          repoBadge.textContent = id[0].repo.toUpperCase();
-          repoBadge.style.background = '#e0e7ef';
-          repoBadge.style.color = '#1e293b';
-          repoBadge.style.fontSize = '.75rem';
-          repoBadge.style.fontWeight = 'bold';
-          repoBadge.style.borderRadius = '6px';
-          repoBadge.style.padding = '2px 6px';
-          repoBadge.style.marginLeft = '8px';
-          label.appendChild(repoBadge);
-        }
-        // Contenitore per i badge (tempo, genere, numero)
-        const badgesContainer = document.createElement('div');
-        badgesContainer.className = 'badges';
-        let needBadges = false;
-        // Tempo verbale
-        if (tense === 'past' || tense === 'future' || tense === 'present') {
-          const { emoji, text } = await getTenseBadge(tense);
-          if (emoji || text) {
-            needBadges = true;
-            const badge = document.createElement('div');
-            badge.className = 'badge';
-            if (emoji) {
-              const emojiSpan = document.createElement('span');
-              emojiSpan.style.fontSize = '1.2rem';
-              emojiSpan.textContent = emoji;
-              badge.appendChild(emojiSpan);
-            }
-            const badgeText = document.createElement('span');
-            badgeText.style.fontSize = '.8rem';
-            badgeText.style.color = '#374151';
-            badgeText.textContent = text;
-            badge.appendChild(badgeText);
-            badgesContainer.appendChild(badge);
-          }
-        }
-        // Badge aggiuntivi (genere, numero, pronome)
-        for (const b of badges) {
-          const token = b.token;
-          const type = b.type; // 'genere', 'numero', 'pronome'
-          // Ottieni l'ID del pittogramma o emoji per il token
-          let pictId = null;
-          let emoji = null;
-          
-          try {
-            // Usa emoji per numero se disponibile
-            if (type === 'numero' && BADGE_SYMBOLS[token]) {
-              emoji = BADGE_SYMBOLS[token];
-            } else {
-              // Per 'pronome', usiamo la mappatura per trovare il simbolo corretto (es. mi -> io)
-              let badgeSearchTerm = token;
-              if (type === 'pronome' && PRONOUN_SEARCH_MAP[els.lang.value] && PRONOUN_SEARCH_MAP[els.lang.value][token]) {
-                badgeSearchTerm = PRONOUN_SEARCH_MAP[els.lang.value][token];
-              }
-              pictId = await queryFirstId(els.lang.value || 'it', badgeSearchTerm);
-            }
-          } catch (e) {
-            pictId = null;
-          }
+    async function createTileBadges(tile, tense, badges) {
+      // Contenitore per i badge (tempo, genere, numero)
+      const badgesContainer = document.createElement('div');
+      badgesContainer.className = 'badges';
+      let needBadges = false;
+      // Tempo verbale
+      if (tense === 'past' || tense === 'future' || tense === 'present') {
+        const { emoji, text } = await getTenseBadge(tense);
+        if (emoji || text) {
           needBadges = true;
           const badge = document.createElement('div');
           badge.className = 'badge';
-          
           if (emoji) {
-            // Usa emoji
             const emojiSpan = document.createElement('span');
             emojiSpan.style.fontSize = '1.2rem';
             emojiSpan.textContent = emoji;
             badge.appendChild(emojiSpan);
-          } else if (pictId) {
-            // Usa immagine ARASAAC
-            const badgeImg = document.createElement('img');
-            badgeImg.src = `${STATIC_ROOT}/${pictId}/${pictId}_500.png`;
-            badgeImg.alt = `Indicatore ${type}: ${token}`;
-            badge.appendChild(badgeImg);
           }
           const badgeText = document.createElement('span');
           badgeText.style.fontSize = '.8rem';
           badgeText.style.color = '#374151';
-          badgeText.textContent = token;
+          badgeText.textContent = text;
           badge.appendChild(badgeText);
           badgesContainer.appendChild(badge);
         }
-        // Aggiungi i badge solo se l'utente ha attivato l'opzione
-        const showBadges = els.showGrammarBadges.checked;
-        if (needBadges && showBadges) {
-          tile.appendChild(badgesContainer);
-        }
-      } else {
-        // Nessun id trovato: mostra solo la parola (senza messaggio)
-        const label = document.createElement('div');
-        label.className = 'word';
-        label.textContent = word;
-        tile.appendChild(label);
       }
+      // Badge aggiuntivi (genere, numero, pronome)
+      for (const b of badges) {
+        const token = b.token;
+        const type = b.type; // 'genere', 'numero', 'pronome'
+        // Ottieni l'ID del pittogramma o emoji per il token
+        let pictId = null;
+        let emoji = null;
+        
+        try {
+          // Usa emoji per numero se disponibile
+          if (type === 'numero' && BADGE_SYMBOLS[token]) {
+            emoji = BADGE_SYMBOLS[token];
+          } else {
+            // Per 'pronome', usiamo la mappatura per trovare il simbolo corretto (es. mi -> io)
+            let badgeSearchTerm = token;
+            if (type === 'pronome' && PRONOUN_SEARCH_MAP[els.lang.value] && PRONOUN_SEARCH_MAP[els.lang.value][token]) {
+              badgeSearchTerm = PRONOUN_SEARCH_MAP[els.lang.value][token];
+            }
+            pictId = await queryFirstId(els.lang.value || 'it', badgeSearchTerm);
+          }
+        } catch (e) {
+          pictId = null;
+        }
+        needBadges = true;
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        
+        if (emoji) {
+          // Usa emoji
+          const emojiSpan = document.createElement('span');
+          emojiSpan.style.fontSize = '1.2rem';
+          emojiSpan.textContent = emoji;
+          badge.appendChild(emojiSpan);
+        } else if (pictId) {
+          // Usa immagine ARASAAC
+          const badgeImg = document.createElement('img');
+          badgeImg.src = `${STATIC_ROOT}/${pictId}/${pictId}_500.png`;
+          badgeImg.alt = `Indicatore ${type}: ${token}`;
+          badge.appendChild(badgeImg);
+        }
+        const badgeText = document.createElement('span');
+        badgeText.style.fontSize = '.8rem';
+        badgeText.style.color = '#374151';
+        badgeText.textContent = token;
+        badge.appendChild(badgeText);
+        badgesContainer.appendChild(badge);
+      }
+      // Aggiungi i badge solo se l'utente ha attivato l'opzione
+      const showBadges = els.showGrammarBadges.checked;
+      if (needBadges && showBadges) {
+        tile.appendChild(badgesContainer);
+      }
+    }
+
+    async function createTileActionButtons(tile, word) {
       // Pulsante per aggiungere un simbolo personale
       const addBtn = document.createElement('button');
       addBtn.className = 'add-symbol-btn';
@@ -537,7 +421,7 @@
         }
         tile.dataset.index = String(newIndex);
         
-        console.log(`[Remove] Removed symbol at index ${currentIndex} for "${word}". Remaining: ${currentIds.length}`);
+        dbg(`[Remove] Removed symbol at index ${currentIndex} for "${word}". Remaining: ${currentIds.length}`);
         
         // Aggiorna l'immagine del tile
         const tileImg = tile.querySelector('img');
@@ -634,7 +518,7 @@
         if (currentLang !== 'en') {
           try {
             finalTerm = await translateItToEn(finalTerm);
-            console.log('[Google Search] Translated prompt to English:', finalTerm);
+            dbg('[Google Search] Translated prompt to English:', finalTerm);
           } catch (err) {
             console.warn('[Google Search] Translation of prompt failed:', err);
           }
@@ -777,7 +661,7 @@
               // Salva l'immagine nella cartella locale
               const fileHandle = await saveImageToLocalFolder(imageUrl, word);
               
-              console.log('[GPT Image] Saved AI image for:', word, 'File:', fileHandle.name);
+              dbg('[GPT Image] Saved AI image for:', word, 'File:', fileHandle.name);
               
               // Genera ID univoco e salva il FileHandle nella mappa
               const uniqueId = `local-file::${fileHandle.name}`;
@@ -817,7 +701,7 @@
               if (!customImagesStore[word].includes(uniqueId)) {
                 customImagesStore[word].push(uniqueId);
                 localStorage.setItem('customSymbolImages', JSON.stringify(customImagesStore));
-                console.log('[GPT Image] Saved association:', word, '→', uniqueId);
+                dbg('[GPT Image] Saved association:', word, '→', uniqueId);
               }
               
               // Aggiorna l'immagine del tile
@@ -879,6 +763,123 @@
           document.body.appendChild(dialog);
         }
       }));
+    }
+
+    async function addTile(id, word, skipped = false, tense = null, badges = [], highlight = false, insertBefore = null, container = null) {
+  // Crea un nuovo tile che può contenere più ID (pittogrammi ARASAAC, TAWASOL, OpenSymbols, ecc.) e badge multipli.
+  // insertBefore: se specificato, inserisce il tile prima di questo elemento, altrimenti lo aggiunge in fondo
+  // container: se specificato, aggiunge il tile a questo container invece che a els.res
+  // Puoi passare direttamente un array di simboli come id:
+  // Esempio:
+  // addTile([
+  //   {image_url: 'https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/man.png.varianted-skin.png', name: 'uomo', repo: 'arasaac'},
+  //   {image_url: 'https://d18vdu4p71yql0.cloudfront.net/libraries/tawasol/Man_3.png', name: 'Uomo 3', repo: 'tawasol'}
+  // ], 'uomo');
+      dbg('[addTile] called with id:', id, 'word:', word);
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      if (highlight) {
+        tile.classList.add('inserted');
+      }
+      tile.dataset.word = word;
+      // Se id è una lista (array), utilizzalo, altrimenti trasformalo in array. Quando null o undefined, diventa array vuoto.
+      const ids = Array.isArray(id) ? id : (id ? [id] : []);
+      
+      // Verifica se esistono immagini custom per questa parola e inseriscile all'inizio (in ordine)
+      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      if (customImages[word]) {
+        let customUrls = customImages[word];
+        // Supporto retrocompatibilità: converti da stringa a array
+        if (!Array.isArray(customUrls)) {
+          customUrls = [customUrls];
+        }
+        // Rimuovi eventuali copie già presenti nell'array ids
+        customUrls.forEach(customUrl => {
+          const existingIndex = ids.findIndex(idItem => idItem === customUrl);
+          if (existingIndex !== -1) {
+            ids.splice(existingIndex, 1);
+          }
+        });
+        // Inserisci tutte le immagini custom all'inizio (in ordine inverso per mantenere l'ordine)
+        for (let i = customUrls.length - 1; i >= 0; i--) {
+          const customUrl = customUrls[i];
+          // Se è un ID di file locale (local-file::...), convertilo in oggetto
+          if (typeof customUrl === 'string' && customUrl.startsWith('local-file::')) {
+            const fileName = customUrl.replace('local-file::', '');
+            const localImageObj = {
+              type: 'local-file',
+              id: customUrl,
+              fileName: fileName,
+              word: word
+            };
+            ids.unshift(localImageObj);
+          } else {
+            // Immagine data: URL o altro formato
+            ids.unshift(customUrl);
+          }
+        }
+        dbg('[addTile] Added', customUrls.length, 'custom image(s) at beginning for:', word);
+      }
+      
+      // Verifica se ci sono immagini dalla cartella locale per questa parola
+      const wordLower = word.toLowerCase();
+      if (localImageFiles[wordLower] && localImageFiles[wordLower].length > 0) {
+        const localFiles = localImageFiles[wordLower];
+        dbg('[addTile] Found', localFiles.length, 'local image(s) for:', word);
+        
+        // Converti i FileHandle in oggetti con ID univoci (i FileHandle non sono serializzabili)
+        for (const fileHandle of localFiles) {
+          // Genera un ID univoco basato sul nome del file
+          const uniqueId = `local-file::${fileHandle.name}`;
+          
+          // Salva il FileHandle nella mappa globale
+          localFileHandleMap.set(uniqueId, fileHandle);
+          
+          // Crea un oggetto serializzabile
+          const localImageObj = {
+            type: 'local-file',
+            id: uniqueId,
+            fileName: fileHandle.name,
+            word: word
+          };
+          
+          // Inserisci dopo le immagini custom ma prima delle ARASAAC/OpenSymbols
+          const insertPosition = customImages[word] ? (Array.isArray(customImages[word]) ? customImages[word].length : 1) : 0;
+          ids.splice(insertPosition, 0, localImageObj);
+        }
+        dbg('[addTile] Added', localFiles.length, 'local image(s) for:', word);
+      }
+      
+      dbg('[addTile] ids array after processing:', ids);
+      tile.dataset.ids = JSON.stringify(ids);
+      tile.dataset.index = '0';
+      if (ids.length > 0) {
+        // Crea l'elemento immagine e impostalo in base all'id corrente
+        const img = document.createElement('img');
+        img.loading = 'lazy'; img.decoding = 'async'; img.crossOrigin = 'anonymous';
+        setImageForTile(tile, img);
+        tile.appendChild(img);
+        // Label della parola
+        const label = document.createElement('div');
+        label.className = 'word';
+        label.textContent = word;
+        tile.appendChild(label);
+        // Badge della fonte se OpenSymbols (repo presente)
+        if (Array.isArray(id) && id.length === 1 && typeof id[0] === 'object' && id[0].repo) {
+          const repoBadge = document.createElement('span');
+          repoBadge.className = 'repo-badge';
+          repoBadge.textContent = id[0].repo.toUpperCase();
+          label.appendChild(repoBadge);
+        }
+        await createTileBadges(tile, tense, badges);
+      } else {
+        // Nessun id trovato: mostra solo la parola (senza messaggio)
+        const label = document.createElement('div');
+        label.className = 'word';
+        label.textContent = word;
+        tile.appendChild(label);
+      }
+      await createTileActionButtons(tile, word);
 
       // Gestisce il cambio immagine quando si clicca sul tile (eccetto il pulsante '+')
       // Con Ctrl+Click seleziona il tile per l'unione
@@ -912,330 +913,194 @@
         }
       }
     }
+// openCropEditor is now in js/cropEditor.js
 
-// Funzione per aprire l'editor di ritaglio immagine
-function openCropEditor(imageDataUrl, word, tile) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  `;
+/**
+ * Generic helper to open a search-results modal.
+ * @param {object} options
+ * @param {string}   options.title        - Modal heading text
+ * @param {string}  [options.subtitle]    - Optional secondary line
+ * @param {Array}    options.items        - Array of {src, alt, label?, tooltip?, data?}
+ * @param {function} options.onSelect     - Called with (item, index) when user clicks a card
+ * @param {function}[options.onClose]     - Extra logic when the modal is dismissed
+ * @param {string}  [options.closeBtnLabel] - Button text (defaults to translateUI('close'))
+ * @param {string}  [options.gridClass]   - CSS class for the grid ('gallery-grid' | null)
+ * @param {string}  [options.cardClass]   - CSS class for each card ('symbol-card' | null)
+ * @param {boolean} [options.useTooltipOverlay] - Render tooltip overlay on cards
+ * @returns {{overlay: HTMLElement, modal: HTMLElement, close: function}}
+ */
+function openSearchModal(options) {
+  var title      = options.title || '';
+  var subtitle   = options.subtitle || '';
+  var items      = options.items || [];
+  var onSelect   = options.onSelect;
+  var onClose    = options.onClose;
+  var closeBtnLabel    = options.closeBtnLabel || translateUI('close');
+  var gridClass        = options.gridClass || null;
+  var cardClass        = options.cardClass || null;
+  var useTooltipOverlay = !!options.useTooltipOverlay;
 
-  const title = document.createElement('h2');
-  title.textContent = translateUI('cropEditorTitle');
-  title.style.cssText = 'color: white; margin-bottom: 20px; font-size: 1.5rem;';
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9998;';
 
-  const instruction = document.createElement('p');
-  instruction.textContent = translateUI('cropInstruction');
-  instruction.style.cssText = 'color: #ccc; margin-bottom: 10px;';
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border-radius:12px;padding:24px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;z-index:9999;';
 
-  const canvasContainer = document.createElement('div');
-  canvasContainer.style.cssText = 'position: relative; margin-bottom: 20px;';
+  var heading = document.createElement('h3');
+  heading.textContent = title;
+  heading.style.cssText = 'margin:0 0 10px 0;font-size:1.5rem;color:#1e293b;';
+  modal.appendChild(heading);
 
-  const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'max-width: 90vw; max-height: 60vh; cursor: crosshair; border: 2px solid white;';
-  
-  const ctx = canvas.getContext('2d');
-  
-  // Variabili per la selezione (a livello superiore per essere accessibili ovunque)
-  let isDrawing = false;
-  let startX, startY, currentX, currentY;
-  
-  const img = new Image();
-  img.onload = () => {
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
-    
-    canvas.onmousedown = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      startX = (e.clientX - rect.left) * scaleX;
-      startY = (e.clientY - rect.top) * scaleY;
-      isDrawing = true;
-    };
-    
-    canvas.onmousemove = (e) => {
-      if (!isDrawing) return;
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      currentX = (e.clientX - rect.left) * scaleX;
-      currentY = (e.clientY - rect.top) * scaleY;
-      
-      // Ridisegna l'immagine e il rettangolo di selezione
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      
-      // Disegna overlay scuro
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Cancella l'area selezionata (mostra l'immagine originale)
-      const x = Math.min(startX, currentX);
-      const y = Math.min(startY, currentY);
-      const w = Math.abs(currentX - startX);
-      const h = Math.abs(currentY - startY);
-      ctx.clearRect(x, y, w, h);
-      ctx.drawImage(img, x, y, w, h, x, y, w, h);
-      
-      // Disegna il bordo della selezione
-      ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(x, y, w, h);
-    };
-    
-    canvas.onmouseup = () => {
-      isDrawing = false;
-    };
-  };
-  img.src = imageDataUrl;
+  if (subtitle) {
+    var sub = document.createElement('p');
+    sub.textContent = subtitle;
+    sub.style.cssText = 'margin:0 0 20px 0;color:#64748b;font-size:0.95rem;';
+    modal.appendChild(sub);
+  }
 
-  const btnContainer = document.createElement('div');
-  btnContainer.style.cssText = 'display: flex; gap: 12px;';
+  var grid = document.createElement('div');
+  if (gridClass) {
+    grid.classList.add(gridClass);
+  } else {
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(2,1fr);gap:12px;';
+  }
 
-  const cropBtn = document.createElement('button');
-  cropBtn.textContent = translateUI('cropAndSave');
-  cropBtn.className = 'button';
-  cropBtn.style.cssText = 'padding: 12px 24px; font-size: 1.1rem;';
-  
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = translateUI('cancel');
-  cancelBtn.className = 'button ghost';
-  cancelBtn.style.cssText = 'padding: 12px 24px; font-size: 1.1rem; color: white; border-color: white;';
-
-  cropBtn.onclick = async () => {
-    if (!currentX || !currentY) {
-      alert(translateUI('selectCropArea'));
-      return;
+  items.forEach(function (item, index) {
+    var card = document.createElement('div');
+    if (cardClass) {
+      card.classList.add(cardClass);
+    } else {
+      card.style.cssText = 'cursor:pointer;border:2px solid transparent;border-radius:8px;overflow:hidden;transition:border-color 0.2s;position:relative;';
     }
 
-    cropBtn.disabled = true;
-    cropBtn.textContent = translateUI('croppingInProgress');
-
-    const x = Math.min(startX, currentX);
-    const y = Math.min(startY, currentY);
-    const w = Math.abs(currentX - startX);
-    const h = Math.abs(currentY - startY);
-
-    if (w < 10 || h < 10) {
-  alert(translateUI('cropAreaTooSmall'));
-      cropBtn.disabled = false;
-      cropBtn.textContent = translateUI('cropAndSave');
-      return;
+    var img = document.createElement('img');
+    img.src = item.src;
+    img.alt = item.alt || '';
+    img.loading = 'lazy';
+    img.crossOrigin = 'anonymous';
+    if (!cardClass) {
+      img.style.cssText = 'width:100%;height:150px;object-fit:cover;';
     }
-
-    // Crea un nuovo canvas con l'area ritagliata
-    const croppedCanvas = document.createElement('canvas');
-    croppedCanvas.width = w;
-    croppedCanvas.height = h;
-    const croppedCtx = croppedCanvas.getContext('2d');
-    croppedCtx.drawImage(img, x, y, w, h, 0, 0, w, h);
-
-    // Converti in data URL
-    const croppedDataUrl = croppedCanvas.toDataURL('image/png');
-
-    try {
-      // Salva l'immagine ritagliata
-      const fileHandle = await saveImageToLocalFolder(croppedDataUrl, word);
-      
-      console.log('[Crop] Saved cropped image for:', word);
-      
-      // Aggiorna il tile
-      const uniqueId = `local-file::${fileHandle.name}`;
-      localFileHandleMap.set(uniqueId, fileHandle);
-      
-      const ids = JSON.parse(tile.dataset.ids || '[]');
-      const newLocalFile = { 
-        type: 'local-file', 
-        id: uniqueId,
-        fileName: fileHandle.name,
-        word: word 
-      };
-      
-      ids.unshift(newLocalFile);
-      tile.dataset.ids = JSON.stringify(ids);
-      tile.dataset.index = '0';
-      
-      let tileImg = tile.querySelector('img');
-      if (!tileImg) {
-        // Se non c'è un'immagine, creala
-        tileImg = document.createElement('img');
-        tileImg.style.cssText = 'max-width: 100%; max-height: 130px; object-fit: contain; display: block; margin: 0 auto;';
-        const wordLabel = tile.querySelector('.word');
-        if (wordLabel) {
-          tile.insertBefore(tileImg, wordLabel);
-        } else {
-          tile.insertBefore(tileImg, tile.firstChild);
-        }
+    img.onerror = function () {
+      if (cardClass) {
+        img.style.display = 'none';
+        var errMsg = document.createElement('div');
+        errMsg.textContent = '\u274C';
+        errMsg.style.cssText = 'font-size:2rem;color:#ef4444;padding:20px;';
+        card.appendChild(errMsg);
+      } else {
+        card.style.display = 'none';
       }
-      
-      const file = await fileHandle.getFile();
-      const dataUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(file);
-      });
-      tileImg.src = dataUrl;
-      tileImg.alt = `Simbolo ritagliato per "${word}"`;
-      
-      // Rimuovi eventuale messaggio "nessun pittogramma"
-      const miss = tile.querySelector('.miss');
-      if (miss) miss.remove();
-      
-      document.body.removeChild(overlay);
-      
-    } catch (error) {
-      console.error('[Crop] Failed to save:', error);
-  alert(error.message || translateUI('imageSaveError'));
-      cropBtn.disabled = false;
-      cropBtn.textContent = translateUI('cropAndSave');
+    };
+    card.appendChild(img);
+
+    if (item.label) {
+      var lbl = document.createElement('div');
+      lbl.textContent = item.label;
+      lbl.style.cssText = 'font-size:0.85rem;color:#64748b;';
+      card.appendChild(lbl);
     }
-  };
 
-  cancelBtn.onclick = () => {
-    document.body.removeChild(overlay);
-  };
+    if (useTooltipOverlay && item.tooltip) {
+      var tip = document.createElement('div');
+      tip.textContent = item.tooltip;
+      tip.style.cssText = 'position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:white;font-size:0.7rem;padding:4px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;';
+      card.appendChild(tip);
+    }
 
-  btnContainer.appendChild(cropBtn);
-  btnContainer.appendChild(cancelBtn);
+    if (cardClass) {
+      card.onmouseenter = function () {
+        card.style.borderColor = '#3b82f6';
+        card.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+        card.style.transform = 'translateY(-2px)';
+      };
+      card.onmouseleave = function () {
+        card.style.borderColor = '#e5e7eb';
+        card.style.boxShadow = 'none';
+        card.style.transform = 'translateY(0)';
+      };
+    } else {
+      card.addEventListener('mouseenter', function () {
+        card.style.borderColor = '#2a9df4';
+      });
+      card.addEventListener('mouseleave', function () {
+        card.style.borderColor = 'transparent';
+      });
+    }
 
-  canvasContainer.appendChild(canvas);
+    card.addEventListener('click', function () {
+      if (typeof onSelect === 'function') {
+        onSelect(item, index);
+      }
+    });
 
-  overlay.appendChild(title);
-  overlay.appendChild(instruction);
-  overlay.appendChild(canvasContainer);
-  overlay.appendChild(btnContainer);
+    grid.appendChild(card);
+  });
+
+  modal.appendChild(grid);
+
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = closeBtnLabel;
+  closeBtn.className = 'button ghost';
+  closeBtn.style.cssText = 'margin-top:16px;width:100%;padding:12px;';
+  closeBtn.addEventListener('click', function () {
+    closeFn();
+  });
+  modal.appendChild(closeBtn);
 
   document.body.appendChild(overlay);
+  document.body.appendChild(modal);
+
+  function closeFn() {
+    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    if (modal.parentNode) modal.parentNode.removeChild(modal);
+    if (typeof onClose === 'function') onClose();
+  }
+
+  overlay.addEventListener('click', function () {
+    closeFn();
+  });
+
+  return { overlay: overlay, modal: modal, close: closeFn };
 }
 
 // Funzione per mostrare una galleria di simboli tra cui scegliere
 function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    overflow-y: auto;
-  `;
-
-  const container = document.createElement('div');
-  container.style.cssText = `
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    max-width: 800px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-  `;
-
-  const title = document.createElement('h2');
-  title.textContent = `Scegli un simbolo per "${targetWord}"`;
-  title.style.cssText = 'margin: 0 0 10px 0; font-size: 1.5rem; color: #1e293b;';
-
-  const subtitle = document.createElement('p');
-  subtitle.textContent = `Risultati per: "${searchTerm}" (${symbolIds.length} simboli)`;
-  subtitle.style.cssText = 'margin: 0 0 20px 0; color: #64748b; font-size: 0.95rem;';
-
-  const gallery = document.createElement('div');
-  gallery.classList.add('gallery-grid');
-
-  // Crea una card per ogni simbolo
-  symbolIds.forEach((symbolId, index) => {
-    const card = document.createElement('div');
-    card.classList.add('symbol-card');
-
-  const img = document.createElement('img');
-  // image sizing handled by .symbol-card img CSS
-    img.loading = 'lazy';
-    img.crossOrigin = 'anonymous';
-    
-    console.log('[showSymbolGallery] symbolId:', symbolId, 'type:', typeof symbolId);
-    
-    // Determina l'URL dell'immagine - STESSA LOGICA DI setImageForTile
+  // Build items array with the correct image src for each symbol ID
+  var items = symbolIds.map(function (symbolId, index) {
+    var src = '';
     if (typeof symbolId === 'string' && symbolId.startsWith('data:')) {
-      // Data URL
-      img.src = symbolId;
+      src = symbolId;
     } else if (typeof symbolId === 'object' && symbolId.image_url) {
-      // Caso: simbolo OpenSymbols (TAWASOL, Bliss, ecc.) - USA PROXY CORS
-      const imageUrl = symbolId.image_url.startsWith('http') 
-        ? `https://corsproxy.io/?${encodeURIComponent(symbolId.image_url)}`
+      src = symbolId.image_url.startsWith('http')
+        ? 'https://corsproxy.io/?' + encodeURIComponent(symbolId.image_url)
         : symbolId.image_url;
-      console.log('[showSymbolGallery] OpenSymbols image_url via proxy:', imageUrl);
-      img.src = imageUrl;
     } else if (typeof symbolId === 'object' && symbolId.url) {
-      // Caso: simbolo OpenSymbols (fallback su url SVG) - USA PROXY CORS
-      const imageUrl = symbolId.url.startsWith('http') 
-        ? `https://corsproxy.io/?${encodeURIComponent(symbolId.url)}`
+      src = symbolId.url.startsWith('http')
+        ? 'https://corsproxy.io/?' + encodeURIComponent(symbolId.url)
         : symbolId.url;
-      console.log('[showSymbolGallery] OpenSymbols url via proxy:', imageUrl);
-      img.src = imageUrl;
     } else if (typeof symbolId === 'string' || typeof symbolId === 'number') {
-      // È un ID ARASAAC (stringa o numero)
-      img.src = `${API_ROOT}/${symbolId}?download=false`;
-      console.log('[showSymbolGallery] ARASAAC ID:', symbolId, 'URL:', img.src);
+      src = API_ROOT + '/' + symbolId + '?download=false';
     } else if (symbolId._id) {
-      // Oggetto ARASAAC con _id
-      img.src = `${API_ROOT}/${symbolId._id}?download=false`;
+      src = API_ROOT + '/' + symbolId._id + '?download=false';
     }
-    
-    // Aggiungi gestione errori
-    img.onerror = () => {
-      img.style.display = 'none';
-      const errorMsg = document.createElement('div');
-      errorMsg.textContent = '❌';
-      errorMsg.style.cssText = 'font-size: 2rem; color: #ef4444; padding: 20px;';
-      card.appendChild(errorMsg);
-    };
+    return { src: src, alt: targetWord, label: '#' + (index + 1), data: symbolId };
+  });
 
-    const label = document.createElement('div');
-    label.textContent = `#${index + 1}`;
-    label.style.cssText = 'font-size: 0.85rem; color: #64748b;';
-
-    card.appendChild(img);
-    card.appendChild(label);
-
-    // Hover effect
-    card.onmouseenter = () => {
-      card.style.borderColor = '#3b82f6';
-      card.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
-      card.style.transform = 'translateY(-2px)';
-    };
-    card.onmouseleave = () => {
-      card.style.borderColor = '#e5e7eb';
-      card.style.boxShadow = 'none';
-      card.style.transform = 'translateY(0)';
-    };
-
-    // Click per selezionare
-    card.onclick = () => {
+  var modalRef = openSearchModal({
+    title: 'Scegli un simbolo per "' + targetWord + '"',
+    subtitle: 'Risultati per: "' + searchTerm + '" (' + symbolIds.length + ' simboli)',
+    items: items,
+    gridClass: 'gallery-grid',
+    cardClass: 'symbol-card',
+    closeBtnLabel: translateUI('cancel'),
+    onSelect: function (item, index) {
+      var symbolId = item.data;
       // Aggiorna il tile con il simbolo selezionato
-      const currentIds = JSON.parse(targetTile.dataset.ids || '[]');
-      
+      var currentIds = JSON.parse(targetTile.dataset.ids || '[]');
+
       // Verifica duplicati
-      const isDuplicate = currentIds.some(existingId => {
+      var isDuplicate = currentIds.some(function (existingId) {
         if (typeof existingId === 'string' && typeof symbolId === 'string') {
           return existingId === symbolId;
         }
@@ -1244,55 +1109,39 @@ function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
         }
         return false;
       });
-      
+
       if (!isDuplicate) {
         currentIds.unshift(symbolId);
       }
-      
+
       targetTile.dataset.ids = JSON.stringify(currentIds);
       targetTile.dataset.index = '0';
-      
+
       // SALVA LA SCELTA IN customImages per usarla nei prossimi usi della stessa parola
-      const customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
+      var customImages = JSON.parse(localStorage.getItem('customSymbolImages') || '{}');
       if (!customImages[targetWord]) {
         customImages[targetWord] = [];
       } else if (!Array.isArray(customImages[targetWord])) {
         customImages[targetWord] = [customImages[targetWord]];
       }
-      
+
       // Aggiungi il simbolo scelto in prima posizione se non c'è già
       if (!isDuplicate) {
         customImages[targetWord].unshift(symbolId);
         localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
-        console.log(`[showSymbolGallery] Saved symbol ${JSON.stringify(symbolId)} for word "${targetWord}"`);
+        dbg('[showSymbolGallery] Saved symbol ' + JSON.stringify(symbolId) + ' for word "' + targetWord + '"');
       }
-      
+
       // Aggiorna l'immagine IMMEDIATAMENTE
-      const tileImg = targetTile.querySelector('img');
+      var tileImg = targetTile.querySelector('img');
       if (tileImg) {
-        // Crea un'immagine se non esiste
-        if (!tileImg) {
-          const newImg = document.createElement('img');
-          newImg.loading = 'lazy';
-          newImg.decoding = 'async';
-          newImg.crossOrigin = 'anonymous';
-          const wordLabel = targetTile.querySelector('.word');
-          if (wordLabel) {
-            targetTile.insertBefore(newImg, wordLabel);
-          } else {
-            targetTile.insertBefore(newImg, targetTile.firstChild);
-          }
-          setImageForTile(targetTile, newImg);
-        } else {
-          setImageForTile(targetTile, tileImg);
-        }
+        setImageForTile(targetTile, tileImg);
       } else {
-        // Se non c'è un'immagine, creala
-        const newImg = document.createElement('img');
+        var newImg = document.createElement('img');
         newImg.loading = 'lazy';
         newImg.decoding = 'async';
         newImg.crossOrigin = 'anonymous';
-        const wordLabel = targetTile.querySelector('.word');
+        var wordLabel = targetTile.querySelector('.word');
         if (wordLabel) {
           targetTile.insertBefore(newImg, wordLabel);
         } else {
@@ -1300,39 +1149,20 @@ function showSymbolGallery(symbolIds, searchTerm, targetTile, targetWord) {
         }
         setImageForTile(targetTile, newImg);
       }
-      
+
       // Rimuovi eventuale messaggio "nessun pittogramma trovato"
-      const miss = targetTile.querySelector('.miss');
+      var miss = targetTile.querySelector('.miss');
       if (miss) miss.remove();
-      
-  // Chiudi la galleria
-  document.body.removeChild(overlay);
-  setStatusKey('symbol_selected_saved', { word: targetWord });
-    };
 
-    gallery.appendChild(card);
+      modalRef.close();
+      setStatusKey('symbol_selected_saved', { word: targetWord });
+    }
   });
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = translateUI('cancel');
-  cancelBtn.className = 'button ghost';
-  cancelBtn.style.cssText = 'width: 100%; padding: 12px;';
-  cancelBtn.onclick = () => {
-    document.body.removeChild(overlay);
-  };
-
-  container.appendChild(title);
-  container.appendChild(subtitle);
-  container.appendChild(gallery);
-  container.appendChild(cancelBtn);
-
-  overlay.appendChild(container);
-  document.body.appendChild(overlay);
 }
       
 // Funzione per cercare immagini sul web e mostrarle in una modale
 async function searchWebImages(tile, word) {
-  console.log('[Web Search] Searching images for:', word);
+  dbg('[Web Search] Searching images for:', word);
   
   // Usa Wikipedia/Wikimedia Commons API (lingua basata sulla selezione corrente)
   const lang = (document.getElementById('lang') || { value: 'it' }).value || localStorage.getItem('appLang') || 'it';
@@ -1371,101 +1201,28 @@ async function searchWebImages(tile, word) {
       return;
     }
     
-    console.log('[Web Search] Found', images.length, 'images');
-    
-    // Crea modale per mostrare le immagini
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 9998;
-    `;
-    
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 800px;
-      max-height: 80vh;
-      overflow-y: auto;
-      z-index: 9999;
-    `;
-    
-    const title = document.createElement('h3');
-    title.textContent = `Scegli un'immagine per "${word}"`;
-    title.style.cssText = 'margin: 0 0 16px 0;';
-    modal.appendChild(title);
-    
-    const grid = document.createElement('div');
-    grid.style.cssText = 'display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;';
-    
-    images.forEach((image, index) => {
-      const imgContainer = document.createElement('div');
-      imgContainer.style.cssText = 'cursor: pointer; border: 2px solid transparent; border-radius: 8px; overflow: hidden; transition: border-color 0.2s; position: relative;';
-      
-      const img = document.createElement('img');
-      img.src = image.thumbnail;
-      img.style.cssText = 'width: 100%; height: 150px; object-fit: cover;';
-      img.onerror = () => {
-        // Se l'immagine non si carica, nascondi il container
-        imgContainer.style.display = 'none';
+    dbg('[Web Search] Found', images.length, 'images');
+
+    // Build items for the generic modal helper
+    var modalItems = images.map(function (image) {
+      return {
+        src: image.thumbnail,
+        alt: image.title || word,
+        tooltip: image.title || '',
+        data: image
       };
-      
-      imgContainer.appendChild(img);
-      
-      // Aggiungi tooltip con il titolo
-      if (image.title) {
-        const tooltip = document.createElement('div');
-        tooltip.textContent = image.title;
-        tooltip.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; font-size: 0.7rem; padding: 4px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;';
-        imgContainer.appendChild(tooltip);
+    });
+
+    var modalRef = openSearchModal({
+      title: 'Scegli un\'immagine per "' + word + '"',
+      items: modalItems,
+      useTooltipOverlay: true,
+      onSelect: function (item) {
+        var selectedImageUrl = item.data.full;
+        modalRef.close();
+        saveWebImageToTile(tile, word, selectedImageUrl);
       }
-      
-      imgContainer.addEventListener('mouseenter', () => {
-        imgContainer.style.borderColor = '#2a9df4';
-      });
-      
-      imgContainer.addEventListener('mouseleave', () => {
-        imgContainer.style.borderColor = 'transparent';
-      });
-      
-      imgContainer.addEventListener('click', async () => {
-        // Usa l'immagine full size
-        const selectedImageUrl = image.full;
-        document.body.removeChild(overlay);
-        document.body.removeChild(modal);
-        
-        // Scarica e salva l'immagine
-        await saveWebImageToTile(tile, word, selectedImageUrl);
-      });
-      
-      grid.appendChild(imgContainer);
     });
-    
-    modal.appendChild(grid);
-    
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = translateUI('close');
-    closeBtn.className = 'button ghost';
-    closeBtn.style.cssText = 'margin-top: 16px; width: 100%;';
-    closeBtn.addEventListener('click', () => {
-      document.body.removeChild(overlay);
-      document.body.removeChild(modal);
-    });
-    
-    modal.appendChild(closeBtn);
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(modal);
     
   } catch (error) {
     console.error('[Web Search] Error:', error);
@@ -1475,7 +1232,7 @@ async function searchWebImages(tile, word) {
 
 // Funzione per ricerca immagini Google Custom Search
 async function searchGoogleImages(tile, word) {
-  console.log('[Google Search] Searching images for:', word);
+  dbg('[Google Search] Searching images for:', word);
   
   // Verifica credenziali
   if (!googleApiKey || !googleCx) {
@@ -1489,9 +1246,9 @@ async function searchGoogleImages(tile, word) {
     const currentLang = els.lang.value || 'it';
     if (currentLang !== 'en') {
       try {
-        console.log('[Google Search] Translating to English:', word);
+        dbg('[Google Search] Translating to English:', word);
         searchTerm = await translateItToEn(word);
-        console.log('[Google Search] English term:', searchTerm);
+        dbg('[Google Search] English term:', searchTerm);
       } catch (err) {
         console.warn('[Google Search] Translation failed, using original term:', err);
         searchTerm = word;
@@ -1527,101 +1284,32 @@ async function searchGoogleImages(tile, word) {
       context: item.displayLink
     }));
     
-    console.log('[Google Search] Found', images.length, 'images');
-    
-    // Crea modale identica a quella di Wikipedia
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 9998;
-    `;
-    
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 800px;
-      max-height: 80vh;
-      overflow-y: auto;
-      z-index: 9999;
-    `;
-    
-    const title = document.createElement('h3');
-    title.textContent = `Scegli un'immagine per "${word}" (Google)`;
-    title.style.cssText = 'margin: 0 0 16px 0;';
-    modal.appendChild(title);
-    
-    const grid = document.createElement('div');
-    grid.style.cssText = 'display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;';
-    
-    images.forEach((image, index) => {
-      const imgContainer = document.createElement('div');
-      imgContainer.style.cssText = 'cursor: pointer; border: 2px solid transparent; border-radius: 8px; overflow: hidden; transition: border-color 0.2s; position: relative;';
-      
-      const img = document.createElement('img');
-      img.src = image.thumbnail;
-      img.style.cssText = 'width: 100%; height: 150px; object-fit: cover;';
-      img.onerror = () => {
-        imgContainer.style.display = 'none';
+    dbg('[Google Search] Found', images.length, 'images');
+
+    // Build items for the generic modal helper
+    var modalItems = images.map(function (image) {
+      return {
+        src: image.thumbnail,
+        alt: image.title || word,
+        tooltip: (image.title || '') + ' (' + (image.context || '') + ')',
+        data: image
       };
-      
-      imgContainer.appendChild(img);
-      
-      // Tooltip con titolo e fonte
-      if (image.title || image.context) {
-        const tooltip = document.createElement('div');
-        tooltip.textContent = `${image.title || ''} (${image.context || ''})`;
-        tooltip.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; font-size: 0.7rem; padding: 4px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;';
-        imgContainer.appendChild(tooltip);
-      }
-      
-      imgContainer.addEventListener('mouseenter', () => {
-        imgContainer.style.borderColor = '#2a9df4';
-      });
-      
-      imgContainer.addEventListener('mouseleave', () => {
-        imgContainer.style.borderColor = 'transparent';
-      });
-      
-      imgContainer.addEventListener('click', async () => {
+    });
+
+    var modalRef = openSearchModal({
+      title: 'Scegli un\'immagine per "' + word + '" (Google)',
+      items: modalItems,
+      useTooltipOverlay: true,
+      onSelect: function (item) {
         try {
-          await saveWebImageToTile(tile, word, image.full);
-          document.body.removeChild(overlay);
-          document.body.removeChild(modal);
+          modalRef.close();
+          saveWebImageToTile(tile, word, item.data.full);
         } catch (err) {
           console.error('[Google Search] Error saving image:', err);
           alert(translateUI('genericSaveErrorWithMsg', { msg: err.message }));
         }
-      });
-      
-      grid.appendChild(imgContainer);
+      }
     });
-    
-    modal.appendChild(grid);
-    
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = translateUI('close');
-    closeBtn.className = 'button ghost';
-    closeBtn.style.cssText = 'margin-top: 16px; width: 100%;';
-    closeBtn.onclick = () => {
-      document.body.removeChild(overlay);
-      document.body.removeChild(modal);
-    };
-    
-    modal.appendChild(closeBtn);
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(modal);
     
   } catch (error) {
     console.error('[Google Search] Error:', error);
@@ -1632,7 +1320,7 @@ async function searchGoogleImages(tile, word) {
 // Funzione per salvare immagine web nel tile
 async function saveWebImageToTile(tile, word, imageUrl) {
   try {
-    console.log('[Web Image] Saving image for:', word, 'URL:', imageUrl);
+    dbg('[Web Image] Saving image for:', word, 'URL:', imageUrl);
     
     // Lista di proxy CORS da provare in ordine
     const corsProxies = [
@@ -1652,7 +1340,7 @@ async function saveWebImageToTile(tile, word, imageUrl) {
         const fetchUrl = `${proxy}${encodeURIComponent(imageUrl)}`;
         
         try {
-          console.log(`[Web Image] Attempt ${i + 1}/${corsProxies.length} using proxy:`, proxy);
+          dbg(`[Web Image] Attempt ${i + 1}/${corsProxies.length} using proxy:`, proxy);
           const response = await fetch(fetchUrl);
           
           if (!response.ok) {
@@ -1660,7 +1348,7 @@ async function saveWebImageToTile(tile, word, imageUrl) {
           }
           
           blob = await response.blob();
-          console.log('[Web Image] Downloaded blob size:', blob.size, 'type:', blob.type);
+          dbg('[Web Image] Downloaded blob size:', blob.size, 'type:', blob.type);
           
           // Verifica che sia davvero un'immagine
           if (!blob.type.startsWith('image/')) {
@@ -1689,7 +1377,7 @@ async function saveWebImageToTile(tile, word, imageUrl) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       blob = await response.blob();
-      console.log('[Web Image] Downloaded blob size:', blob.size, 'type:', blob.type);
+      dbg('[Web Image] Downloaded blob size:', blob.size, 'type:', blob.type);
     }
     
     // Converti in data URL
@@ -1714,7 +1402,7 @@ async function saveWebImageToTile(tile, word, imageUrl) {
       img.src = dataUrl;
     });
     
-    console.log('[Web Image] Image loaded, dimensions:', img.width, 'x', img.height);
+    dbg('[Web Image] Image loaded, dimensions:', img.width, 'x', img.height);
     
     const maxSize = 800;
     let width = img.width;
@@ -1749,7 +1437,7 @@ async function saveWebImageToTile(tile, word, imageUrl) {
       // Salva usando la funzione esistente
       const fileHandle = await saveImageToLocalFolder(compressedBlob, word);
       
-      console.log('[Web Image] Saved to local folder:', fileHandle.name);
+      dbg('[Web Image] Saved to local folder:', fileHandle.name);
       
       // Genera ID univoco e salva il FileHandle nella mappa
       const uniqueId = `local-file::${fileHandle.name}`;
@@ -1779,7 +1467,7 @@ async function saveWebImageToTile(tile, word, imageUrl) {
       if (!customImages[word].includes(uniqueId)) {
         customImages[word].push(uniqueId);
         localStorage.setItem('customSymbolImages', JSON.stringify(customImages));
-        console.log('[Web Image] Saved association:', word, '→', uniqueId);
+        dbg('[Web Image] Saved association:', word, '→', uniqueId);
       }
       
       // Aggiorna l'immagine del tile
@@ -1810,7 +1498,7 @@ async function saveWebImageToTile(tile, word, imageUrl) {
       const miss = tile.querySelector('.miss');
       if (miss) miss.remove();
       
-      console.log('[Web Image] Image saved and tile updated successfully');
+      dbg('[Web Image] Image saved and tile updated successfully');
       
     } catch (err) {
       console.error('[Web Image] Could not save to local folder:', err);
@@ -1851,15 +1539,15 @@ async function saveWebImageToTile(tile, word, imageUrl) {
 
       const mergedPhrase = words.join(' ');
       
-      console.log('[Merge] Unendo simboli:', words, '→', mergedPhrase);
+      dbg('[Merge] Unendo simboli:', words, '→', mergedPhrase);
       
       // Salva la posizione del primo tile E il suo container prima di rimuoverli
       const firstTile = tilesArray[0];
       const targetContainer = firstTile.parentNode; // Salva il container (sentence-box o els.res)
       let insertPosition = firstTile.nextSibling;
       
-      console.log('[Merge] Container del primo tile:', targetContainer);
-      console.log('[Merge] insertPosition:', insertPosition);
+      dbg('[Merge] Container del primo tile:', targetContainer);
+      dbg('[Merge] insertPosition:', insertPosition);
       
       // Verifica che insertPosition non sia uno dei tile che stiamo per rimuovere
       while (insertPosition && selectedTiles.has(insertPosition)) {
@@ -1883,11 +1571,11 @@ async function saveWebImageToTile(tile, word, imageUrl) {
         const ids = [...(idsObj.arasaacIds || []), ...(idsObj.openSymbols || [])];
         
           if (ids && ids.length > 0) {
-            console.log('[Merge] Simbolo trovato per:', mergedPhrase);
+            dbg('[Merge] Simbolo trovato per:', mergedPhrase);
             await addTile(ids, mergedPhrase, false, null, [], false, insertPosition, targetContainer);
             setStatusKey('merged_symbol_found', { phrase: mergedPhrase });
           } else {
-            console.log('[Merge] Nessun simbolo trovato per:', mergedPhrase);
+            dbg('[Merge] Nessun simbolo trovato per:', mergedPhrase);
             await addTile([], mergedPhrase, false, null, [], false, insertPosition, targetContainer);
             setStatusKey('merged_symbol_not_found', { phrase: mergedPhrase });
           }
